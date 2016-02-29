@@ -1,4 +1,4 @@
-PROG=day4part1
+PROG=day4
 
 INCLUDES=
 A_FILES=

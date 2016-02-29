@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <string.h>		/* strncpy */
+#include <stdlib.h>		/* atoi */
 
 /* may be a better include */
 #include <openssl/md5.h>
 
+/* output len is always 33 */
 static void _md5_string(const char *input, size_t input_len, char *output)
 {
 	int i;
@@ -28,27 +30,26 @@ static void _md5_string(const char *input, size_t input_len, char *output)
 	}
 }
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
 	const char *prefix;
 	char input[80];
 	char output[33];
-	unsigned i, j, found;
+	unsigned i, j, leading_zeros, found;
 
-	if (argc > 1) {
-		prefix = argv[1];
-	} else {
-		prefix = "iwrupvqb";
-	}
+	leading_zeros = (argc > 1) ? (unsigned)atoi(argv[1]) : 5;
+	prefix = (argc > 2) ? argv[2] : "iwrupvqb";
+
 	found = 0;
 	for (i = 0; !found; ++i) {
 		snprintf(input, 80, "%s%u", prefix, i);
 		_md5_string(input, strnlen(input, 80), output);
 		found = 1;
-		for (j = 0; j < 5; j++) {
+		for (j = 0; j < leading_zeros; j++) {
 			found = found && (output[j] == '0');
 		}
 	}
 	printf("digest [%s]: %s\n", input, output);
-	return 0;
+
+	return (found == 1) ? 0 : 1;
 }
