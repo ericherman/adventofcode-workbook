@@ -40,8 +40,8 @@ static unsigned int make_key(char *key, int x, int y)
 static void null_and_free(const char *each_key, size_t each_key_len,
 			  void *each_val, void *context)
 {
-	struct ehht_s *houses = (struct ehht_s *)context;
-	ehht_put(houses, each_key, each_key_len, NULL);
+	struct ehht_s *houses_1 = (struct ehht_s *)context;
+	ehht_put(houses_1, each_key, each_key_len, NULL);
 	free(each_val);
 }
 
@@ -49,11 +49,11 @@ int main(int argc, char **argv)
 {
 	const char *path = "input";
 	FILE *input;
-	int c, x, y, ignore;
+	int c, x, y, ax, ay, bx, by, ignore;
 	struct house_s *house;
 	struct ehht_s *houses;
 	char key[EKH_HOUSE_KEY_BUF_LEN];
-	unsigned total_presents, max_presents;
+	unsigned a_or_b, total_presents, max_presents;
 	size_t key_len;
 
 	if (argc > 1) {
@@ -68,16 +68,26 @@ int main(int argc, char **argv)
 
 	houses = ehht_new(0, NULL);
 	house = new_house(0, 0);
-	house->presents = 1;
-	total_presents = 1;
-	max_presents = 1;
+	ax = 0;
+	ay = 0;
+	bx = 0;
+	by = 0;
+	house->presents = 2;
+	total_presents = 2;
+	max_presents = 2;
+	a_or_b = 0;
 
 	key_len = make_key(key, house->x, house->y);
 	ehht_put(houses, key, key_len, house);
 
 	while ((c = fgetc(input)) != EOF) {
-		x = house->x;
-		y = house->y;
+		if ((a_or_b % 2) == 0) {
+			x = ax;
+			y = ay;
+		} else {
+			x = bx;
+			y = by;
+		}
 		ignore = 0;
 		switch (c) {
 		case '^':
@@ -109,6 +119,14 @@ int main(int argc, char **argv)
 			if (house->presents > max_presents) {
 				max_presents = house->presents;
 			}
+			if ((a_or_b % 2) == 0) {
+				ax = x;
+				ay = y;
+			} else {
+				bx = x;
+				by = y;
+			}
+			++a_or_b;
 		}
 	}
 
