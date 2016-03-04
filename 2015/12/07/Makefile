@@ -1,4 +1,4 @@
-PROG=day7part1
+PROG=day7
 LIBEHHT=$(HOME)/src/libehht
 LIBEHSTR=$(HOME)/src/libehstr
 

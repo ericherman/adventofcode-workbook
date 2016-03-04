@@ -326,6 +326,14 @@ static int satisfy_next(const char *each_key, size_t each_key_len,
 	return 0;
 }
 
+static int set_null_and_free(const char *each_key, size_t each_key_len,
+			     void *each_val, void *context)
+{
+	ehht_put((struct ehht_s *)context, each_key, each_key_len, NULL);
+	free_op_s((struct op_s *)each_val);
+	return 0;
+}
+
 int main(int argc, char **argv)
 {
 	const char *path;
@@ -358,6 +366,12 @@ int main(int argc, char **argv)
 	}
 	fclose(input);
 
+	if (argc > 2) {
+		a = ehht_get(wires, "b", 1);
+		free(a->in1);
+		a->in1 = strdup(argv[2]);
+	}
+
 	a = ehht_get(wires, "a", 1);
 	if (a == NULL) {
 		fprintf(stderr, "no element 'a'\n");
@@ -379,6 +393,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+	ehht_foreach_element(wires, set_null_and_free, wires);
 	ehht_free(wires);
 
 	return 0;
