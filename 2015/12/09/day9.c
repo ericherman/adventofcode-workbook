@@ -146,7 +146,7 @@ int main(int argc, char **argv)
 	const char *input_file_name;
 	FILE *input;
 	char buf[BUF_LEN], from[NAME_MAX], to[NAME_MAX];
-	unsigned dist, best_dist;
+	unsigned dist, best_dist, worst_dist;
 	int matched;
 	struct ehht_s *names;
 	struct ehht_s *legs;
@@ -201,19 +201,26 @@ int main(int argc, char **argv)
 	tmp_list->size = master_name_list->size;
 
 	best_dist = (unsigned)-1;	/* max_distance */
+	worst_dist = 0;
 	for (i = 0; i < combos; ++i) {
 		permute(i, master_name_list->names, tmp_list->names,
 			master_name_list->size, buf, sizeof(char *));
 		dist = distance(tmp_list, legs);
-		if (dist < best_dist) {
-			best_dist = dist;
-			printf("%u: ", best_dist);
+		if (dist > worst_dist || dist < best_dist) {
+			printf("%u: ", dist);
 			for (j = 0; j < tmp_list->size; ++j) {
 				printf("%s ", tmp_list->names[j]);
 			}
 			printf("\n");
+			if (dist < best_dist) {
+				best_dist = dist;
+			} else {
+				worst_dist = dist;
+			}
 		}
 	}
+
+	printf("best: %u, worst: %u\n", best_dist, worst_dist);
 
 	return 0;
 }
