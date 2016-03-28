@@ -71,7 +71,7 @@ int calc_happiness(struct name_list_s *seating, struct ehht_s *combos,
 			len = from_to_key(from, to, buf, BUF_LEN);
 			combo = ehht_get(combos, buf, len);
 			if (!combo) {
-				fprintf(stderr, "could find %s\n", buf);
+				fprintf(stderr, "could not find %s\n", buf);
 				exit(EXIT_FAILURE);
 			}
 			happiness += combo->happiness;
@@ -179,15 +179,16 @@ int main(int argc, char **argv)
 	FILE *input;
 	char buf[BUF_LEN], from[NBUF_LEN], sort[5], to[NBUF_LEN];
 	int happiness, best_happiness, worst_happiness;
-	int matched, verbose;
+	int matched, include_you, verbose;
 	struct ehht_s *names;
 	struct ehht_s *combos;
 	struct combo_s *combo;
 	struct name_list_s *tmp_list, *master_name_list;
 	size_t i, j, len, perms;
 
-	verbose = (argc > 1) ? atoi(argv[1]) : 0;
-	input_file_name = (argc > 2) ? argv[2] : "input";
+	include_you = (argc > 1) ? atoi(argv[1]) : 0;
+	verbose = (argc > 2) ? atoi(argv[2]) : 0;
+	input_file_name = (argc > 3) ? argv[3] : "input";
 	input = fopen(input_file_name, "r");
 	if (!input) {
 		fprintf(stderr, "could not open %s\n", input_file_name);
@@ -196,6 +197,9 @@ int main(int argc, char **argv)
 
 	combos = ehht_new(0, NULL);
 	names = ehht_new(0, NULL);
+	if (include_you) {
+		ehht_put(names, "you", strlen("you"), NULL);
+	}
 
 	combo = NULL;
 	while (fgets(buf, 255, input)) {
@@ -214,6 +218,27 @@ int main(int argc, char **argv)
 			combo = new_combo(from, to, happiness);
 			len = to_key(combo, buf, BUF_LEN);
 			ehht_put(combos, buf, len, combo);
+			if (verbose > 1) {
+				printf("%s -> %s: %d (%p)\n", from, to,
+				       happiness, (void *)combo);
+			}
+
+			if (include_you) {
+				combo = new_combo(from, "you", 0);
+				len = to_key(combo, buf, BUF_LEN);
+				ehht_put(combos, buf, len, combo);
+				if (verbose > 1) {
+					printf("%s -> %s: %d (%p)\n", from, to,
+					       happiness, (void *)combo);
+				}
+				combo = new_combo("you", from, 0);
+				len = to_key(combo, buf, BUF_LEN);
+				ehht_put(combos, buf, len, combo);
+				if (verbose > 1) {
+					printf("%s -> %s: %d (%p)\n", from, to,
+					       happiness, (void *)combo);
+				}
+			}
 		}
 	}
 	fclose(input);
