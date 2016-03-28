@@ -31,7 +31,6 @@ long cscore(unsigned spkl, unsigned pb, unsigned frst, unsigned sug, int cal)
 	capacity =
 	    sprinkles.capacity * spkl + pbutter.capacity * pb +
 	    frosting.capacity * frst + sugar.capacity * sug;
-
 	durability =
 	    sprinkles.durability * spkl + pbutter.durability * pb +
 	    frosting.durability * frst + sugar.durability * sug;
@@ -46,7 +45,10 @@ long cscore(unsigned spkl, unsigned pb, unsigned frst, unsigned sug, int cal)
 		calories =
 		    sprinkles.calories * spkl + pbutter.calories * pb +
 		    frosting.calories * frst + sugar.calories * sug;
-		assert(calories);
+
+		if (calories != cal) {
+			return 0;
+		}
 	}
 
 	if (capacity < 0) {
