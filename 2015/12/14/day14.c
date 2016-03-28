@@ -21,24 +21,25 @@ struct deerspeed_s {
 
 	unsigned char seconds_left;
 	unsigned distance;
+	unsigned leading;
 	unsigned char resting;
 };
 
 int main(int argc, char **argv)
 {
-	size_t i, j, best, seconds;
+	size_t i, j, best_distance, best_leading, seconds;
 	struct deerspeed_s *d;
 	struct deerspeed_s deer[] = {
-		{"Dancer", 27, 5, 132, 0, 0, 0},
-		{"Cupid", 22, 2, 41, 0, 0, 0},
-		{"Rudolph", 11, 5, 48, 0, 0, 0},
-		{"Donner", 28, 5, 134, 0, 0, 0},
-		{"Dasher", 4, 16, 55, 0, 0, 0},
-		{"Blitzen", 14, 3, 38, 0, 0, 0},
-		{"Prancer", 3, 21, 40, 0, 0, 0},
-		{"Comet", 18, 6, 103, 0, 0, 0},
-		{"Vixen", 18, 5, 84, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0}
+		{"Dancer", 27, 5, 132, 0, 0, 0, 0},
+		{"Cupid", 22, 2, 41, 0, 0, 0, 0},
+		{"Rudolph", 11, 5, 48, 0, 0, 0, 0},
+		{"Donner", 28, 5, 134, 0, 0, 0, 0},
+		{"Dasher", 4, 16, 55, 0, 0, 0, 0},
+		{"Blitzen", 14, 3, 38, 0, 0, 0, 0},
+		{"Prancer", 3, 21, 40, 0, 0, 0, 0},
+		{"Comet", 18, 6, 103, 0, 0, 0, 0},
+		{"Vixen", 18, 5, 84, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0}
 	};
 
 	seconds = (argc > 1) ? atoi(argv[1]) : 2503;
@@ -48,6 +49,7 @@ int main(int argc, char **argv)
 	}
 
 	for (i = 0; i < seconds; ++i) {
+		best_distance = 0;
 		for (j = 0; j < 9; ++j) {
 			d = &deer[j];
 			if (d->resting) {
@@ -64,18 +66,40 @@ int main(int argc, char **argv)
 					d->seconds_left = d->rest;
 				}
 			}
+			if (d->distance > best_distance) {
+				best_distance = d->distance;
+			}
+		}
+		for (j = 0; j < 9; ++j) {
+			d = &deer[j];
+			if (d->distance == best_distance) {
+				++d->leading;
+			}
 		}
 	}
 
-	for (best = 0, j = 0, i = 0; i < 9; ++i) {
+	best_distance = 0;
+	best_leading = 0;
+	for (i = 0; i < 9; ++i) {
 		d = &deer[i];
-		printf("%s: %u\n", d->name, d->distance);
-		if (d->distance > best) {
-			best = d->distance;
-			j = i;
+		printf("%s: distance: %u leading: %u\n", d->name, d->distance,
+		       d->leading);
+		if (d->distance > best_distance) {
+			best_distance = d->distance;
+		}
+		if (d->leading > best_leading) {
+			best_leading = d->leading;
 		}
 	}
-	d = &deer[j];
-	printf("Winner %s: %u\n", d->name, d->distance);
+	for (i = 0; i < 9; ++i) {
+		d = &deer[i];
+		if (d->distance == best_distance) {
+			printf("Distance winner %s: %u\n", d->name,
+			       d->distance);
+		}
+		if (d->leading == best_leading) {
+			printf("Leading winner %s: %u\n", d->name, d->leading);
+		}
+	}
 	return 0;
 }
