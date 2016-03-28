@@ -15,6 +15,7 @@ int main(int argc, char **argv)
 
 	val = 0;
 	total = 0;
+	lc = '\0';
 	while ((c = fgetc(input)) != EOF) {
 		if (c >= '0' && c <= '9') {
 			i = (c - '0');;
