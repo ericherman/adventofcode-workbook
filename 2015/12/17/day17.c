@@ -89,18 +89,41 @@ size_t print_containers_bits(char *buf, size_t buf_len,
 	return pos;
 }
 
+unsigned short int bits_on(size_t n)
+{
+	size_t i;
+	unsigned short int bits_on;
+
+	for (bits_on = 0, i = 0; i < __WORDSIZE; ++i) {
+		if (n & (1 << i)) {
+			++bits_on;
+		}
+	}
+
+	return bits_on;
+}
+
 size_t find_combos(struct container_s **containers, size_t num_containers,
-		   unsigned target, struct ehht_s *table, int verbose)
+		   unsigned target, int min_only, struct ehht_s *table,
+		   int verbose)
 {
 	int len;
 	size_t i, max;
+	unsigned short int num_on, min_num_on;
 	char buf1[BUF_LEN];
 	char buf2[BUF_LEN];
 
+	min_num_on = num_containers;
 	max = 1 << (num_containers);
 
 	for (i = 0; i < max; ++i) {
-		if (capacity_of(containers, num_containers, i) == target) {
+		num_on = min_only ? bits_on(i) : 0;
+		if (num_on <= min_num_on
+		    && capacity_of(containers, num_containers, i) == target) {
+			if (num_on < min_num_on) {
+				ehht_clear(table);
+				min_num_on = num_on;
+			}
 			len = snprintf(buf1, BUF_LEN, "%lu", (unsigned long)i);
 			if (len < 0) {
 				fprintf(stderr, "could not write to buf[%lu]\n",
@@ -124,15 +147,16 @@ int main(int argc, char **argv)
 	const char *input_file_name;
 	FILE *input;
 	char buf[BUF_LEN];
-	int matched, verbose;
+	int matched, verbose, min_only;
 	unsigned capacity, target;
 	struct ehht_s *table;
 	struct container_s *container, **containers;
 	size_t i, len, num_containers;
 
-	verbose = (argc > 1) ? atoi(argv[1]) : 0;
-	target = (argc > 2) ? (unsigned)atoi(argv[2]) : 150;
-	input_file_name = (argc > 3) ? argv[3] : "input";
+	min_only = (argc > 1) ? atoi(argv[1]) : 0;
+	verbose = (argc > 2) ? atoi(argv[2]) : 0;
+	target = (argc > 3) ? (unsigned)atoi(argv[3]) : 150;
+	input_file_name = (argc > 4) ? argv[4] : "input";
 	input = fopen(input_file_name, "r");
 	if (!input) {
 		fprintf(stderr, "could not open %s\n", input_file_name);
@@ -162,7 +186,8 @@ int main(int argc, char **argv)
 		containers[i] = container;
 	}
 
-	find_combos(containers, num_containers, target, table, verbose);
+	find_combos(containers, num_containers, target, min_only, table,
+		    verbose);
 
 	printf("solutions: %u\n", (unsigned)ehht_size(table));
 
