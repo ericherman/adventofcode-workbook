@@ -40,7 +40,7 @@ static size_t from_to_key(const char *from, const char *to, char *buf,
 			(unsigned long)buf_len);
 		exit(EXIT_FAILURE);
 	}
-	return (size_t) s;
+	return (size_t)s;
 }
 
 static size_t to_key(struct combo_s *p, char *buf, size_t buf_len)
@@ -195,8 +195,8 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	combos = ehht_new(0, NULL);
-	names = ehht_new(0, NULL);
+	combos = ehht_new(0, NULL, NULL, NULL, NULL);
+	names = ehht_new(0, NULL, NULL, NULL, NULL);
 	if (include_you) {
 		ehht_put(names, "you", strlen("you"), NULL);
 	}

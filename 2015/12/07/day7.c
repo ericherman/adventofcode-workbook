@@ -116,7 +116,8 @@ static int to_string_each(const char *each_key, size_t each_key_len,
 
 	o = (struct op_s *)each_val;
 	to_string_op_s(o, buf, 100);
-	fprintf(stderr, "Key: %s (%lu) Val: %s\n", each_key, each_key_len, buf);
+	fprintf(stderr, "Key: %s (%lu) Val: %s\n", each_key,
+		(unsigned long)each_key_len, buf);
 	if (context) {
 		fprintf(stderr, "%p\n", context);
 	}
@@ -182,7 +183,7 @@ static struct op_s *parse_token(char *buf, size_t buf_len)
 		ops->in1 = strndup(token[0], TOKEN_BUF_LEN);
 		break;
 	default:
-	      token_parse_error:
+token_parse_error:
 		fprintf(stderr, "buf: '%s' mis-parsed", buf);
 		fprintf(stderr, " as out: %s := (%s %s %s)\n",
 			out, token[0], token[1], token[2]);
@@ -352,7 +353,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	wires = ehht_new(0, NULL);
+	wires = ehht_new(0, NULL, NULL, NULL, NULL);
 	while (fgets(buf, 80, input)) {
 		trimstr(buf, 80);
 		ops = parse_token(buf, 80);

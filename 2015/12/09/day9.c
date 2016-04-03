@@ -161,8 +161,8 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	legs = ehht_new(0, NULL);
-	names = ehht_new(0, NULL);
+	legs = ehht_new(0, NULL, NULL, NULL, NULL);
+	names = ehht_new(0, NULL, NULL, NULL, NULL);
 
 	leg = NULL;
 	while (fgets(buf, 255, input)) {
