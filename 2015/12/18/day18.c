@@ -52,12 +52,13 @@ int main(int argc, char **argv)
 	unsigned int total;
 	char *from, *to, *last;
 	char from_c, to_c;
-	int x, y, i, grid_size, steps, verbose, n_on;
+	int x, y, i, grid_size, steps, verbose, n_on, corners_stuck;
 
-	steps = (argc > 1) ? atoi(argv[1]) : 100;
-	input_file_name = (argc > 2) ? argv[2] : "input";
-	grid_size = (argc > 3) ? atoi(argv[3]) : 100;
-	verbose = (argc > 4) ? atoi(argv[4]) : 0;
+	corners_stuck = (argc > 1) ? atoi(argv[1]) : 0;
+	steps = (argc > 2) ? atoi(argv[2]) : 100;
+	input_file_name = (argc > 3) ? argv[3] : "input";
+	grid_size = (argc > 4) ? atoi(argv[4]) : 100;
+	verbose = (argc > 5) ? atoi(argv[5]) : 0;
 
 	input = fopen(input_file_name, "r");
 	if (!input) {
@@ -103,13 +104,11 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	total = 0;
-	for (y = 0; y < grid_size; ++y) {
-		for (x = 0; x < grid_size; ++x) {
-			if (from[(y * grid_size) + x] == '#') {
-				++total;
-			}
-		}
+	if (corners_stuck) {
+		from[0 + 0] = '#';
+		from[0 + (grid_size - 1)] = '#';
+		from[((grid_size - 1) * grid_size) + 0] = '#';
+		from[((grid_size - 1) * grid_size) + (grid_size - 1)] = '#';
 	}
 
 	if (verbose) {
@@ -137,6 +136,14 @@ int main(int argc, char **argv)
 				to[(y * grid_size) + x] = to_c;
 			}
 		}
+		if (corners_stuck) {
+			to[0 + 0] = '#';
+			to[0 + (grid_size - 1)] = '#';
+			to[((grid_size - 1) * grid_size) + 0] = '#';
+			to[((grid_size - 1) * grid_size) + (grid_size - 1)] =
+			    '#';
+		}
+
 		last = to;
 		to = from;
 		from = last;
