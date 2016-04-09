@@ -46,9 +46,9 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	stack = deque_new();
+	stack = deque_new(NULL, NULL, NULL);
 	cnt = new_depth_counter(0);
-	deque_push(stack, cnt);
+	stack->push(stack, cnt);
 
 	buf[0] = '\0';
 	str_idx = 0;
@@ -84,11 +84,11 @@ int main(int argc, char **argv)
 			if (c == '[') {
 				cnt->is_array = 1;
 			}
-			deque_push(stack, cnt);
+			stack->push(stack, cnt);
 		} else if ((c == '}' || c == ']') && str_idx == 0) {
 			free_me = cnt;
-			deque_pop(stack);
-			cnt = deque_top(stack);
+			stack->pop(stack);
+			cnt = stack->top(stack);
 			if (free_me->has_red == 0) {
 				cnt->total += (free_me->val + free_me->total);
 			}
@@ -117,16 +117,16 @@ int main(int argc, char **argv)
 		lc = c;
 	}
 
-	while (deque_size(stack) > 1) {
-		free_me = deque_pop(stack);
-		cnt = deque_top(stack);
+	while (stack->size(stack) > 1) {
+		free_me = stack->pop(stack);
+		cnt = stack->top(stack);
 		if (free_me->has_red == 0) {
 			cnt->total += (free_me->val + free_me->total);
 		}
 		free(free_me);
 	}
 
-	cnt = deque_pop(stack);
+	cnt = stack->pop(stack);
 
 	if (cnt->val) {
 		cnt->total += cnt->val;
