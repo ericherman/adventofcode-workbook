@@ -41,7 +41,7 @@ static int null_and_free(const char *each_key, size_t each_key_len,
 			 void *each_val, void *context)
 {
 	struct ehht_s *houses_1 = (struct ehht_s *)context;
-	ehht_put(houses_1, each_key, each_key_len, NULL);
+	houses_1->put(houses_1, each_key, each_key_len, NULL);
 	free(each_val);
 	return 0;
 }
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 	a_or_b = 0;
 
 	key_len = make_key(key, house->x, house->y);
-	ehht_put(houses, key, key_len, house);
+	houses->put(houses, key, key_len, house);
 
 	while ((c = fgetc(input)) != EOF) {
 		if ((a_or_b % 2) == 0) {
@@ -111,10 +111,10 @@ int main(int argc, char **argv)
 			total_presents++;
 			key_len = make_key(key, x, y);
 			house =
-			    (struct house_s *)ehht_get(houses, key, key_len);
+			    (struct house_s *)houses->get(houses, key, key_len);
 			if (house == NULL) {
 				house = new_house(x, y);
-				ehht_put(houses, key, key_len, house);
+				houses->put(houses, key, key_len, house);
 			}
 			house->presents += 1;
 			if (house->presents > max_presents) {
@@ -134,10 +134,11 @@ int main(int argc, char **argv)
 	fclose(input);
 
 	printf("houses=%lu (of %u, max presents: %u)\n",
-	       (unsigned long)ehht_size(houses), total_presents, max_presents);
+	       (unsigned long)houses->size(houses), total_presents,
+	       max_presents);
 
-	ehht_foreach_element(houses, null_and_free, houses);
-	ehht_clear(houses);
+	houses->for_each(houses, null_and_free, houses);
+	houses->clear(houses);
 	ehht_free(houses);
 
 	return 0;

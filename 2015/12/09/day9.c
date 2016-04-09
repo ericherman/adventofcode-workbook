@@ -63,7 +63,7 @@ unsigned distance(struct name_list_s *route, struct ehht_s *legs)
 		len =
 		    from_to_key(route->names[i], route->names[i + 1], buf,
 				BUF_LEN);
-		leg = ehht_get(legs, buf, len);
+		leg = legs->get(legs, buf, len);
 		if (!leg) {
 			fprintf(stderr, "could find %s\n", buf);
 			exit(EXIT_FAILURE);
@@ -92,9 +92,9 @@ static struct name_list_s *to_name_list(struct ehht_s *names)
 	struct name_list_s *name_list;
 
 	name_list = malloc(sizeof(struct name_list_s));
-	name_list->names = malloc(sizeof(char *) * ehht_size(names));
+	name_list->names = malloc(sizeof(char *) * names->size(names));
 	name_list->size = 0;
-	ehht_foreach_element(names, add_name_copy, name_list);
+	names->for_each(names, add_name_copy, name_list);
 	return name_list;
 }
 
@@ -170,16 +170,16 @@ int main(int argc, char **argv)
 		if (matched != 3) {
 			fprintf(stderr, "failed to match '%s'\n", buf);
 		} else {
-			ehht_put(names, from, strnlen(from, NAME_MAX), NULL);
-			ehht_put(names, to, strnlen(to, NAME_MAX), NULL);
+			names->put(names, from, strnlen(from, NAME_MAX), NULL);
+			names->put(names, to, strnlen(to, NAME_MAX), NULL);
 
 			leg = new_leg(from, to, dist);
 			len = to_key(leg, buf, BUF_LEN);
-			ehht_put(legs, buf, len, leg);
+			legs->put(legs, buf, len, leg);
 
 			leg = new_leg(to, from, dist);
 			len = to_key(leg, buf, BUF_LEN);
-			ehht_put(legs, buf, len, leg);
+			legs->put(legs, buf, len, leg);
 		}
 	}
 	fclose(input);

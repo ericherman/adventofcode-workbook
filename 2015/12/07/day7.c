@@ -202,7 +202,7 @@ static unsigned token_to_result(struct ehht_s *wires, char *token, int *result)
 		return 1;
 	}
 
-	o = ehht_get(wires, token, strnlen(token, TOKEN_BUF_LEN));
+	o = wires->get(wires, token, strnlen(token, TOKEN_BUF_LEN));
 	if (o == NULL) {
 		fprintf(stderr, "NULL value for %s\n", token);
 		return 0;
@@ -249,7 +249,7 @@ static int satisfy_next(const char *each_key, size_t each_key_len,
 		}
 		break;
 	case OP_MOVE:
-		b = ehht_get(wires, a->in1, strnlen(a->in1, TOKEN_BUF_LEN));
+		b = wires->get(wires, a->in1, strnlen(a->in1, TOKEN_BUF_LEN));
 		if (b == NULL) {
 			to_string_op_s(a, err_buf, 80);
 			fprintf(stderr, "NULL value for %s (%s)\n", a->in1,
@@ -330,7 +330,10 @@ static int satisfy_next(const char *each_key, size_t each_key_len,
 static int set_null_and_free(const char *each_key, size_t each_key_len,
 			     void *each_val, void *context)
 {
-	ehht_put((struct ehht_s *)context, each_key, each_key_len, NULL);
+	struct ehht_s *wires;
+
+	wires = context;
+	wires->put(wires, each_key, each_key_len, NULL);
 	free_op_s((struct op_s *)each_val);
 	return 0;
 }
@@ -361,40 +364,40 @@ int main(int argc, char **argv)
 			if (0) {
 				fprintf(stderr, "(%s)\n", ops->out);
 			}
-			ehht_put(wires, ops->out,
-				 strnlen(ops->out, TOKEN_BUF_LEN), ops);
+			wires->put(wires, ops->out,
+				   strnlen(ops->out, TOKEN_BUF_LEN), ops);
 		}
 	}
 	fclose(input);
 
 	if (argc > 2) {
-		a = ehht_get(wires, "b", 1);
+		a = wires->get(wires, "b", 1);
 		free(a->in1);
 		a->in1 = strdup(argv[2]);
 	}
 
-	a = ehht_get(wires, "a", 1);
+	a = wires->get(wires, "a", 1);
 	if (a == NULL) {
 		fprintf(stderr, "no element 'a'\n");
-		ehht_foreach_element(wires, to_string_each, NULL);
+		wires->for_each(wires, to_string_each, NULL);
 		return 1;
 	}
 
 	end = 0;
-	for (i = 0; (!end) && (!a->satisfied) && (i < ehht_size(wires)); ++i) {
-		end = ehht_foreach_element(wires, satisfy_next, wires);
+	for (i = 0; (!end) && (!a->satisfied) && (i < wires->size(wires)); ++i) {
+		end = wires->for_each(wires, satisfy_next, wires);
 	}
 
 	if (a->satisfied) {
 		printf("a: %d\n", a->result);
 	} else {
 		fprintf(stderr, "a: unsatisfied\n");
-		ehht_foreach_element(wires, to_string_each, NULL);
+		wires->for_each(wires, to_string_each, NULL);
 		printf("a: unsatisfied\n");
 		return 1;
 	}
 
-	ehht_foreach_element(wires, set_null_and_free, wires);
+	wires->for_each(wires, set_null_and_free, wires);
 	ehht_free(wires);
 
 	return 0;

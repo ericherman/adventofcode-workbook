@@ -69,7 +69,7 @@ int calc_happiness(struct name_list_s *seating, struct ehht_s *combos,
 		for (j = 0; j < 2; ++j) {
 			to = seating->names[c[j]];
 			len = from_to_key(from, to, buf, BUF_LEN);
-			combo = ehht_get(combos, buf, len);
+			combo = combos->get(combos, buf, len);
 			if (!combo) {
 				fprintf(stderr, "could not find %s\n", buf);
 				exit(EXIT_FAILURE);
@@ -106,9 +106,9 @@ static struct name_list_s *to_name_list(struct ehht_s *names)
 	struct name_list_s *name_list;
 
 	name_list = malloc(sizeof(struct name_list_s));
-	name_list->names = malloc(sizeof(char *) * ehht_size(names));
+	name_list->names = malloc(sizeof(char *) * names->size(names));
 	name_list->size = 0;
-	ehht_foreach_element(names, add_name_copy, name_list);
+	names->for_each(names, add_name_copy, name_list);
 	return name_list;
 }
 
@@ -198,7 +198,7 @@ int main(int argc, char **argv)
 	combos = ehht_new(0, NULL, NULL, NULL, NULL);
 	names = ehht_new(0, NULL, NULL, NULL, NULL);
 	if (include_you) {
-		ehht_put(names, "you", strlen("you"), NULL);
+		names->put(names, "you", strlen("you"), NULL);
 	}
 
 	combo = NULL;
@@ -208,8 +208,8 @@ int main(int argc, char **argv)
 			fprintf(stderr, "failed to match '%s'\n", buf);
 		} else {
 			trim_at_period(to, NBUF_LEN);
-			ehht_put(names, from, strnlen(from, NBUF_LEN), NULL);
-			ehht_put(names, to, strnlen(to, NBUF_LEN), NULL);
+			names->put(names, from, strnlen(from, NBUF_LEN), NULL);
+			names->put(names, to, strnlen(to, NBUF_LEN), NULL);
 
 			if (strcmp("lose", sort) == 0) {
 				happiness *= -1;
@@ -217,7 +217,7 @@ int main(int argc, char **argv)
 
 			combo = new_combo(from, to, happiness);
 			len = to_key(combo, buf, BUF_LEN);
-			ehht_put(combos, buf, len, combo);
+			combos->put(combos, buf, len, combo);
 			if (verbose > 1) {
 				printf("%s -> %s: %d (%p)\n", from, to,
 				       happiness, (void *)combo);
@@ -226,14 +226,14 @@ int main(int argc, char **argv)
 			if (include_you) {
 				combo = new_combo(from, "you", 0);
 				len = to_key(combo, buf, BUF_LEN);
-				ehht_put(combos, buf, len, combo);
+				combos->put(combos, buf, len, combo);
 				if (verbose > 1) {
 					printf("%s -> %s: %d (%p)\n", from, to,
 					       happiness, (void *)combo);
 				}
 				combo = new_combo("you", from, 0);
 				len = to_key(combo, buf, BUF_LEN);
-				ehht_put(combos, buf, len, combo);
+				combos->put(combos, buf, len, combo);
 				if (verbose > 1) {
 					printf("%s -> %s: %d (%p)\n", from, to,
 					       happiness, (void *)combo);

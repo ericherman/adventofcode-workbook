@@ -121,7 +121,7 @@ size_t find_combos(struct container_s **containers, size_t num_containers,
 		if (num_on <= min_num_on
 		    && capacity_of(containers, num_containers, i) == target) {
 			if (num_on < min_num_on) {
-				ehht_clear(table);
+				table->clear(table);
 				min_num_on = num_on;
 			}
 			len = snprintf(buf1, BUF_LEN, "%lu", (unsigned long)i);
@@ -130,7 +130,7 @@ size_t find_combos(struct container_s **containers, size_t num_containers,
 					(unsigned long)BUF_LEN);
 				exit(EXIT_FAILURE);
 			}
-			ehht_put(table, buf1, len, NULL);
+			table->put(table, buf1, len, NULL);
 			if (verbose) {
 				print_containers_bits(buf2, BUF_LEN, containers,
 						      num_containers, i);
@@ -139,7 +139,7 @@ size_t find_combos(struct container_s **containers, size_t num_containers,
 		}
 	}
 
-	return ehht_size(table);
+	return table->size(table);
 }
 
 int main(int argc, char **argv)
@@ -174,7 +174,7 @@ int main(int argc, char **argv)
 		} else {
 			container = new_container(num_containers++, capacity);
 			len = to_key(container->i, buf, BUF_LEN);
-			ehht_put(table, buf, len, container);
+			table->put(table, buf, len, container);
 		}
 	}
 	fclose(input);
@@ -182,14 +182,14 @@ int main(int argc, char **argv)
 	containers = malloc(sizeof(struct container_s *) * num_containers);
 	for (i = 0; i < num_containers; ++i) {
 		len = to_key(i, buf, BUF_LEN);
-		container = ehht_remove(table, buf, len);
+		container = table->remove(table, buf, len);
 		containers[i] = container;
 	}
 
 	find_combos(containers, num_containers, target, min_only, table,
 		    verbose);
 
-	printf("solutions: %u\n", (unsigned)ehht_size(table));
+	printf("solutions: %u\n", (unsigned)table->size(table));
 
 	if (MAKE_VALGRIND_HAPPY) {
 		for (i = 0; i < num_containers; ++i) {
