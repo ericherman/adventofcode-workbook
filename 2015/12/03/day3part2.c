@@ -37,11 +37,10 @@ static unsigned int make_key(char *key, int x, int y)
 	return (unsigned int)rv;
 }
 
-static int null_and_free(const char *each_key, size_t each_key_len,
-			 void *each_val, void *context)
+static int null_and_free(struct ehht_key_s key, void *each_val, void *context)
 {
 	struct ehht_s *houses_1 = (struct ehht_s *)context;
-	houses_1->put(houses_1, each_key, each_key_len, NULL);
+	houses_1->put(houses_1, key.str, key.len, NULL);
 	free(each_val);
 	return 0;
 }

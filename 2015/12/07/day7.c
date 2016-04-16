@@ -108,16 +108,15 @@ int to_string_op_s(struct op_s *o, char *buf, size_t buf_len)
 			o->in2 ? o->in2 : "NULL");
 }
 
-static int to_string_each(const char *each_key, size_t each_key_len,
-			  void *each_val, void *context)
+static int to_string_each(struct ehht_key_s key, void *each_val, void *context)
 {
 	char buf[100];
 	struct op_s *o;
 
 	o = (struct op_s *)each_val;
 	to_string_op_s(o, buf, 100);
-	fprintf(stderr, "Key: %s (%lu) Val: %s\n", each_key,
-		(unsigned long)each_key_len, buf);
+	fprintf(stderr, "Key: %s (%lu) Val: %s\n", key.str,
+		(unsigned long)key.len, buf);
 	if (context) {
 		fprintf(stderr, "%p\n", context);
 	}
@@ -183,7 +182,7 @@ static struct op_s *parse_token(char *buf, size_t buf_len)
 		ops->in1 = strndup(token[0], TOKEN_BUF_LEN);
 		break;
 	default:
-token_parse_error:
+	      token_parse_error:
 		fprintf(stderr, "buf: '%s' mis-parsed", buf);
 		fprintf(stderr, " as out: %s := (%s %s %s)\n",
 			out, token[0], token[1], token[2]);
@@ -214,8 +213,7 @@ static unsigned token_to_result(struct ehht_s *wires, char *token, int *result)
 	return 0;
 }
 
-static int satisfy_next(const char *each_key, size_t each_key_len,
-			void *each_val, void *context)
+static int satisfy_next(struct ehht_key_s key, void *each_val, void *context)
 {
 	struct ehht_s *wires;
 	struct op_s *a, *b;
@@ -228,7 +226,7 @@ static int satisfy_next(const char *each_key, size_t each_key_len,
 
 	if (a == NULL) {
 		fprintf(stderr, "NULL value for %s\n",
-			each_key_len ? each_key : "context");
+			key.len ? key.str : "context");
 		return 1;
 	}
 	if (a->satisfied) {
@@ -236,7 +234,7 @@ static int satisfy_next(const char *each_key, size_t each_key_len,
 	}
 
 	if (0) {
-		fprintf(stderr, "(%s)\n", each_key);
+		fprintf(stderr, "(%s)\n", key.str);
 	}
 	switch (a->op) {
 		/* OP_NOP */
@@ -327,13 +325,13 @@ static int satisfy_next(const char *each_key, size_t each_key_len,
 	return 0;
 }
 
-static int set_null_and_free(const char *each_key, size_t each_key_len,
-			     void *each_val, void *context)
+static int set_null_and_free(struct ehht_key_s key, void *each_val,
+			     void *context)
 {
 	struct ehht_s *wires;
 
 	wires = context;
-	wires->put(wires, each_key, each_key_len, NULL);
+	wires->put(wires, key.str, key.len, NULL);
 	free_op_s((struct op_s *)each_val);
 	return 0;
 }

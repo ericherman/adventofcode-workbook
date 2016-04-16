@@ -14,7 +14,7 @@ struct buf_pos_len_s {
 	size_t len;
 };
 
-int free_tables(const char *key, size_t len, void *val, void *context)
+int free_tables(struct ehht_key_s key, void *val, void *context)
 {
 	struct ehht_s *table, *subs;
 
@@ -22,12 +22,12 @@ int free_tables(const char *key, size_t len, void *val, void *context)
 	ehht_free(subs);
 
 	table = context;
-	table->put(table, key, len, NULL);
+	table->put(table, key.str, key.len, NULL);
 
 	return 0;
 }
 
-int fill_buf(const char *key, size_t len, void *val, void *context)
+int fill_buf(struct ehht_key_s key, void *val, void *context)
 {
 	struct ehht_s *subs;
 	struct buf_pos_len_s *bpl;
@@ -38,7 +38,7 @@ int fill_buf(const char *key, size_t len, void *val, void *context)
 
 	chars =
 	    snprintf(bpl->buf + bpl->pos, bpl->len - bpl->pos, "%s => ",
-		     len > 0 ? key : "NULL");
+		     key.len > 0 ? key.str : "NULL");
 	if (chars < 0) {
 		fprintf(stderr, "oops\n");
 		return chars;
@@ -85,7 +85,7 @@ void *mallocd(size_t size)
 	return ptr;
 }
 
-int permute_subs(const char *key, size_t key_len, void *val, void *context)
+int permute_subs(struct ehht_key_s key, void *val, void *context)
 {
 	struct prefix_remainder_subs_s *ctx;
 	const char *to;
@@ -93,11 +93,11 @@ int permute_subs(const char *key, size_t key_len, void *val, void *context)
 	size_t perm_len, postfix_len;
 
 	ctx = context;
-	to = key;
+	to = key.str;
 	if (val != NULL) {
 		fprintf(stderr, "Non-NULL val: %p\n", val);
 	}
-	if (key_len == 0) {
+	if (key.len == 0) {
 		fprintf(stderr, "zero key_len\n");
 	}
 
@@ -151,11 +151,12 @@ size_t permute(struct ehht_s *table, const char *molecule, struct ehht_s *perms,
 	for (pos = 0; pos < len; ++pos) {
 		remainder = molecule + pos;
 		for (i = 0; i < ks->len; ++i) {
-			if (strstr(remainder, ks->keys[i].key) == remainder) {
+			if (strstr(remainder, ks->keys[i].str) == remainder) {
 				ctx.prefix_to = pos;
 				ctx.postfix_from = pos + ks->keys[i].len;
 				subs =
-				    table->get(table, ks->keys[i].key, ks->keys[i].len);
+				    table->get(table, ks->keys[i].str,
+					       ks->keys[i].len);
 				subs->for_each(subs, permute_subs, &ctx);
 			}
 		}

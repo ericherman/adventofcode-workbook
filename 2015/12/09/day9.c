@@ -74,16 +74,15 @@ unsigned distance(struct name_list_s *route, struct ehht_s *legs)
 	return distance;
 }
 
-static int add_name_copy(const char *each_key, size_t each_key_len,
-			 void *each_val, void *context)
+static int add_name_copy(struct ehht_key_s key, void *each_val, void *context)
 {
 	struct name_list_s *name_list;
 	if (0) {
-		fprintf(stderr, "%s %p\n", each_key, each_val);
+		fprintf(stderr, "%s %p\n", key.str, each_val);
 	}
 	name_list = (struct name_list_s *)context;
 	name_list->names[name_list->size++] =
-	    strndup(each_key, each_key_len + 1);
+	    strndup(key.str, key.len + 1);
 	return 0;
 }
 
