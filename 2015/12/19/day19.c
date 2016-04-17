@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>		/* malloc exit qsort */
-#include <string.h>		/* memcpy */
+#include <string.h>		/* strstr */
+#include <limits.h>		/* UINT_MAX */
 #include <ehht.h>		/* github.com/ericherman/libehht */
 #include <ehstr.h>		/* github.com/ericherman/libehstr */
 
@@ -13,6 +14,10 @@ struct buf_pos_len_s {
 	size_t pos;
 	size_t len;
 };
+
+void construct_molecule(struct ehht_s *table, struct ehht_keys_s *tks,
+			const char *molecule, unsigned depth,
+			unsigned *best_known, int *max_tries, int verbose);
 
 int free_tables(struct ehht_key_s key, void *val, void *context)
 {
@@ -190,19 +195,179 @@ size_t permute(struct ehht_s *table, const char *molecule, struct ehht_s *perms,
 	return perms->size(perms);
 }
 
+int cmp_key_len_asc(const void *a, const void *b)
+{
+	const struct ehht_key_s *l, *r;
+	l = a;
+	r = b;
+
+	if (l->len == r->len) {
+		return 0;
+	}
+	return l->len > r->len ? 1 : -1;
+}
+
+int cmp_key_len_dsc(const void *a, const void *b)
+{
+	return cmp_key_len_asc(b, a);
+}
+
+struct ehht_s *reverse_table(struct ehht_s *table, int verbose)
+{
+	struct ehht_s *rev, *subs;
+	struct ehht_keys_s *ks, *subks;
+	int copy_keys;
+	size_t i, j;
+
+	rev = ehht_new(0, NULL, NULL, NULL, NULL);
+
+	copy_keys = 0;
+	ks = table->keys(table, copy_keys);
+	for (i = 0; i < ks->len; ++i) {
+		subs = table->get(table, ks->keys[i].str, ks->keys[i].len);
+		copy_keys = 0;
+		subks = subs->keys(subs, copy_keys);
+		for (j = 0; j < subks->len; ++j) {
+			subs =
+			    rev->get(rev, subks->keys[j].str,
+				     subks->keys[j].len);
+			if (!subs) {
+				subs = ehht_new(0, NULL, NULL, NULL, NULL);
+				rev->put(rev, subks->keys[j].str,
+					 subks->keys[j].len, subs);
+			}
+			subs->put(subs, ks->keys[i].str, ks->keys[i].len, NULL);
+		}
+		subs->free_keys(subs, subks);
+	}
+	table->free_keys(table, ks);
+
+	if (verbose) {
+		copy_keys = 0;
+		ks = rev->keys(rev, copy_keys);
+		printf("rev size: %lu with: [\n",
+		       (unsigned long)rev->size(rev));
+		for (i = 0; i < ks->len; ++i) {
+			subs = rev->get(rev, ks->keys[i].str, ks->keys[i].len);
+			printf("\t'%s' => %p: [ \n", ks->keys[i].str,
+			       (void *)subs);
+			subs->size(subs);
+			copy_keys = 0;
+			subks = subs->keys(subs, copy_keys);
+			for (j = 0; j < subks->len; ++j) {
+				printf("\t\t'%s' => '%s',\n",
+				       subks->keys[j].str,
+				       (char *)subs->get(subs,
+							 subks->keys[j].str,
+							 subks->keys[j].len));
+			}
+			subs->free_keys(subs, subks);
+			printf("\t],\n");
+		}
+		printf("]\n");
+		rev->free_keys(rev, ks);
+	}
+	return rev;
+}
+
+int find_in_substitute(struct ehht_key_s key, size_t prefix_to,
+		       size_t postfix_from, struct ehht_s *table,
+		       struct ehht_keys_s *tks, const char *molecule,
+		       unsigned depth, unsigned *best_known, int *max_tries,
+		       int verbose)
+{
+	char *perm;
+
+	perm = substitute(molecule, key.str, prefix_to, postfix_from, verbose);
+	if (strcmp("e", perm) == 0) {
+		if (verbose > 1) {
+			printf("found:%u %s\n", depth, perm);
+		}
+		if (depth < *best_known) {
+			if (verbose) {
+				printf("new best:" "%u %s\n", depth, perm);
+			}
+			*best_known = depth;
+		}
+		free(perm);
+		return 1;
+	} else {
+		if (strstr(perm, "e") == NULL) {
+			construct_molecule(table, tks, perm, depth, best_known,
+					   max_tries, verbose);
+		}
+	}
+	free(perm);
+	return 0;
+}
+
+void construct_molecule(struct ehht_s *table, struct ehht_keys_s *tks,
+			const char *molecule, unsigned depth,
+			unsigned *best_known, int *max_tries, int verbose)
+{
+	struct ehht_s *subs;
+	struct ehht_keys_s *sks;
+	const char *submol;
+	size_t i, j, k, prefix_to, postfix_from;
+	struct ehht_key_s key, skey;
+
+	--(*max_tries);
+	++depth;
+	if (verbose > 2) {
+		printf("depth:%u (tries reamining: %d) %s\n", depth, *max_tries,
+		       molecule);
+	}
+	if (((*max_tries < 1) && (*best_known != UINT_MAX))
+	    || (*best_known < depth)) {
+		return;
+	}
+
+	for (i = strlen(molecule); i; --i) {
+		prefix_to = i - 1;
+		submol = molecule + prefix_to;
+		for (j = 0; j < tks->len; ++j) {
+			if (strstr(submol, tks->keys[j].str)) {
+				key = tks->keys[j];
+				subs = table->get(table, key.str, key.len);
+				sks = subs->keys(subs, 0);
+				qsort(sks->keys, sks->len,
+				      sizeof(struct ehht_key_s),
+				      cmp_key_len_asc);
+				postfix_from = prefix_to + strlen(key.str);
+				for (k = 0; k < sks->len; ++k) {
+					skey = sks->keys[k];
+					if (find_in_substitute
+					    (skey, prefix_to, postfix_from,
+					     table, tks, molecule, depth,
+					     best_known, max_tries, verbose)) {
+						subs->free_keys(subs, sks);
+						return;
+					}
+				}
+				subs->free_keys(subs, sks);
+			}
+		}
+	}
+}
+
 int main(int argc, char **argv)
 {
 	const char *input_file_name;
 	FILE *input;
 	char *buf, from[BUF_LEN], to[BUF_LEN];
-	int matched, verbose;
+	int matched, verbose, construct;
 	struct ehht_s *table, *subs, *perms;
 	size_t result, len;
 	char *molecule;
 	struct buf_pos_len_s bpl;
+	struct ehht_keys_s *tks;
+	unsigned best;
+	int max_tries;
 
 	verbose = (argc > 1) ? atoi(argv[1]) : 0;
-	input_file_name = (argc > 2) ? argv[2] : "input";
+	construct = (argc > 2) ? atoi(argv[2]) : 0;
+	max_tries = (argc > 3) ? atoi(argv[3]) : 0;
+	input_file_name = (argc > 4) ? argv[4] : "input";
 	input = fopen(input_file_name, "r");
 	if (!input) {
 		fprintf(stderr, "could not open %s\n", input_file_name);
@@ -259,14 +424,34 @@ int main(int argc, char **argv)
 		printf("%s\n", molecule);
 	}
 
-	perms = ehht_new(0, NULL, NULL, NULL, NULL);
-	result = permute(table, molecule, perms, verbose);
-	printf("%lu\n", (unsigned long)result);
+	if (construct) {
+		perms = NULL;
+		subs = table;
+		table = reverse_table(table, verbose);
+		subs->for_each(subs, free_tables, subs);
+		ehht_free(subs);
+		tks = table->keys(table, 0);
+		qsort(tks->keys, tks->len, sizeof(struct ehht_key_s),
+		      cmp_key_len_dsc);
+		best = UINT_MAX;
+		construct_molecule(table, tks, molecule, 0, &best, &max_tries,
+				   verbose);
+		printf("%u\n", best);
+		if (MAKE_VALGRIND_HAPPY) {
+			table->free_keys(table, tks);
+		}
+	} else {
+		perms = ehht_new(0, NULL, NULL, NULL, NULL);
+		result = permute(table, molecule, perms, verbose);
+		printf("%lu\n", (unsigned long)result);
+		if (MAKE_VALGRIND_HAPPY) {
+			ehht_free(perms);
+		}
+	}
 
 	if (MAKE_VALGRIND_HAPPY) {
 		free(molecule);
 		table->for_each(table, free_tables, table);
-		ehht_free(perms);
 		ehht_free(table);
 	}
 	return 0;
