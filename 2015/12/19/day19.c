@@ -85,15 +85,48 @@ void *mallocd(size_t size)
 	return ptr;
 }
 
-int permute_subs(struct ehht_key_s key, void *val, void *context)
+char *substitute(const char *orig, const char *subs, size_t prefix_to,
+		 size_t postfix_from, int verbose)
 {
-	struct prefix_remainder_subs_s *ctx;
-	const char *to;
 	char *perm, *prefix, *postfix;
 	size_t perm_len, postfix_len;
 
+	prefix = mallocd(sizeof(char) * (prefix_to + 1));
+	strncpy(prefix, orig, prefix_to);
+	prefix[prefix_to] = '\0';
+
+	postfix_len = strlen(orig);
+	postfix = mallocd(sizeof(char) * (postfix_len + 1));
+	strncpy(postfix, orig + postfix_from, postfix_len);
+	postfix[postfix_len] = '\0';
+
+	if (verbose > 2) {
+		printf("\tprefix:'%s'\n", prefix);
+		printf("\tto:'%s'\n", subs);
+		printf("\tpostfix:'%s'\n", postfix);
+	}
+
+	perm_len = 1 + strlen(prefix) + strlen(subs) + strlen(postfix);
+	perm = mallocd(sizeof(char) * (perm_len + 1));
+	snprintf(perm, perm_len, "%s%s%s", prefix, subs, postfix);
+
+	if (verbose > 1) {
+		printf("'%s'\n", perm);
+	}
+
+	free(prefix);
+	free(postfix);
+
+	return perm;
+}
+
+int permute_subs(struct ehht_key_s key, void *val, void *context)
+{
+	struct prefix_remainder_subs_s *ctx;
+	char *perm;
+
 	ctx = context;
-	to = key.str;
+
 	if (val != NULL) {
 		fprintf(stderr, "Non-NULL val: %p\n", val);
 	}
@@ -101,31 +134,12 @@ int permute_subs(struct ehht_key_s key, void *val, void *context)
 		fprintf(stderr, "zero key_len\n");
 	}
 
-	prefix = mallocd(sizeof(char) * (ctx->prefix_to + 1));
-	strncpy(prefix, ctx->molecule, ctx->prefix_to);
-	prefix[ctx->prefix_to] = '\0';
+	perm =
+	    substitute(ctx->molecule, key.str, ctx->prefix_to,
+		       ctx->postfix_from, ctx->verbose);
 
-	postfix_len = strlen(ctx->molecule);
-	postfix = mallocd(sizeof(char) * (postfix_len + 1));
-	strncpy(postfix, ctx->molecule + ctx->postfix_from, postfix_len);
-	postfix[postfix_len] = '\0';
-
-	if (ctx->verbose) {
-		printf("\tprefix:'%s'\n", prefix);
-		printf("\tto:'%s'\n", to);
-		printf("\tpostfix:'%s'\n", postfix);
-	}
-
-	perm_len = 1 + strlen(prefix) + strlen(to) + strlen(postfix);
-	perm = mallocd(sizeof(char) * (perm_len + 1));
-	snprintf(perm, perm_len, "%s%s%s", prefix, to, postfix);
-	if (ctx->verbose) {
-		printf("'%s'\n", perm);
-	}
 	ctx->perms->put(ctx->perms, perm, strlen(perm), NULL);
 
-	free(prefix);
-	free(postfix);
 	free(perm);
 
 	return 0;
@@ -168,7 +182,6 @@ size_t permute(struct ehht_s *table, const char *molecule, struct ehht_s *perms,
 
 	if (verbose > 1) {
 		buf = mallocd(sizeof(char) * BIG_BUF_LEN * 100);
-
 		perms->to_string(perms, buf, BIG_BUF_LEN * 100);
 		printf("%s\n", buf);
 		free(buf);
@@ -210,7 +223,6 @@ int main(int argc, char **argv)
 				subs = ehht_new(0, NULL, NULL, NULL, NULL);
 				table->put(table, from, len, subs);
 			}
-			subs->put(subs, from, strlen(from), NULL);
 			subs->put(subs, to, strlen(to), NULL);
 		} else {
 			if (strlen(buf) < 3 || molecule) {
