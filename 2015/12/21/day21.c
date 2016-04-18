@@ -98,9 +98,10 @@ int fight(struct fighter_s u, struct fighter_s m, int verbose)
 }
 
 void equip_and_fight(struct fighter_s *m, struct fighter_s *u, size_t w,
-		     size_t a, size_t r, size_t l, int *u_gold, int verbose)
+		     size_t a, size_t r, size_t l, int *u_gold, int worst_loss,
+		     int verbose)
 {
-	int cost;
+	int cost, u_win;
 	char buf[BUF_LEN];
 
 	cost = weapons[w].cost;
@@ -126,11 +127,13 @@ void equip_and_fight(struct fighter_s *m, struct fighter_s *u, size_t w,
 		printf("\t%s\n", print_item_s(buf, BUF_LEN, rings[r]));
 	}
 
-	if (cost < *u_gold) {
+	if ((!worst_loss && (cost < *u_gold))
+	    || (worst_loss && (cost > *u_gold))) {
 		if (verbose > 1) {
 			printf("cost: %d\n", cost);
 		}
-		if (fight(*u, *m, verbose)) {
+		u_win = fight(*u, *m, verbose);
+		if ((u_win && !worst_loss) || (worst_loss && !u_win)) {
 			*u_gold = cost;
 			if (verbose) {
 				printf("u_gold: %d\n", *u_gold);
@@ -144,14 +147,15 @@ int main(int argc, char **argv)
 	const char *input_file_name;
 	FILE *input;
 	char buf[BUF_LEN];
-	int matched, verbose;
+	int matched, verbose, worst_loss;
 	char stat[BUF_LEN], statb[BUF_LEN];
 	int val, u_gold;
 	size_t w, a, l, r;
 	struct fighter_s u, m;
 
 	verbose = (argc > 1) ? atoi(argv[1]) : 0;
-	input_file_name = (argc > 2) ? argv[2] : "input";
+	worst_loss = (argc > 2) ? atoi(argv[2]) : 0;
+	input_file_name = (argc > 3) ? argv[3] : "input";
 	input = fopen(input_file_name, "r");
 	if (!input) {
 		fprintf(stderr, "could not open %s\n", input_file_name);
@@ -195,7 +199,7 @@ int main(int argc, char **argv)
 	}
 
 	u.hp = 100;
-	u_gold = INT_MAX;
+	u_gold = (worst_loss) ? INT_MIN : INT_MAX;
 	for (w = 0; weapons[w].name != NULL; ++w) {
 		for (a = 0; armors[a].name != NULL; ++a) {
 			for (l = 0; rings[l].name != NULL; ++l) {
@@ -204,7 +208,8 @@ int main(int argc, char **argv)
 						continue;
 					}
 					equip_and_fight(&m, &u, w, a, r, l,
-							&u_gold, verbose);
+							&u_gold, worst_loss,
+							verbose);
 				}
 			}
 		}
