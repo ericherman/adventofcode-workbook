@@ -91,7 +91,7 @@ int apply_effects(char *log, struct player_s *u, struct monster_s *m,
 	return shielded;
 }
 
-void fight(const char *pastlog, int depth, struct player_s u,
+void fight(const char *pastlog, int hard, int depth, struct player_s u,
 	   const struct spell_s *spell, struct monster_s m, int *least_mana,
 	   int verbose)
 {
@@ -110,13 +110,27 @@ void fight(const char *pastlog, int depth, struct player_s u,
 	++depth;
 	if (verbose > 1) {
 		sprintf(log + strlen(log),
-			"%d U HP: %4d, Mana: %d, Spent: %d, Spell: %s\n",
-			depth, u.hp, u.mana, u.mana_spent, spell->name);
+			"%d U HP: %4d, (%s) Mana: %d, Spent: %d, Spell: %s\n",
+			depth, u.hp, hard ? "hard" : "normal", u.mana,
+			u.mana_spent, spell->name);
 		sprintf(log + strlen(log), "%d M HP: %4d, Damage: %d\n", depth,
 			m.hp, m.damage);
 	}
 
 	/* player turn */
+	if (hard) {
+		--u.hp;
+		if (verbose > 2) {
+			sprintf(log + strlen(log),
+				"\thard hitpoint drain, now %d\n", u.hp);
+		}
+		if (u.hp < 1) {
+			if (verbose > 1) {
+				sprintf(log + strlen(log), "LOSE (HARD)\n");
+			}
+			goto print_log_free_and_return;
+		}
+	}
 	apply_effects(log, &u, &m, verbose);
 
 	if (spell->id == SHIELD_ID && u.shield_turns > 1) {
@@ -268,7 +282,8 @@ void fight(const char *pastlog, int depth, struct player_s u,
 			sprintf(log + strlen(log), "%d trying spell %s\n",
 				depth, spellbook[i]->name);
 		}
-		fight(log, depth, u, spellbook[i], m, least_mana, verbose);
+		fight(log, hard, depth, u, spellbook[i], m, least_mana,
+		      verbose);
 	}
       print_log_free_and_return:
 	printf("%s", log);
@@ -280,7 +295,7 @@ int main(int argc, char **argv)
 	const char *input_file_name;
 	FILE *input;
 	char buf[BUF_LEN];
-	int matched, verbose;
+	int matched, verbose, hard;
 	char stat[BUF_LEN], statb[BUF_LEN];
 	int val, least_mana;
 	struct monster_s m;
@@ -288,7 +303,8 @@ int main(int argc, char **argv)
 	size_t i;
 
 	verbose = (argc > 1) ? atoi(argv[1]) : 0;
-	input_file_name = (argc > 2) ? argv[2] : "input";
+	hard = (argc > 2) ? atoi(argv[2]) : 0;
+	input_file_name = (argc > 3) ? argv[3] : "input";
 	input = fopen(input_file_name, "r");
 	if (!input) {
 		fprintf(stderr, "could not open %s\n", input_file_name);
@@ -339,7 +355,7 @@ int main(int argc, char **argv)
 	least_mana = INT_MAX;
 
 	for (i = 0; spellbook[i]; ++i) {
-		fight("", 0, u, spellbook[i], m, &least_mana, verbose);
+		fight("", hard, 0, u, spellbook[i], m, &least_mana, verbose);
 	}
 
 	if (least_mana == INT_MAX) {
