@@ -118,10 +118,11 @@ int main(int argc, char **argv)
 	struct instruction_s *code;
 	size_t code_len, code_size, bytes;
 	struct machine_s cpu;
-	int verbose, *r;
+	int verbose, *r, init_a;
 
 	verbose = (argc > 1) ? atoi(argv[1]) : 0;
-	input_file_name = (argc > 2) ? argv[2] : "input";
+	init_a = (argc > 2) ? atoi(argv[2]) : 0;
+	input_file_name = (argc > 3) ? argv[3] : "input";
 	input = fopen(input_file_name, "r");
 	if (!input) {
 		fprintf(stderr, "could not open %s\n", input_file_name);
@@ -149,7 +150,7 @@ int main(int argc, char **argv)
 	fclose(input);
 	code[code_len].op = END;
 
-	cpu.a = 0;
+	cpu.a = init_a;
 	cpu.b = 0;
 	cpu.line = 0;
 
