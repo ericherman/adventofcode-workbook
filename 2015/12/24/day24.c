@@ -85,34 +85,46 @@ int adds_up(unsigned *weights, size_t *idxs, size_t set_size,
 	return 0;
 }
 
-int can_split_remainder(unsigned *weights, size_t *idxs1, size_t *idxs2,
-			size_t wlen, size_t set_size, unsigned long long target,
-			int verbose)
+int can_split_remainder(unsigned *weights, size_t *idxs1, size_t wlen,
+			size_t set_size, unsigned long long target,
+			unsigned groups, int verbose)
 {
-	size_t i, j, k;
-	int in_set1, addsup;
+	size_t i, j, k, m, n, p;
+	int used, addsup;
 	char buf[250];
-	size_t *idxs3;
+	size_t *idxs2, *idxs3, *idxs4;
 
+	idxs2 = malloc(sizeof(size_t) * wlen);
+	if (!idxs2) {
+		exit(EXIT_FAILURE);
+	}
 	for (i = 0; i < wlen; ++i) {
 		idxs2[i] = (size_t)-1;
 	}
 
 	for (k = 0, i = 0; i < wlen; ++i) {
-		in_set1 = 0;
-		for (j = 0; j < set_size && !in_set1; ++j) {
+		used = 0;
+		for (j = 0; j < set_size && !used; ++j) {
 			if (idxs1[j] == i) {
-				in_set1 = 1;
+				used = 1;
 			}
 		}
-		if (!in_set1) {
+		if (!used) {
 			idxs2[k++] = i;
 		}
 	}
 
-	idxs3 = malloc(sizeof(size_t) * k);
+	idxs3 = malloc(sizeof(size_t) * wlen);
 	if (!idxs3) {
 		exit(EXIT_FAILURE);
+	}
+	if (groups == 4) {
+		idxs4 = malloc(sizeof(size_t) * wlen);
+		if (!idxs4) {
+			exit(EXIT_FAILURE);
+		}
+	} else {
+		idxs4 = NULL;
 	}
 
 	if (verbose > 3) {
@@ -127,13 +139,65 @@ int can_split_remainder(unsigned *weights, size_t *idxs1, size_t *idxs2,
 			idxs3[j] = idxs2[j];
 		}
 		if (adds_up(weights, idxs3, i, target, 2, verbose)) {
-			addsup = 1;
-			goto cleanup;
+			if (groups == 4) {
+				p = 0;
+				for (m = 0; m < wlen; ++m) {
+					used = 0;
+					for (n = 0; n < set_size && !used; ++n) {
+						if (idxs1[n] == m) {
+							used = 1;
+						}
+					}
+					for (n = 0; n < j && !used; ++n) {
+						if (idxs3[n] == m) {
+							used = 1;
+						}
+					}
+					if (!used) {
+						idxs4[p++] = m;
+					}
+				}
+				addsup =
+				    adds_up(weights, idxs4, p, target, 3,
+					    verbose);
+			} else {
+				addsup = 1;
+			}
+			if (addsup) {
+				goto cleanup;
+			}
 		}
 		while (choose_k_from_n(idxs3, i, k)) {
 			if (adds_up(weights, idxs3, i, target, 2, verbose)) {
-				addsup = 1;
-				goto cleanup;
+				if (groups == 4) {
+					p = 0;
+					for (m = 0; m < wlen; ++m) {
+						used = 0;
+						for (n = 0;
+						     n < set_size && !used;
+						     ++n) {
+							if (idxs1[n] == m) {
+								used = 1;
+							}
+						}
+						for (n = 0; n < j && !used; ++n) {
+							if (idxs3[n] == m) {
+								used = 1;
+							}
+						}
+						if (!used) {
+							idxs4[p++] = m;
+						}
+					}
+					addsup =
+					    adds_up(weights, idxs4, p, target,
+						    3, verbose);
+				} else {
+					addsup = 1;
+				}
+				if (addsup) {
+					goto cleanup;
+				}
 			}
 		}
 	}
@@ -143,12 +207,16 @@ cleanup:
 		printf("\tgroup 2:%s\n",
 		       uints_idxs_to_string(buf, weights, idxs3, k));
 	}
+	if (groups == 4) {
+		free(idxs4);
+	}
 	free(idxs3);
+	free(idxs2);
 	return addsup;
 }
 
-void check_permutation(unsigned *weights, size_t *idxs, size_t *idxs2,
-		       size_t set_size, size_t wlen, unsigned long long target,
+void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
+		       size_t wlen, unsigned long long target, unsigned groups,
 		       size_t *shortest, unsigned long long *smallest_product,
 		       int verbose)
 {
@@ -179,7 +247,7 @@ void check_permutation(unsigned *weights, size_t *idxs, size_t *idxs2,
 	}
 
 	if (can_split_remainder
-	    (weights, idxs, idxs2, wlen, set_size, target, verbose)) {
+	    (weights, idxs, wlen, set_size, target, groups, verbose)) {
 		if ((set_size <= *shortest) && (product <= *smallest_product)) {
 			*shortest = set_size;
 			*smallest_product = product;
@@ -199,13 +267,14 @@ int main(int argc, char **argv)
 	FILE *input;
 	char buf[BUF_LEN];
 	int matched, verbose;
-	unsigned *weights;
+	unsigned *weights, groups;
 	unsigned long long total, target, smallest_product;
 	size_t i, j, bytes, wsize, wlen, from, shortest;
-	size_t *idxs, *idxs2;
+	size_t *idxs;
 
 	verbose = (argc > 1) ? atoi(argv[1]) : 0;
-	input_file_name = (argc > 2) ? argv[2] : "input";
+	groups = (argc > 2) ? ((atoi(argv[2]) == 4) ? 4 : 3) : 3;
+	input_file_name = (argc > 3) ? argv[3] : "input";
 	input = fopen(input_file_name, "r");
 	if (!input) {
 		fprintf(stderr, "could not open %s\n", input_file_name);
@@ -237,8 +306,7 @@ int main(int argc, char **argv)
 
 	bytes = sizeof(size_t) * (wlen + 1);
 	idxs = malloc(bytes);
-	idxs2 = malloc(bytes);
-	if (!idxs || !idxs2) {
+	if (!idxs) {
 		exit(EXIT_FAILURE);
 	}
 
@@ -249,11 +317,12 @@ int main(int argc, char **argv)
 			printf("%llu: %u\n", (unsigned long long)i, weights[i]);
 		}
 	}
-	if ((total % 3) != 0) {
-		printf("%llu does not divide evenly by 3\n", total);
+	if ((total % groups) != 0) {
+		printf("%llu does not divide evenly by %u\n", total,
+		       (unsigned)groups);
 		exit(EXIT_FAILURE);
 	}
-	target = total / 3;
+	target = total / groups;
 	if (verbose) {
 		printf("target: %llu\n", target);
 	}
@@ -265,16 +334,19 @@ int main(int argc, char **argv)
 		for (j = 0; j < wlen; ++j) {
 			idxs[j] = j;
 		}
-		check_permutation(weights, idxs, idxs2, i, wlen, target,
+		check_permutation(weights, idxs, i, wlen, target, groups,
 				  &shortest, &smallest_product, verbose);
 		while (choose_k_from_n(idxs, i, wlen)) {
-			check_permutation(weights, idxs, idxs2, i, wlen, target,
-					  &shortest, &smallest_product,
+			check_permutation(weights, idxs, i, wlen, target,
+					  groups, &shortest, &smallest_product,
 					  verbose);
 		}
 	}
 
 	printf("%llu\n", smallest_product);
+
+	free(idxs);
+	free(weights);
 
 	return 0;
 }
