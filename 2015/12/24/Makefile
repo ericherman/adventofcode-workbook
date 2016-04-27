@@ -1,9 +1,11 @@
 PROG=day24
 
-INCLUDES=
-A_FILES=
+LIBEHBIGINT=$(HOME)/src/libehbigint
 
-CFLAGS=-std=gnu11 -ggdb -O3 -Wall -Wextra -Wpedantic -Werror
+INCLUDES=-I$(LIBEHBIGINT)
+A_FILES=$(LIBEHBIGINT)/libehbigint.a
+
+CFLAGS=-std=c89 -ggdb -O0 -Wall -Wextra -Wpedantic -Werror
 
 default:
 	gcc -c $(CFLAGS) $(INCLUDES) -o $(PROG).o ./$(PROG).c

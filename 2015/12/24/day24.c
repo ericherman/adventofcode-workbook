@@ -2,8 +2,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <ehbigint.h>
 
 #define BUF_LEN 255
+#define BIG_INT_LEN 16
+#define MAXBIHEX "0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+
+#define DIE(format, arg)\
+  fprintf(stderr, "%s:%d: ", __FILE__, __LINE__); \
+  fprintf(stderr, format, arg);\
+  exit(EXIT_FAILURE)
+
+#define DIE3(format, arg1, arg2, arg3)\
+  fprintf(stderr, "%s:%d: ", __FILE__, __LINE__); \
+  fprintf(stderr, format, arg1, arg2, arg3);\
+  exit(EXIT_FAILURE)
 
 int cmp_uint_desc(const void *a, const void *b)
 {
@@ -56,16 +69,27 @@ char *uints_idxs_to_string(char *buf, unsigned *ints, size_t *idxs, size_t len)
 	return buf;
 }
 
-int adds_up(unsigned *weights, size_t *idxs, size_t set_size,
-	    unsigned long long target, unsigned group_no, int verbose)
+static unsigned long do_addul(unsigned long a, unsigned long b)
 {
-	unsigned long long subtotal;
+	unsigned long c;
+
+	c = a + b;
+	if (c < a || c < b) {
+		DIE3("%lu + %lu == %lu? Overflow!\n", a, b, c);
+	}
+	return c;
+}
+
+int adds_up(unsigned *weights, size_t *idxs, size_t set_size,
+	    unsigned long target, unsigned group_no, int verbose)
+{
+	unsigned long subtotal;
 	size_t i;
 	char buf[250];
 
 	subtotal = 0;
 	for (i = 0; i < set_size; ++i) {
-		subtotal += weights[idxs[i]];
+		subtotal = do_addul(subtotal, weights[idxs[i]]);
 	}
 	if (subtotal == target) {
 		if (verbose) {
@@ -76,7 +100,7 @@ int adds_up(unsigned *weights, size_t *idxs, size_t set_size,
 	} else {
 		if (verbose > 3) {
 			printf("\tgroup %d: %s\n"
-			       "\t\tsubtotal != target, %llu != %llu\n",
+			       "\t\tsubtotal != target, %lu != %lu\n",
 			       group_no,
 			       uints_idxs_to_string(buf, weights, idxs, i),
 			       subtotal, target);
@@ -86,7 +110,7 @@ int adds_up(unsigned *weights, size_t *idxs, size_t set_size,
 }
 
 int can_split_remainder(unsigned *weights, size_t *idxs1, size_t wlen,
-			size_t set_size, unsigned long long target,
+			size_t set_size, unsigned long target,
 			unsigned groups, int verbose)
 {
 	size_t i, j, k, m, n, p;
@@ -216,47 +240,91 @@ cleanup:
 }
 
 void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
-		       size_t wlen, unsigned long long target, unsigned groups,
-		       size_t *shortest, unsigned long long *smallest_product,
+		       size_t wlen, unsigned long target, unsigned groups,
+		       size_t *shortest, struct ehbigint *smallest_product,
 		       int verbose)
 {
 
 	size_t j;
-	unsigned long long product;
+	int err;
+	struct ehbigint product, result, weight;
+	unsigned char product_bytes[BIG_INT_LEN];
+	unsigned char result_bytes[BIG_INT_LEN];
+	unsigned char weight_bytes[sizeof(unsigned long)];
+	char hex[BUF_LEN], pbuf[BUF_LEN], spbuf[BUF_LEN];
+
+
+	product.bytes = product_bytes;
+	product.bytes_len = BIG_INT_LEN;
+	err = ehbi_set_ul(&product, 1);
+	if (err) {
+		DIE("ehbi_set_ul: %d\n", err);
+	}
+	result.bytes = result_bytes;
+	result.bytes_len = BIG_INT_LEN;
+
+	weight.bytes = weight_bytes;
+	weight.bytes_len = sizeof(unsigned long);
 
 	if (!adds_up(weights, idxs, set_size, target, 1, verbose)) {
 		return;
 	}
 
-	product = 1;
 	for (j = 0; j < set_size; ++j) {
-		product *= ((unsigned long long)weights[idxs[j]]);
+		err = ehbi_set_ul(&weight, weights[idxs[j]]);
+		if(err) {
+			DIE("ehbi_set_ul: %d\n", err);
+		}
+		err = ehbi_mul(&result, &product, &weight);
+		if (err) {
+			DIE("ehbi_inc: %d\n", err);
+		}
+		err = ehbi_set(&product, &result);
+		if (err) {
+			DIE("ehbi_set: %d\n", err);
+		}
 	}
-	if (product > *smallest_product) {
+	if (ehbi_greater_than(&product, smallest_product, &err)) {
+		if (err) {
+			DIE("ehbi_greater_than error: %d\n", err);
+		}
 		if (verbose > 1) {
-			printf("\tsubtotal: %llu\n", target);
-			printf("\tproduct > *smallest_product, %llu > %llu\n",
-			       product, *smallest_product);
+			printf("\tsubtotal: %lu\n", target);
+			ehbi_to_hex_string(&product, hex, BUF_LEN);
+			ehbi_hex_to_decimal(hex, BUF_LEN, pbuf, BUF_LEN);
+			ehbi_to_hex_string(smallest_product, hex, BUF_LEN);
+			ehbi_hex_to_decimal(hex, BUF_LEN, spbuf, BUF_LEN);
+			printf("\tproduct > *smallest_product, %s > %s\n",
+			       pbuf, spbuf);
 		}
 		return;
 	}
 
 	if (verbose) {
-		printf("\tsubtotal: %llu\n", target);
-		printf("\tproduct: %llu\n", product);
+		printf("\tsubtotal: %lu\n", target);
+		ehbi_to_hex_string(&product, hex, BUF_LEN);
+		ehbi_hex_to_decimal(hex, BUF_LEN, pbuf, BUF_LEN);
+		printf("\tproduct: %s\n", pbuf);
 	}
 
 	if (can_split_remainder
 	    (weights, idxs, wlen, set_size, target, groups, verbose)) {
-		if ((set_size <= *shortest) && (product <= *smallest_product)) {
+		if ((set_size <= *shortest)
+		    && !ehbi_greater_than(&product, smallest_product, &err)) {
 			*shortest = set_size;
-			*smallest_product = product;
+			ehbi_set(smallest_product, &product);
 			if (verbose) {
-				printf("*shortest: %llu\n",
-				       (unsigned long long)*shortest);
-				printf("*smallest_product: %llu\n",
-				       *smallest_product);
+				printf("*shortest: %lu\n",
+				       (unsigned long)*shortest);
+				ehbi_to_hex_string(smallest_product, hex,
+						   BUF_LEN);
+				ehbi_hex_to_decimal(hex, BUF_LEN, spbuf,
+						    BUF_LEN);
+				printf("*smallest_product: %s\n", spbuf);
 			}
+		}
+		if (err) {
+			DIE("ehbi_greater_than error: %d\n", err);
 		}
 	}
 }
@@ -265,10 +333,12 @@ int main(int argc, char **argv)
 {
 	const char *input_file_name;
 	FILE *input;
-	char buf[BUF_LEN];
+	char hex[BUF_LEN], buf[BUF_LEN];
 	int matched, verbose;
 	unsigned *weights, groups;
-	unsigned long long total, target, smallest_product;
+	unsigned long total, target;
+	struct ehbigint smallest_product;
+	unsigned char smallest_product_bytes[BIG_INT_LEN];
 	size_t i, j, bytes, wsize, wlen, from, shortest;
 	size_t *idxs;
 
@@ -277,8 +347,7 @@ int main(int argc, char **argv)
 	input_file_name = (argc > 3) ? argv[3] : "input";
 	input = fopen(input_file_name, "r");
 	if (!input) {
-		fprintf(stderr, "could not open %s\n", input_file_name);
-		return 1;
+		DIE("could not open %s\n", input_file_name);
 	}
 
 	wsize = 0;
@@ -289,9 +358,7 @@ int main(int argc, char **argv)
 			bytes = sizeof(int) * (wsize + BUF_LEN);
 			weights = realloc(weights, bytes);
 			if (!weights) {
-				fprintf(stderr, "could not allocate %d bytes\n",
-					bytes);
-				exit(EXIT_FAILURE);
+				DIE("could not allocate %d bytes\n", bytes);
 			}
 			wsize += BUF_LEN;
 		}
@@ -314,20 +381,22 @@ int main(int argc, char **argv)
 	for (i = 0; i < wlen; ++i) {
 		total += weights[i];
 		if (verbose) {
-			printf("%llu: %u\n", (unsigned long long)i, weights[i]);
+			printf("%lu: %u\n", (unsigned long)i, weights[i]);
 		}
 	}
 	if ((total % groups) != 0) {
-		printf("%llu does not divide evenly by %u\n", total,
+		printf("%lu does not divide evenly by %u\n", total,
 		       (unsigned)groups);
 		exit(EXIT_FAILURE);
 	}
 	target = total / groups;
 	if (verbose) {
-		printf("target: %llu\n", target);
+		printf("target: %lu\n", target);
 	}
 	shortest = (wlen - 1);
-	smallest_product = ULLONG_MAX;
+	smallest_product.bytes = smallest_product_bytes;
+	smallest_product.bytes_len = BIG_INT_LEN;
+	ehbi_from_hex_string(&smallest_product, MAXBIHEX, strlen(MAXBIHEX));
 
 	from = target / weights[0];
 	for (i = from; i <= shortest; ++i) {
@@ -343,7 +412,10 @@ int main(int argc, char **argv)
 		}
 	}
 
-	printf("%llu\n", smallest_product);
+
+	ehbi_to_hex_string(&smallest_product, hex, BUF_LEN -1);
+	ehbi_hex_to_decimal(hex, BUF_LEN-1, buf, BUF_LEN-1);
+	printf("%s\n", buf);
 
 	free(idxs);
 	free(weights);
