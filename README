@@ -1,0 +1,45 @@
+I would like to thank Eric Wastl for making Advent of Code[1].
+
+This is my workbook that I used as I worked through the Adevent of Code
+exercises.  I really enjoyed the diversion on various holidays,
+weekends, and the odd evening after work. I found the problems to be
+interesting and engaging, yet still small enough to not seem like too
+big of a time investment.
+
+Perhaps inspired a bit by handmadehero[2], I elected to use the C
+programming languages and not use any libraries other than the standard
+C library. The puzzles inspired me to write a hashtable[3] and a
+stack[4], as well as work through a couple of approaches to
+permutation[5][6].
+
+In the spirit kickin' it old-school (and maximizing portability, even
+for tiny machines), I stuck pretty close to C89, which inspired me to
+hack on a big integer library[7] since the exercises for days 24 and 25
+would otherwise need "long long" integers on my platform. A notable
+exception to C89 is the occational use of gnu89's safer "snprintf"
+(rather than C89's "sprintf"), for some of my debuging output.
+
+I have found it interesting to look at some solutions that others have
+posted. Often this showed me how inelegant my solutions are, and in a
+few cases I learned that some other languages have very nice standard
+library functions and syntax, especially around combinatorials. Thus, I
+am putting up my implementations (as ugly and inefficient as they are)
+with a sense that someone may find something useful within.
+
+
+License
+-------
+GNU General Public License (GPL[8]), version 3 or later.
+See COPYING.GPL3 for details.
+
+
+Links:
+-------
+[1] http://adventofcode.com/about
+[2] https://handmadehero.org/
+[3] https://github.com/ericherman/libehht
+[4] https://github.com/ericherman/libdeque
+[5] https://github.com/ericherman/code-snips/blob/master/c/permute-array.c
+[6] https://github.com/ericherman/code-snips/blob/master/c/permute-array-recursive.c
+[7] https://github.com/ericherman/libehbigint
+[8] https://www.gnu.org/licenses/gpl-3.0.txt
