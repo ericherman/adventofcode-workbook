@@ -1,6 +1,6 @@
-I would like to thank Eric Wastl for making Advent of Code[1].
+I would like to thank Eric Wastl[0] for making Advent of Code[1].
 
-This is my workbook that I used as I worked through the Adevent of Code
+This is my workbook that I used as I worked through the Advent of Code
 exercises.  I really enjoyed the diversion on various holidays,
 weekends, and the odd evening after work. I found the problems to be
 interesting and engaging, yet still small enough to not seem like too
@@ -16,8 +16,8 @@ In the spirit kickin' it old-school (and maximizing portability, even
 for tiny machines), I stuck pretty close to C89, which inspired me to
 hack on a big integer library[7] since the exercises for days 24 and 25
 would otherwise need "long long" integers on my platform. A notable
-exception to C89 is the occational use of gnu89's safer "snprintf"
-(rather than C89's "sprintf"), for some of my debuging output.
+exception to C89 is the occasional use of gnu89's safer "snprintf"
+(rather than C89's "sprintf"), for some of my debugging output.
 
 I have found it interesting to look at some solutions that others have
 posted. Often this showed me how inelegant my solutions are, and in a
@@ -35,6 +35,7 @@ See COPYING.GPL3 for details.
 
 Links:
 -------
+[0] https://github.com/topaz
 [1] http://adventofcode.com/about
 [2] https://handmadehero.org/
 [3] https://github.com/ericherman/libehht
