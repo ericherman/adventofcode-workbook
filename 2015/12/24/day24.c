@@ -13,6 +13,7 @@
 #include <string.h>
 #include <limits.h>
 #include <ehbigint.h>
+#include <ehstr.h>
 
 #define BUF_LEN 255
 #define BIG_INT_LEN 16
@@ -263,7 +264,6 @@ void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
 	unsigned char weight_bytes[sizeof(unsigned long)];
 	char hex[BUF_LEN], pbuf[BUF_LEN], spbuf[BUF_LEN];
 
-
 	product.bytes = product_bytes;
 	product.bytes_len = BIG_INT_LEN;
 	err = ehbi_set_ul(&product, 1);
@@ -282,7 +282,7 @@ void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
 
 	for (j = 0; j < set_size; ++j) {
 		err = ehbi_set_ul(&weight, weights[idxs[j]]);
-		if(err) {
+		if (err) {
 			DIE("ehbi_set_ul: %d\n", err);
 		}
 		err = ehbi_mul(&result, &product, &weight);
@@ -301,9 +301,9 @@ void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
 		if (verbose > 1) {
 			printf("\tsubtotal: %lu\n", target);
 			ehbi_to_hex_string(&product, hex, BUF_LEN);
-			ehbi_hex_to_decimal(hex, BUF_LEN, pbuf, BUF_LEN);
+			hex_to_decimal(hex, BUF_LEN, pbuf, BUF_LEN);
 			ehbi_to_hex_string(smallest_product, hex, BUF_LEN);
-			ehbi_hex_to_decimal(hex, BUF_LEN, spbuf, BUF_LEN);
+			hex_to_decimal(hex, BUF_LEN, spbuf, BUF_LEN);
 			printf("\tproduct > *smallest_product, %s > %s\n",
 			       pbuf, spbuf);
 		}
@@ -313,7 +313,7 @@ void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
 	if (verbose) {
 		printf("\tsubtotal: %lu\n", target);
 		ehbi_to_hex_string(&product, hex, BUF_LEN);
-		ehbi_hex_to_decimal(hex, BUF_LEN, pbuf, BUF_LEN);
+		hex_to_decimal(hex, BUF_LEN, pbuf, BUF_LEN);
 		printf("\tproduct: %s\n", pbuf);
 	}
 
@@ -328,8 +328,7 @@ void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
 				       (unsigned long)*shortest);
 				ehbi_to_hex_string(smallest_product, hex,
 						   BUF_LEN);
-				ehbi_hex_to_decimal(hex, BUF_LEN, spbuf,
-						    BUF_LEN);
+				hex_to_decimal(hex, BUF_LEN, spbuf, BUF_LEN);
 				printf("*smallest_product: %s\n", spbuf);
 			}
 		}
@@ -422,9 +421,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-
-	ehbi_to_hex_string(&smallest_product, hex, BUF_LEN -1);
-	ehbi_hex_to_decimal(hex, BUF_LEN-1, buf, BUF_LEN-1);
+	ehbi_to_hex_string(&smallest_product, hex, BUF_LEN - 1);
+	hex_to_decimal(hex, BUF_LEN - 1, buf, BUF_LEN - 1);
 	printf("%s\n", buf);
 
 	free(idxs);
