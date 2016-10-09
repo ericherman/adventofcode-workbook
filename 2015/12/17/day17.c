@@ -1,3 +1,13 @@
+/* day17.c 2015 AdventOfCode solution
+   Copyright (C) 2015-2016 Eric Herman <eric@freesa.org>
+
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   See COPYING or <http://www.gnu.org/licenses/>.
+*/
 #include <stdio.h>
 #include <stdlib.h>		/* malloc exit qsort */
 #include <ehht.h>		/* github.com/ericherman/libehht */
