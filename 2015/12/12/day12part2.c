@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	stack = deque_new(NULL, NULL, NULL);
+	stack = deque_new();
 	cnt = new_depth_counter(0);
 	stack->push(stack, cnt);
 
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 		} else if ((c == '}' || c == ']') && str_idx == 0) {
 			free_me = cnt;
 			stack->pop(stack);
-			cnt = stack->top(stack);
+			cnt = stack->peek_top(stack);
 			if (free_me->has_red == 0) {
 				cnt->total += (free_me->val + free_me->total);
 			}
@@ -129,7 +129,7 @@ int main(int argc, char **argv)
 
 	while (stack->size(stack) > 1) {
 		free_me = stack->pop(stack);
-		cnt = stack->top(stack);
+		cnt = stack->peek_top(stack);
 		if (free_me->has_red == 0) {
 			cnt->total += (free_me->val + free_me->total);
 		}
