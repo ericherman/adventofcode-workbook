@@ -295,7 +295,7 @@ void fight(const char *pastlog, int hard, int depth, struct player_s u,
 		fight(log, hard, depth, u, spellbook[i], m, least_mana,
 		      verbose);
 	}
-      print_log_free_and_return:
+print_log_free_and_return:
 	printf("%s", log);
 	free(log);
 }

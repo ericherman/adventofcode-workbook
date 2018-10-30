@@ -95,12 +95,12 @@ static void init_context(struct context_s *ctx, ULONGEST inmul, ULONGEST inmod,
 	ctx->in.bytes_used = 0;
 	ctx->res.bytes_used = 0;
 
-	ehbi_set_ul(&ctx->in, 0);
-	ehbi_set_ul(&ctx->mul, ctx->inmul);
-	ehbi_set_ul(&ctx->res, 0);
-	ehbi_set_ul(&ctx->mod, ctx->inmod);
-	ehbi_set_ul(&ctx->quot, 0);
-	ehbi_set_ul(&ctx->rem, 0);
+	ehbi_set_l(&ctx->in, 0);
+	ehbi_set_l(&ctx->mul, ctx->inmul);
+	ehbi_set_l(&ctx->res, 0);
+	ehbi_set_l(&ctx->mod, ctx->inmod);
+	ehbi_set_l(&ctx->quot, 0);
+	ehbi_set_l(&ctx->rem, 0);
 
 	ctx->verbose = verbose;
 }
@@ -125,7 +125,7 @@ static ULONGEST mul_mod(struct context_s *ctx, size_t i, ULONGEST x)
 			ctx->inmul, ctx->inmod);
 	}
 
-	err = ehbi_set_ul(&ctx->in, x);
+	err = ehbi_set_l(&ctx->in, x);
 	if (err) {
 		DIE("ehbi_set_ul: %d\n", err);
 	}
@@ -141,26 +141,26 @@ static ULONGEST mul_mod(struct context_s *ctx, size_t i, ULONGEST x)
 		DIE("ehbi_mul: %d\n", err);
 	}
 	if (ctx->verbose > 2) {
-		err = ehbi_to_decimal_string(&ctx->in, dec, 80);
+		ehbi_to_decimal_string(&ctx->in, dec, 80, &err);
 		if (err) {
 			DIE3("%d from ehbi_to_decimal_string(%p, %p, 80)\n",
 			     err, (void *)&ctx->in, (void *)dec);
 		}
 		printf("%s", dec);
-		err = ehbi_to_decimal_string(&ctx->mul, dec, 80);
+		ehbi_to_decimal_string(&ctx->mul, dec, 80, &err);
 		if (err) {
 			DIE3("%d from ehbi_to_decimal_string(%p, %p, 80)\n",
 			     err, (void *)&ctx->mul, (void *)dec);
 		}
 		printf(" * %s = ", dec);
-		err = ehbi_to_decimal_string(&ctx->res, dec, 80);
+		ehbi_to_decimal_string(&ctx->res, dec, 80, &err);
 		if (err) {
 			DIE3("%d from ehbi_to_decimal_string(%p, %p, 80)\n",
 			     err, (void *)&ctx->res, (void *)dec);
 		}
 		printf("%s\n", dec);
 		printf("ehbi_div(&cxt->quot, &ctx->rem, %s,", dec);
-		err = ehbi_to_decimal_string(&ctx->mod, dec, 80);
+		ehbi_to_decimal_string(&ctx->mod, dec, 80, &err);
 		if (err) {
 			DIE3("%d from ehbi_to_decimal_string(%p, %p, 80)\n",
 			     err, (void *)&ctx->mod, (void *)dec);
@@ -182,7 +182,7 @@ static ULONGEST mul_mod(struct context_s *ctx, size_t i, ULONGEST x)
 		    (unsigned long)ctx->rem.bytes_used);
 	}
 
-	err = ehbi_to_decimal_string(&ctx->rem, dec, 80);
+	ehbi_to_decimal_string(&ctx->rem, dec, 80, &err);
 	if (err) {
 		DIE("%d from ehbi_to_decimal_string\n", err);
 	}
@@ -249,7 +249,7 @@ int main(int argc, char **argv)
 	if (ctx.verbose) {
 		printf("   |");
 		for (x = 1; x <= 6; ++x) {
-			printf("    %u     ", x);
+			printf("    %lu     ", (unsigned long)x);
 		}
 		printf("\n");
 		printf("---+");
@@ -259,7 +259,7 @@ int main(int argc, char **argv)
 		printf("\n");
 		fflush(stdout);
 		for (y = 1; y <= 6; ++y) {
-			printf(" %u |", y);
+			printf(" %lu |", (unsigned long)y);
 			for (x = 1; x <= 6; ++x) {
 				pos = find_pos(x, y);
 				next = first;

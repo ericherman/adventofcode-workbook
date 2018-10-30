@@ -266,7 +266,7 @@ void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
 
 	product.bytes = product_bytes;
 	product.bytes_len = BIG_INT_LEN;
-	err = ehbi_set_ul(&product, 1);
+	err = ehbi_set_l(&product, 1);
 	if (err) {
 		DIE("ehbi_set_ul: %d\n", err);
 	}
@@ -281,7 +281,7 @@ void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
 	}
 
 	for (j = 0; j < set_size; ++j) {
-		err = ehbi_set_ul(&weight, weights[idxs[j]]);
+		err = ehbi_set_l(&weight, weights[idxs[j]]);
 		if (err) {
 			DIE("ehbi_set_ul: %d\n", err);
 		}
@@ -300,9 +300,10 @@ void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
 		}
 		if (verbose > 1) {
 			printf("\tsubtotal: %lu\n", target);
-			ehbi_to_hex_string(&product, hex, BUF_LEN);
+			ehbi_to_hex_string(&product, hex, BUF_LEN, &err);
 			hex_to_decimal(hex, BUF_LEN, pbuf, BUF_LEN);
-			ehbi_to_hex_string(smallest_product, hex, BUF_LEN);
+			ehbi_to_hex_string(smallest_product, hex, BUF_LEN,
+					   &err);
 			hex_to_decimal(hex, BUF_LEN, spbuf, BUF_LEN);
 			printf("\tproduct > *smallest_product, %s > %s\n",
 			       pbuf, spbuf);
@@ -312,7 +313,7 @@ void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
 
 	if (verbose) {
 		printf("\tsubtotal: %lu\n", target);
-		ehbi_to_hex_string(&product, hex, BUF_LEN);
+		ehbi_to_hex_string(&product, hex, BUF_LEN, &err);
 		hex_to_decimal(hex, BUF_LEN, pbuf, BUF_LEN);
 		printf("\tproduct: %s\n", pbuf);
 	}
@@ -327,7 +328,7 @@ void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
 				printf("*shortest: %lu\n",
 				       (unsigned long)*shortest);
 				ehbi_to_hex_string(smallest_product, hex,
-						   BUF_LEN);
+						   BUF_LEN, &err);
 				hex_to_decimal(hex, BUF_LEN, spbuf, BUF_LEN);
 				printf("*smallest_product: %s\n", spbuf);
 			}
@@ -343,7 +344,7 @@ int main(int argc, char **argv)
 	const char *input_file_name;
 	FILE *input;
 	char hex[BUF_LEN], buf[BUF_LEN];
-	int matched, verbose;
+	int matched, verbose, err;
 	unsigned *weights, groups;
 	unsigned long total, target;
 	struct ehbigint smallest_product;
@@ -367,7 +368,8 @@ int main(int argc, char **argv)
 			bytes = sizeof(int) * (wsize + BUF_LEN);
 			weights = realloc(weights, bytes);
 			if (!weights) {
-				DIE("could not allocate %d bytes\n", bytes);
+				DIE("could not allocate %lu bytes\n",
+				    (unsigned long)bytes);
 			}
 			wsize += BUF_LEN;
 		}
@@ -405,7 +407,7 @@ int main(int argc, char **argv)
 	shortest = (wlen - 1);
 	smallest_product.bytes = smallest_product_bytes;
 	smallest_product.bytes_len = BIG_INT_LEN;
-	ehbi_from_hex_string(&smallest_product, MAXBIHEX, strlen(MAXBIHEX));
+	ehbi_set_hex_string(&smallest_product, MAXBIHEX, strlen(MAXBIHEX));
 
 	from = target / weights[0];
 	for (i = from; i <= shortest; ++i) {
@@ -421,7 +423,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	ehbi_to_hex_string(&smallest_product, hex, BUF_LEN - 1);
+	ehbi_to_hex_string(&smallest_product, hex, BUF_LEN - 1, &err);
 	hex_to_decimal(hex, BUF_LEN - 1, buf, BUF_LEN - 1);
 	printf("%s\n", buf);
 

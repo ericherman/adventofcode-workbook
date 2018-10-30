@@ -91,8 +91,7 @@ static int add_name_copy(struct ehht_key_s key, void *each_val, void *context)
 		fprintf(stderr, "%s %p\n", key.str, each_val);
 	}
 	name_list = (struct name_list_s *)context;
-	name_list->names[name_list->size++] =
-	    strndup(key.str, key.len + 1);
+	name_list->names[name_list->size++] = strndup(key.str, key.len + 1);
 	return 0;
 }
 

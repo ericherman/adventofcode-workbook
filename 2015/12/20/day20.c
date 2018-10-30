@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 		count = 0;
 		for (house = elf; house < len; house += elf) {
 			houses[house] += (elf * to_deliver);
-			if(max50 && ++count > 50) {
+			if (max50 && ++count > 50) {
 				break;
 			}
 		}

@@ -1,18 +1,18 @@
 PROG=day12part1
 PROG2=day12part2
-#LIBDEQUE=$(HOME)/src/libdeque/.libs
 
-#INCLUDES=-I$(LIBDEQUE)
-#A_FILES=$(LIBDEQUE)/libdeque.a
+CFLAGS=-std=gnu89 -ggdb -O2 -Wall -Wextra -Wpedantic -Werror
 
-CFLAGS=-std=gnu89 -ggdb -O3 -Wall -Wextra -Wpedantic -Werror
-LDADD=-ldeque
+DEQUE_DIR=../../../common/deque
 
-default:
+default: deque
 	gcc -c $(CFLAGS) -o $(PROG).o ./$(PROG).c
 	gcc $(PROG).o -o $(PROG)
-	gcc -c $(CFLAGS) $(INCLUDES) -o $(PROG2).o ./$(PROG2).c
-	gcc $(PROG2).o $(A_FILES) -o $(PROG2) $(LDADD)
+	gcc -c $(CFLAGS) -I$(DEQUE_DIR) -o $(PROG2).o ./$(PROG2).c
+	gcc -g -O2 $(PROG2).o deque.o -o $(PROG2)
+
+deque: $(DEQUE_DIR)/deque.h $(DEQUE_DIR)/deque.c
+	gcc -c $(CFLAGS) -I$(DEQUE_DIR) -o deque.o $(DEQUE_DIR)/deque.c
 
 clean:
 	rm -fv $(PROG) $(PROG2) *.o

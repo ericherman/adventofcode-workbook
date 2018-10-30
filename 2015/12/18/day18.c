@@ -78,6 +78,7 @@ int main(int argc, char **argv)
 
 	from = alloca(sizeof(char) * (grid_size * grid_size));
 	to = alloca(sizeof(char) * (grid_size * grid_size));
+	last = NULL;
 	if (!from || !to) {
 		fprintf(stderr, "could not allocate arrays\n");
 		return 1;

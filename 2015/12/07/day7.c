@@ -192,7 +192,7 @@ static struct op_s *parse_token(char *buf, size_t buf_len)
 		ops->in1 = strndup(token[0], TOKEN_BUF_LEN);
 		break;
 	default:
-	      token_parse_error:
+token_parse_error:
 		fprintf(stderr, "buf: '%s' mis-parsed", buf);
 		fprintf(stderr, " as out: %s := (%s %s %s)\n",
 			out, token[0], token[1], token[2]);

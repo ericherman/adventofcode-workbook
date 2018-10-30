@@ -166,8 +166,8 @@ int main(int argc, char **argv)
 
 	while (code[cpu.line].op != END) {
 		if (verbose) {
-			fprintf(stderr, "cpu.a: %d, cpu.b: %d, cpu.line: %d\n",
-				cpu.a, cpu.b, cpu.line);
+			fprintf(stderr, "cpu.a: %d, cpu.b: %d, cpu.line: %lu\n",
+				cpu.a, cpu.b, (unsigned long)cpu.line);
 			fprintf(stderr, "\top: %s, reg: %c, val: %d\n",
 				opcode_to_str(code[cpu.line].op),
 				code[cpu.line].reg, code[cpu.line].val);
@@ -219,8 +219,8 @@ int main(int argc, char **argv)
 		}
 	}
 	if (verbose) {
-		fprintf(stderr, "cpu.a: %d, cpu.b: %d, cpu.line: %d\n", cpu.a,
-			cpu.b, cpu.line);
+		fprintf(stderr, "cpu.a: %d, cpu.b: %d, cpu.line: %lu\n", cpu.a,
+			cpu.b, (unsigned long)cpu.line);
 	}
 
 	printf("%d\n", cpu.b);
