@@ -1,0 +1,167 @@
+/*
+ehbigint-error.c: support-functions for ehbigint
+Copyright (C) 2016 Eric Herman <eric@freesa.org>
+
+This work is free software: you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or (at
+your option) any later version.
+
+This work is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+License for more details.
+*/
+
+#include "ehbigint-log.h"
+
+#include "ehbigint-str.h"	/* ehbi_to_hex_string ehbi_byte_to_hex_chars */
+#include "ehbigint-util.h"	/* ehbi_stack_alloc */
+
+#include <stdarg.h>		/* va_list */
+#include <stdlib.h>		/* exit() used in ehbi_debug_to_string */
+
+#ifdef _POSIX_SOURCE
+#include <execinfo.h>		/* backtrace backtrace_symbols_fd */
+#include <stdio.h>		/* fileno */
+#endif
+
+#if EHBI_DEBUG
+unsigned EHBI_DBUG_i = 0;
+unsigned EHBI_DBUG_depth = 0;
+char EHBI_DBUG_Buf0[80];
+char EHBI_DBUG_Buf1[80];
+#endif
+
+int ehbi_debug_log_level = 0;
+int ehbi_debugf(int level, const char *fmt, ...)
+{
+	va_list ap;
+	int r;
+
+	if (ehbi_debug_log_level < level) {
+		return 0;
+	}
+
+	va_start(ap, fmt);
+	r = vfprintf(stderr, fmt, ap);
+	va_end(ap);
+	return r;
+}
+
+void ehbi_debug_to_hex(int level, const struct ehbigint *bi, const char *label)
+{
+	char *buf;
+	size_t size;
+	int err;
+	/*
+	   size_t i;
+	 */
+
+	if (ehbi_debug_log_level < level) {
+		return;
+	}
+
+	size = 5 + (4 * bi->bytes_used);
+	buf = (char *)ehbi_stack_alloc(size);
+	if (!buf) {
+		Ehbi_log_error2("Could not %s(%lu) bytes", ehbi_stack_alloc_str,
+				(unsigned long)size);
+		exit(EXIT_FAILURE);
+	}
+
+	fprintf(stderr, "%s\t(%p):", label, (void *)bi);
+	/*
+	   for (i = 0; i < (bi->bytes_len - bi->bytes_used); ++i) {
+	   fprintf(stderr, "  ");
+	   }
+	 */
+	fprintf(stderr, "%s", ehbi_to_hex_string(bi, buf, size, &err));
+	fprintf(stderr, "\t(%s)\n",
+		ehbi_to_decimal_string(bi, buf, size, &err));
+
+	ehbi_stack_free(buf, size);
+}
+
+void ehbi_debug_to_string(int level, const struct ehbigint *bi,
+			  const char *label)
+{
+	char *buf, h, l;
+	size_t size, i;
+	int err;
+
+	if (ehbi_debug_log_level < level) {
+		return;
+	}
+
+	fprintf(stderr,
+		"%s (%p) => {\n\tbytes => (%p),\n" "\tbytes_len => %lu,\n"
+		"\tbytes_used => %lu,\n", label, (void *)bi,
+		(void *)bi->bytes, (unsigned long)bi->bytes_len,
+		(unsigned long)bi->bytes_used);
+
+	fprintf(stderr, "\tused  => ");
+	for (i = bi->bytes_len; i > 0; --i) {
+		fprintf(stderr, "%s", i > bi->bytes_used ? "XX" : "__");
+	}
+	fprintf(stderr, ",\n");
+
+	fprintf(stderr, "\tbytes => ");
+	for (i = bi->bytes_len; i > 0; --i) {
+		h = '?';
+		l = '?';
+		ehbi_byte_to_hex_chars(bi->bytes[bi->bytes_len - i], &h, &l);
+		fprintf(stderr, "%c%c", h, l);
+	}
+	fprintf(stderr, ",\n");
+	fprintf(stderr, "\tsign => %d\n", bi->sign);
+
+	size = 5 + (8 * bi->bytes_used);
+	buf = (char *)ehbi_stack_alloc(size);
+	if (!buf) {
+		Ehbi_log_error2("Could not %s(%lu) bytes", ehbi_stack_alloc_str,
+				(unsigned long)size);
+		exit(EXIT_FAILURE);
+	}
+	fprintf(stderr, "\thex => ");
+	for (i = 0; i < (bi->bytes_len - bi->bytes_used); ++i) {
+		fprintf(stderr, "  ");
+	}
+	fprintf(stderr, "%s,\n", ehbi_to_hex_string(bi, buf, size, &err));
+
+	fprintf(stderr, "\tbin => %s,\n",
+		ehbi_to_binary_string(bi, buf, size, &err));
+	fprintf(stderr, "\tdec => %s,\n",
+		ehbi_to_decimal_string(bi, buf, size, &err));
+	ehbi_stack_free(buf, size);
+
+	fprintf(stderr, "}\n");
+}
+
+FILE *global_ehbi_log_file = NULL;
+
+FILE *ehbi_log_file()
+{
+	if (global_ehbi_log_file == NULL) {
+		global_ehbi_log_file = stderr;
+	}
+	return global_ehbi_log_file;
+}
+
+void set_ehbi_log_file(FILE *log)
+{
+	global_ehbi_log_file = log;
+}
+
+void ehbi_log_backtrace(FILE *log)
+{
+#if _POSIX_SOURCE
+	void *array[4096];
+	size_t size;
+
+	size = backtrace(array, 4096);
+	backtrace_symbols_fd(array, size, fileno(log));
+#else
+	fprintf(log, "(backtrace unavailable)\n");
+#endif /* EHBI_CAN_BACKTRACE */
+}
