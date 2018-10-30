@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	l = w = h = area = smallest_a = smallest_b = 0;
+	l = w = h = area = smallest_a = smallest_b = total = 0;
 	while ((matched = fscanf(input, "%ux%ux%u", &l, &w, &h)) != EOF) {
 		if (matched == 3) {
 			smallest_a = l;

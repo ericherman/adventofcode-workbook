@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	l = w = h = area = smallest = 0;
+	l = w = h = area = smallest = total = 0;
 	while ((matched = fscanf(input, "%ux%ux%u", &l, &w, &h)) != EOF) {
 		if (matched == 3) {
 			smallest = area = l * w;
