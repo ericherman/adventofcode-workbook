@@ -66,11 +66,15 @@ int main(int argc, char **argv)
 				}
 			}
 		}
+		if (instr != 0 || escaped != 0) {
+			fprintf(stderr, "Error with input '%s'\n", buf);
+		}
 	}
 
 	fclose(input);
 
-	printf("total: %u, mem chars:%u (double_encode: %u)\n", total, chars,
+	printf("total: %u, mem chars: %u\n", total, chars);
+	printf("overhead: %u, (double_encode: %u)\n", total - chars,
 	       double_encode);
 
 	return 0;
