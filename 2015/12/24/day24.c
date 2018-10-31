@@ -29,7 +29,7 @@
   fprintf(stderr, format, arg1, arg2, arg3);\
   exit(EXIT_FAILURE)
 
-int cmp_uint_desc(const void *a, const void *b)
+static int cmp_uint_desc(const void *a, const void *b)
 {
 	unsigned l, r;
 
@@ -38,7 +38,7 @@ int cmp_uint_desc(const void *a, const void *b)
 	return (int)(r - l);
 }
 
-int choose_k_from_n(size_t *idxs, size_t k, size_t n)
+static int choose_k_from_n(size_t *idxs, size_t k, size_t n)
 {
 	size_t i;
 
@@ -63,7 +63,8 @@ int choose_k_from_n(size_t *idxs, size_t k, size_t n)
 	return 1;
 }
 
-char *uints_idxs_to_string(char *buf, unsigned *ints, size_t *idxs, size_t len)
+static char *uints_idxs_to_string(char *buf, unsigned *ints, size_t *idxs,
+				  size_t len)
 {
 	size_t i;
 	int x;
@@ -91,8 +92,8 @@ static unsigned long do_addul(unsigned long a, unsigned long b)
 	return c;
 }
 
-int adds_up(unsigned *weights, size_t *idxs, size_t set_size,
-	    unsigned long target, unsigned group_no, int verbose)
+static int adds_up(unsigned *weights, size_t *idxs, size_t set_size,
+		   unsigned long target, unsigned group_no, int verbose)
 {
 	unsigned long subtotal;
 	size_t i;
@@ -120,9 +121,9 @@ int adds_up(unsigned *weights, size_t *idxs, size_t set_size,
 	return 0;
 }
 
-int can_split_remainder(unsigned *weights, size_t *idxs1, size_t wlen,
-			size_t set_size, unsigned long target,
-			unsigned groups, int verbose)
+static int can_split_remainder(unsigned *weights, size_t *idxs1, size_t wlen,
+			       size_t set_size, unsigned long target,
+			       unsigned groups, int verbose)
 {
 	size_t i, j, k, m, n, p;
 	int used, addsup;
@@ -250,10 +251,10 @@ cleanup:
 	return addsup;
 }
 
-void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
-		       size_t wlen, unsigned long target, unsigned groups,
-		       size_t *shortest, struct ehbigint *smallest_product,
-		       int verbose)
+static void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
+			      size_t wlen, unsigned long target,
+			      unsigned groups, size_t *shortest,
+			      struct ehbigint *smallest_product, int verbose)
 {
 
 	size_t j;
@@ -352,8 +353,8 @@ int main(int argc, char **argv)
 	size_t i, j, bytes, wsize, wlen, from, shortest;
 	size_t *idxs;
 
-	verbose = (argc > 1) ? atoi(argv[1]) : 0;
-	groups = (argc > 2) ? ((atoi(argv[2]) == 4) ? 4 : 3) : 3;
+	groups = (argc > 1) ? (atoi(argv[1]) ? 4 : 3) : 3;
+	verbose = (argc > 2) ? atoi(argv[2]) : 0;
 	input_file_name = (argc > 3) ? argv[3] : "input";
 	input = fopen(input_file_name, "r");
 	if (!input) {

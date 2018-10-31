@@ -56,7 +56,7 @@ struct item_s rings[] = {
 	{0, 0, 0, 0}
 };
 
-char *print_item_s(char *buf, size_t len, struct item_s item)
+static char *print_item_s(char *buf, size_t len, struct item_s item)
 {
 	snprintf(buf, len, "%s: cost: %d damage: %d armor: %d", item.name,
 		 item.cost, item.damage, item.armor);
@@ -70,7 +70,7 @@ struct fighter_s {
 	int armor;
 };
 
-int fight(struct fighter_s u, struct fighter_s m, int verbose)
+static int fight(struct fighter_s u, struct fighter_s m, int verbose)
 {
 	int damage;
 
@@ -107,9 +107,9 @@ int fight(struct fighter_s u, struct fighter_s m, int verbose)
 	return 0;
 }
 
-void equip_and_fight(struct fighter_s *m, struct fighter_s *u, size_t w,
-		     size_t a, size_t r, size_t l, int *u_gold, int worst_loss,
-		     int verbose)
+static void equip_and_fight(struct fighter_s *m, struct fighter_s *u, size_t w,
+			    size_t a, size_t r, size_t l, int *u_gold,
+			    int worst_loss, int verbose)
 {
 	int cost, u_win;
 	char buf[BUF_LEN];
@@ -163,8 +163,8 @@ int main(int argc, char **argv)
 	size_t w, a, l, r;
 	struct fighter_s u, m;
 
-	verbose = (argc > 1) ? atoi(argv[1]) : 0;
-	worst_loss = (argc > 2) ? atoi(argv[2]) : 0;
+	worst_loss = (argc > 1) ? atoi(argv[1]) : 0;
+	verbose = (argc > 2) ? atoi(argv[2]) : 0;
 	input_file_name = (argc > 3) ? argv[3] : "input";
 	input = fopen(input_file_name, "r");
 	if (!input) {

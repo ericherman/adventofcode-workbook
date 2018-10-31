@@ -61,8 +61,8 @@ struct player_s {
 	int charge_turns;
 };
 
-int apply_effects(char *log, struct player_s *u, struct monster_s *m,
-		  int verbose)
+static int apply_effects(char *log, struct player_s *u, struct monster_s *m,
+			 int verbose)
 {
 	int shielded;
 	if (u->poison_turns) {
@@ -101,9 +101,9 @@ int apply_effects(char *log, struct player_s *u, struct monster_s *m,
 	return shielded;
 }
 
-void fight(const char *pastlog, int hard, int depth, struct player_s u,
-	   const struct spell_s *spell, struct monster_s m, int *least_mana,
-	   int verbose)
+static void fight(const char *pastlog, int hard, int depth, struct player_s u,
+		  const struct spell_s *spell, struct monster_s m,
+		  int *least_mana, int verbose)
 {
 	size_t i;
 	int damage;
@@ -312,8 +312,8 @@ int main(int argc, char **argv)
 	struct player_s u;
 	size_t i;
 
-	verbose = (argc > 1) ? atoi(argv[1]) : 0;
-	hard = (argc > 2) ? atoi(argv[2]) : 0;
+	hard = (argc > 1) ? atoi(argv[1]) : 0;
+	verbose = (argc > 2) ? atoi(argv[2]) : 0;
 	input_file_name = (argc > 3) ? argv[3] : "input";
 	input = fopen(input_file_name, "r");
 	if (!input) {

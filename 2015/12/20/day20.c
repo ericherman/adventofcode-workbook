@@ -24,8 +24,8 @@ int main(int argc, char **argv)
 	unsigned long *houses;
 	size_t len;
 
-	verbose = (argc > 1) ? atoi(argv[1]) : 0;
-	max50 = (argc > 2) ? atoi(argv[2]) : 0;
+	max50 = (argc > 1) ? atoi(argv[1]) : 0;
+	verbose = (argc > 2) ? atoi(argv[2]) : 0;
 	input_file_name = (argc > 3) ? argv[3] : "input";
 	input = fopen(input_file_name, "r");
 	if (!input) {

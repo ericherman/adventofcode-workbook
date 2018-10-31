@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <alloca.h>
 
-int neighbors_on(char *from, int grid_size, int y, int x)
+static int neighbors_on(char *from, int grid_size, int y, int x)
 {
 	int ny, nx, n_on;
 
@@ -30,7 +30,7 @@ int neighbors_on(char *from, int grid_size, int y, int x)
 	return n_on;
 }
 
-int report(char *grid, int grid_size, int print)
+static int report(char *grid, int grid_size, int print)
 {
 	char c;
 	int x, y, total;

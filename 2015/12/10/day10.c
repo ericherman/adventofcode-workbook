@@ -14,7 +14,7 @@
 
 #define MAKE_VALGRIND_HAPPY 0
 
-unsigned ctoi(char c)
+static unsigned ctoi(char c)
 {
 	return (unsigned)(c - '0');
 }

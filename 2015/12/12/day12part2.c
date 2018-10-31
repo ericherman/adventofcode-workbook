@@ -21,7 +21,7 @@ struct depth_counter_s {
 	unsigned depth;
 };
 
-struct depth_counter_s *new_depth_counter(unsigned depth)
+static struct depth_counter_s *new_depth_counter(unsigned depth)
 {
 	struct depth_counter_s *n;
 

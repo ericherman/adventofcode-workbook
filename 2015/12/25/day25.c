@@ -222,9 +222,9 @@ int main(int argc, char **argv)
 	ULONGEST first, next;
 	struct context_s ctx;
 
-	verbose = (argc > 1) ? atoi(argv[1]) : DEFAULT_VERBOSE;
-	row = (argc > 2) ? atoi(argv[2]) : 0;
-	col = (argc > 3) ? atoi(argv[3]) : 0;
+	row = (argc > 1) ? atoi(argv[1]) : 0;
+	col = (argc > 2) ? atoi(argv[2]) : 0;
+	verbose = (argc > 3) ? atoi(argv[3]) : DEFAULT_VERBOSE;
 
 	init_context(&ctx, 252533, 33554393, verbose);
 

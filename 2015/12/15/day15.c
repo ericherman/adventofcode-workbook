@@ -33,7 +33,7 @@ const struct cookie_ingredient_s pbutter = { "PeanutButter", -1, 3, 0, 0, 1 };
 const struct cookie_ingredient_s frosting = { "Frosting", 0, -1, 4, 0, 6 };
 const struct cookie_ingredient_s sugar = { "Sugar", -1, 0, 0, 2, 8 };
 
-long cscore(unsigned spkl, unsigned pb, unsigned frst, unsigned sug, int cal)
+static long cscore(int spkl, int pb, int frst, int sug, int cal)
 {
 	long capacity, durability, flavor, texture, calories;
 	long score;
@@ -81,10 +81,9 @@ long cscore(unsigned spkl, unsigned pb, unsigned frst, unsigned sug, int cal)
 
 int main(int argc, char **argv)
 {
-	unsigned spoons, spkl, pb, frst, sug;
-	size_t best_spkl, best_pb, best_frst, best_sug;
+	int cal, spoons;
+	int spkl, pb, frst, sug, best_spkl, best_pb, best_frst, best_sug;
 	long score, best_score;
-	int cal;
 
 	cal = (argc > 1) ? atoi(argv[1]) : 0;
 	spoons = (argc > 2) ? atoi(argv[2]) : 100;
@@ -110,12 +109,12 @@ int main(int argc, char **argv)
 		}
 	}
 
-	printf("%u %s\n", best_spkl, sprinkles.name);
-	printf("%u %s\n", best_pb, pbutter.name);
-	printf("%u %s\n", best_frst, frosting.name);
-	printf("%u %s\n", best_sug, sugar.name);
+	printf("%d %s\n", best_spkl, sprinkles.name);
+	printf("%d %s\n", best_pb, pbutter.name);
+	printf("%d %s\n", best_frst, frosting.name);
+	printf("%d %s\n", best_sug, sugar.name);
 
-	printf("%li %s\n", best_score, "best score");
+	printf("%ld %s\n", best_score, "best score");
 
 	return 0;
 }

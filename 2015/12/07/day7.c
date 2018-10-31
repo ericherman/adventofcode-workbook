@@ -30,7 +30,7 @@ enum op_code {
 	OP_HALT
 };
 
-enum op_code parse_op_code(char *buf, size_t len)
+static enum op_code parse_op_code(char *buf, size_t len)
 {
 	if (strncmp("NOP", buf, len) == 0) {
 		return OP_NOP;
@@ -69,7 +69,7 @@ struct op_s {
 	unsigned satisfied:1;
 };
 
-struct op_s *new_op_s()
+static struct op_s *new_op_s()
 {
 	struct op_s *o;
 
@@ -88,20 +88,21 @@ struct op_s *new_op_s()
 	return o;
 }
 
-void free_op_s(struct op_s *o)
+static void free_op_s(struct op_s *o)
 {
-	if (o) {
-		if (o->out)
-			free(o->out);
-		if (o->in1)
-			free(o->in1);
-		if (o->in2)
-			free(o->in2);
-		free(o);
+	if (!o) {
+		return;
 	}
+	if (o->out)
+		free(o->out);
+	if (o->in1)
+		free(o->in1);
+	if (o->in2)
+		free(o->in2);
+	free(o);
 }
 
-int to_string_op_s(struct op_s *o, char *buf, size_t buf_len)
+static int to_string_op_s(struct op_s *o, char *buf, size_t buf_len)
 {
 	char result[20];
 	if (!o) {

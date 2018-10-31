@@ -67,7 +67,7 @@ static const char *opcode_to_str(unsigned char op)
 	return str;
 }
 
-int parse_op(struct instruction_s *c, const char *buf, int verbose)
+static int parse_op(struct instruction_s *c, const char *buf, int verbose)
 {
 	char inst[BUF_LEN], arg1[BUF_LEN], arg2[BUF_LEN];
 	int matched;
@@ -130,8 +130,8 @@ int main(int argc, char **argv)
 	struct machine_s cpu;
 	int verbose, *r, init_a;
 
-	verbose = (argc > 1) ? atoi(argv[1]) : 0;
-	init_a = (argc > 2) ? atoi(argv[2]) : 0;
+	init_a = (argc > 1) ? atoi(argv[1]) : 0;
+	verbose = (argc > 2) ? atoi(argv[2]) : 0;
 	input_file_name = (argc > 3) ? argv[3] : "input";
 	input = fopen(input_file_name, "r");
 	if (!input) {

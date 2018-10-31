@@ -36,7 +36,7 @@ static void inc_buf(char *c, size_t len)
 	}
 }
 
-int contains_3_letter_strait(char *c, size_t len, int print)
+static int contains_3_letter_strait(char *c, size_t len, int print)
 {
 	size_t i;
 
@@ -51,7 +51,7 @@ int contains_3_letter_strait(char *c, size_t len, int print)
 	return 0;
 }
 
-int contains_2_non_overlapping_pairs(char *c, size_t len, int print)
+static int contains_2_non_overlapping_pairs(char *c, size_t len, int print)
 {
 	size_t i, pairs;
 
@@ -83,8 +83,8 @@ int main(int argc, char **argv)
 	char buf[BUF_LEN];
 	size_t len, verbose;
 
-	verbose = (argc > 1) ? atoi(argv[1]) : 0;
-	input = (argc > 2) ? argv[2] : "cqjxjnds";
+	input = (argc > 1) ? argv[1] : "cqjxjnds";
+	verbose = (argc > 2) ? atoi(argv[2]) : 0;
 
 	len = strlen(input);
 	if (len > PW_LEN) {
@@ -111,8 +111,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-	printf("%s\n", buf);
 	contains_3_letter_strait(buf, len, 1);
 	contains_2_non_overlapping_pairs(buf, len, 1);
+	printf("%s\n", buf);
 	return 0;
 }

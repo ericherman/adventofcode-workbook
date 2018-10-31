@@ -25,11 +25,12 @@ struct buf_pos_len_s {
 	size_t len;
 };
 
-void construct_molecule(struct ehht_s *table, struct ehht_keys_s *tks,
-			const char *molecule, unsigned depth,
-			unsigned *best_known, int *max_tries, int verbose);
+static void construct_molecule(struct ehht_s *table, struct ehht_keys_s *tks,
+			       const char *molecule, unsigned depth,
+			       unsigned *best_known, int *max_tries,
+			       int verbose);
 
-int free_tables(struct ehht_key_s key, void *val, void *context)
+static int free_tables(struct ehht_key_s key, void *val, void *context)
 {
 	struct ehht_s *table, *subs;
 
@@ -42,7 +43,7 @@ int free_tables(struct ehht_key_s key, void *val, void *context)
 	return 0;
 }
 
-int fill_buf(struct ehht_key_s key, void *val, void *context)
+static int fill_buf(struct ehht_key_s key, void *val, void *context)
 {
 	struct ehht_s *subs;
 	struct buf_pos_len_s *bpl;
@@ -87,7 +88,7 @@ struct prefix_remainder_subs_s {
 };
 
 /* malloc or die */
-void *mallocd(size_t size)
+static void *mallocd(size_t size)
 {
 	void *ptr;
 
@@ -100,8 +101,8 @@ void *mallocd(size_t size)
 	return ptr;
 }
 
-char *substitute(const char *orig, const char *subs, size_t prefix_to,
-		 size_t postfix_from, int verbose)
+static char *substitute(const char *orig, const char *subs, size_t prefix_to,
+			size_t postfix_from, int verbose)
 {
 	char *perm, *prefix, *postfix;
 	size_t perm_len, postfix_len;
@@ -160,8 +161,8 @@ int permute_subs(struct ehht_key_s key, void *val, void *context)
 	return 0;
 }
 
-size_t permute(struct ehht_s *table, const char *molecule, struct ehht_s *perms,
-	       int verbose)
+static size_t permute(struct ehht_s *table, const char *molecule,
+		      struct ehht_s *perms, int verbose)
 {
 	char *buf;
 	struct ehht_s *subs;
@@ -205,7 +206,7 @@ size_t permute(struct ehht_s *table, const char *molecule, struct ehht_s *perms,
 	return perms->size(perms);
 }
 
-int cmp_key_len_asc(const void *a, const void *b)
+static int cmp_key_len_asc(const void *a, const void *b)
 {
 	const struct ehht_key_s *l, *r;
 	l = a;
@@ -217,12 +218,12 @@ int cmp_key_len_asc(const void *a, const void *b)
 	return l->len > r->len ? 1 : -1;
 }
 
-int cmp_key_len_dsc(const void *a, const void *b)
+static int cmp_key_len_dsc(const void *a, const void *b)
 {
 	return cmp_key_len_asc(b, a);
 }
 
-struct ehht_s *reverse_table(struct ehht_s *table, int verbose)
+static struct ehht_s *reverse_table(struct ehht_s *table, int verbose)
 {
 	struct ehht_s *rev, *subs;
 	struct ehht_keys_s *ks, *subks;
@@ -280,11 +281,11 @@ struct ehht_s *reverse_table(struct ehht_s *table, int verbose)
 	return rev;
 }
 
-int find_in_substitute(struct ehht_key_s key, size_t prefix_to,
-		       size_t postfix_from, struct ehht_s *table,
-		       struct ehht_keys_s *tks, const char *molecule,
-		       unsigned depth, unsigned *best_known, int *max_tries,
-		       int verbose)
+static int find_in_substitute(struct ehht_key_s key, size_t prefix_to,
+			      size_t postfix_from, struct ehht_s *table,
+			      struct ehht_keys_s *tks, const char *molecule,
+			      unsigned depth, unsigned *best_known,
+			      int *max_tries, int verbose)
 {
 	char *perm;
 
@@ -311,9 +312,10 @@ int find_in_substitute(struct ehht_key_s key, size_t prefix_to,
 	return 0;
 }
 
-void construct_molecule(struct ehht_s *table, struct ehht_keys_s *tks,
-			const char *molecule, unsigned depth,
-			unsigned *best_known, int *max_tries, int verbose)
+static void construct_molecule(struct ehht_s *table, struct ehht_keys_s *tks,
+			       const char *molecule, unsigned depth,
+			       unsigned *best_known, int *max_tries,
+			       int verbose)
 {
 	struct ehht_s *subs;
 	struct ehht_keys_s *sks;
@@ -374,9 +376,9 @@ int main(int argc, char **argv)
 	unsigned best;
 	int max_tries;
 
-	verbose = (argc > 1) ? atoi(argv[1]) : 0;
-	construct = (argc > 2) ? atoi(argv[2]) : 0;
-	max_tries = (argc > 3) ? atoi(argv[3]) : 0;
+	construct = (argc > 1) ? atoi(argv[1]) : 0;
+	max_tries = (argc > 2) ? atoi(argv[2]) : 0;
+	verbose = (argc > 3) ? atoi(argv[3]) : 0;
 	input_file_name = (argc > 4) ? argv[4] : "input";
 	input = fopen(input_file_name, "r");
 	if (!input) {

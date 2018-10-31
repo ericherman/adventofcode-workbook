@@ -22,7 +22,7 @@ struct container_s {
 	unsigned capacity;
 };
 
-struct container_s *new_container(size_t i, unsigned capacity)
+static struct container_s *new_container(size_t i, unsigned capacity)
 {
 	struct container_s *p;
 
@@ -38,7 +38,7 @@ struct container_s *new_container(size_t i, unsigned capacity)
 	return p;
 }
 
-size_t to_key(size_t n, char *buf, size_t buf_len)
+static size_t to_key(size_t n, char *buf, size_t buf_len)
 {
 	int s;
 	s = snprintf(buf, buf_len, "%lu", (unsigned long)n);
@@ -50,7 +50,8 @@ size_t to_key(size_t n, char *buf, size_t buf_len)
 	return (size_t)s;
 }
 
-unsigned capacity_of(struct container_s **containers, size_t len, size_t bits)
+static unsigned capacity_of(struct container_s **containers, size_t len,
+			    size_t bits)
 {
 	size_t i, total;
 
@@ -63,9 +64,9 @@ unsigned capacity_of(struct container_s **containers, size_t len, size_t bits)
 	return total;
 }
 
-size_t print_containers_bits(char *buf, size_t buf_len,
-			     struct container_s **containers, size_t len,
-			     size_t bits)
+static size_t print_containers_bits(char *buf, size_t buf_len,
+				    struct container_s **containers, size_t len,
+				    size_t bits)
 {
 	int s;
 	size_t i, pos;
@@ -99,7 +100,7 @@ size_t print_containers_bits(char *buf, size_t buf_len,
 	return pos;
 }
 
-unsigned short int bits_on(size_t n)
+static unsigned short int bits_on(size_t n)
 {
 	size_t i;
 	unsigned short int bits_on;
@@ -113,9 +114,9 @@ unsigned short int bits_on(size_t n)
 	return bits_on;
 }
 
-size_t find_combos(struct container_s **containers, size_t num_containers,
-		   unsigned target, int min_only, struct ehht_s *table,
-		   int verbose)
+static size_t find_combos(struct container_s **containers,
+			  size_t num_containers, unsigned target, int min_only,
+			  struct ehht_s *table, int verbose)
 {
 	int len;
 	size_t i, max;

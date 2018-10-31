@@ -19,7 +19,7 @@ struct house_s {
 	unsigned presents;
 };
 
-struct house_s *new_house(int x, int y)
+static struct house_s *new_house(int x, int y)
 {
 	struct house_s *house = malloc(sizeof(struct house_s));
 	if (house == NULL) {
