@@ -42,7 +42,8 @@ int main(int argc, char **argv)
 
 	fclose(input);
 
-	printf("floor=%d\n", floor);
+	printf("floor=\n");
+	printf("%d\n", floor);
 
 	return 0;
 }

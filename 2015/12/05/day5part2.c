@@ -53,7 +53,8 @@ int main(int argc, char **argv)
 	}
 	fclose(input);
 
-	printf("total=%u\n", nice);
+	printf("total=\n");
+	printf("%u\n", nice);
 
 	return 0;
 }

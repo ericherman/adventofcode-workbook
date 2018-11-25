@@ -39,8 +39,9 @@ int main(int argc, char **argv)
 		{"perfumes:", 1, '='},
 	};
 
-	magnetoreluctance = (argc > 1) ? atoi(argv[1]) : 0;
-	input_path = (argc > 2) ? argv[2] : "input";
+	input_path = (argc > 1) ? argv[1] : "input";
+	magnetoreluctance = (argc > 2) ? atoi(argv[2]) : 0;
+
 	input = fopen(input_path, "r");
 	if (!input) {
 		fprintf(stderr, "could not open %s\n", input_path);
@@ -86,6 +87,7 @@ int main(int argc, char **argv)
 			}
 			if (wrong == 0) {
 				printf("%s", buf);
+				printf("%d\n", n);
 			}
 		}
 	}

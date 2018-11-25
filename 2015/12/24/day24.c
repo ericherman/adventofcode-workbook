@@ -353,9 +353,10 @@ int main(int argc, char **argv)
 	size_t i, j, bytes, wsize, wlen, from, shortest;
 	size_t *idxs;
 
-	groups = (argc > 1) ? (atoi(argv[1]) ? 4 : 3) : 3;
-	verbose = (argc > 2) ? atoi(argv[2]) : 0;
-	input_file_name = (argc > 3) ? argv[3] : "input";
+	input_file_name = (argc > 1) ? argv[1] : "input";
+	groups = (argc > 2) ? (atoi(argv[2]) ? 4 : 3) : 3;
+	verbose = (argc > 3) ? atoi(argv[3]) : 0;
+
 	input = fopen(input_file_name, "r");
 	if (!input) {
 		DIE("could not open %s\n", input_file_name);

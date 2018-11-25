@@ -130,9 +130,10 @@ int main(int argc, char **argv)
 	struct machine_s cpu;
 	int verbose, *r, init_a;
 
-	init_a = (argc > 1) ? atoi(argv[1]) : 0;
-	verbose = (argc > 2) ? atoi(argv[2]) : 0;
-	input_file_name = (argc > 3) ? argv[3] : "input";
+	input_file_name = (argc > 1) ? argv[1] : "input";
+	init_a = (argc > 2) ? atoi(argv[2]) : 0;
+	verbose = (argc > 3) ? atoi(argv[3]) : 0;
+
 	input = fopen(input_file_name, "r");
 	if (!input) {
 		fprintf(stderr, "could not open %s\n", input_file_name);

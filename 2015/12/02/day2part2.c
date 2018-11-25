@@ -51,7 +51,8 @@ int main(int argc, char **argv)
 
 	fclose(input);
 
-	printf("total=%u\n", total);
+	printf("total=\n");
+	printf("%u\n", total);
 
 	return 0;
 }

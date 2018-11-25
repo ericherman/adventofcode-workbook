@@ -88,6 +88,10 @@ int main(int argc, char **argv)
 	cal = (argc > 1) ? atoi(argv[1]) : 0;
 	spoons = (argc > 2) ? atoi(argv[2]) : 100;
 
+	best_spkl = 0;
+	best_pb = 0;
+	best_frst = 0;
+	best_sug = 0;
 	best_score = 0;
 	for (frst = 0; frst <= spoons; ++frst) {
 		for (spkl = 0; spkl <= (spoons - frst); ++spkl) {
@@ -113,8 +117,9 @@ int main(int argc, char **argv)
 	printf("%d %s\n", best_pb, pbutter.name);
 	printf("%d %s\n", best_frst, frosting.name);
 	printf("%d %s\n", best_sug, sugar.name);
-
 	printf("%ld %s\n", best_score, "best score");
+
+	printf("%ld\n", best_score);
 
 	return 0;
 }

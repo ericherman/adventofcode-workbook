@@ -164,10 +164,12 @@ int main(int argc, char **argv)
 	struct container_s *container, **containers;
 	size_t i, len, num_containers;
 
-	min_only = (argc > 1) ? atoi(argv[1]) : 0;
-	verbose = (argc > 2) ? atoi(argv[2]) : 0;
+	input_file_name = (argc > 1) ? argv[1] : "input";
+	min_only = (argc > 2) ? atoi(argv[2]) : 0;
+
 	target = (argc > 3) ? (unsigned)atoi(argv[3]) : 150;
-	input_file_name = (argc > 4) ? argv[4] : "input";
+	verbose = (argc > 4) ? atoi(argv[4]) : 0;
+
 	input = fopen(input_file_name, "r");
 	if (!input) {
 		fprintf(stderr, "could not open %s\n", input_file_name);
@@ -200,7 +202,7 @@ int main(int argc, char **argv)
 	find_combos(containers, num_containers, target, min_only, table,
 		    verbose);
 
-	printf("solutions: %u\n", (unsigned)table->size(table));
+	printf("%u\n", (unsigned)table->size(table));
 
 	if (MAKE_VALGRIND_HAPPY) {
 		for (i = 0; i < num_containers; ++i) {

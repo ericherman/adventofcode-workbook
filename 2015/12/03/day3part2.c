@@ -8,10 +8,9 @@
 
    See COPYING or <http://www.gnu.org/licenses/>.
 */
-#include <ehht.h>		/* github.com/ericherman/libehht */
-
 #include <stdio.h>
 #include <stdlib.h>
+#include "ehht.h"		/* github.com/ericherman/libehht */
 
 struct house_s {
 	int x;
@@ -145,6 +144,7 @@ int main(int argc, char **argv)
 	printf("houses=%lu (of %u, max presents: %u)\n",
 	       (unsigned long)houses->size(houses), total_presents,
 	       max_presents);
+	printf("%lu\n", (unsigned long)houses->size(houses));
 
 	houses->for_each(houses, null_and_free, houses);
 	houses->clear(houses);

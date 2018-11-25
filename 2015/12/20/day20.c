@@ -24,9 +24,10 @@ int main(int argc, char **argv)
 	unsigned long *houses;
 	size_t len;
 
-	max50 = (argc > 1) ? atoi(argv[1]) : 0;
-	verbose = (argc > 2) ? atoi(argv[2]) : 0;
-	input_file_name = (argc > 3) ? argv[3] : "input";
+	input_file_name = (argc > 1) ? argv[1] : "input";
+	max50 = (argc > 2) ? atoi(argv[2]) : 0;
+	verbose = (argc > 3) ? atoi(argv[3]) : 0;
+
 	input = fopen(input_file_name, "r");
 	if (!input) {
 		fprintf(stderr, "could not open %s\n", input_file_name);

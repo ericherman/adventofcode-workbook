@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 	FILE *input;
 	char buf[BUF_LEN], from[NAME_MAX], to[NAME_MAX];
 	unsigned dist, best_dist, worst_dist;
-	int matched;
+	int matched, print_worst;
 	struct ehht_s *names;
 	struct ehht_s *legs;
 	struct leg_s *leg;
@@ -121,6 +121,8 @@ int main(int argc, char **argv)
 	size_t i, j, len, combos;
 
 	input_file_name = (argc > 1) ? argv[1] : "input";
+	print_worst = (argc > 2) ? atoi(argv[2]) : 0;
+
 	input = fopen(input_file_name, "r");
 	if (!input) {
 		fprintf(stderr, "could not open %s\n", input_file_name);
@@ -187,6 +189,11 @@ int main(int argc, char **argv)
 	}
 
 	printf("best: %u, worst: %u\n", best_dist, worst_dist);
+	if (print_worst) {
+		printf("%u\n", worst_dist);
+	} else {
+		printf("%u\n", best_dist);
+	}
 
 	return 0;
 }

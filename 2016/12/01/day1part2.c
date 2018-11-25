@@ -45,6 +45,9 @@ static int _walk(struct ehht_s *table, int *x, int *y, unsigned distance,
 			    + (((*y) < 0) ? -(*y) : (*y));
 			printf("back at %s, distance: %d\n", buf, distance);
 			found = 1;
+			if (found) {
+				printf("%u\n", distance);
+			}
 		}
 		table->put(table, buf, strlen(buf), NULL);
 	}

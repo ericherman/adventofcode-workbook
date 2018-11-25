@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 	const char *prefix;
 	char input[80];
 	char output[33];
-	unsigned i, j, leading_zeros, found;
+	unsigned i, j, leading_zeros, found, val;
 
 	leading_zeros = (argc > 1) ? (unsigned)atoi(argv[1]) : 5;
 	prefix = (argc > 2) ? argv[2] : "iwrupvqb";
@@ -58,8 +58,12 @@ int main(int argc, char *argv[])
 		for (j = 0; j < leading_zeros; j++) {
 			found = found && (output[j] == '0');
 		}
+		if (found) {
+			val = i;
+		}
 	}
 	printf("digest [%s]: %s\n", input, output);
+	printf("%u\n", val);
 
 	return (found == 1) ? 0 : 1;
 }

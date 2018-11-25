@@ -152,9 +152,10 @@ int main(int argc, char **argv)
 	struct name_list_s *tmp_list, *master_name_list;
 	size_t i, j, len, perms;
 
-	include_you = (argc > 1) ? atoi(argv[1]) : 0;
-	verbose = (argc > 2) ? atoi(argv[2]) : 0;
-	input_file_name = (argc > 3) ? argv[3] : "input";
+	input_file_name = (argc > 1) ? argv[1] : "input";
+	include_you = (argc > 2) ? atoi(argv[2]) : 0;
+	verbose = (argc > 3) ? atoi(argv[3]) : 0;
+
 	input = fopen(input_file_name, "r");
 	if (!input) {
 		fprintf(stderr, "could not open %s\n", input_file_name);
@@ -247,7 +248,11 @@ int main(int argc, char **argv)
 		}
 	}
 
-	printf("best: %d, worst: %d\n", best_happiness, worst_happiness);
+	if (verbose) {
+		printf("best: %d, worst: %d\n", best_happiness,
+		       worst_happiness);
+	}
+	printf("%d\n", best_happiness);
 
 	return 0;
 }

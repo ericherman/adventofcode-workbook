@@ -9,6 +9,7 @@
    See COPYING or <http://www.gnu.org/licenses/>.
 */
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char **argv)
 {
@@ -16,6 +17,7 @@ int main(int argc, char **argv)
 	FILE *input;
 	char buf[255];
 	size_t i;
+	int print_double_encode;
 	unsigned total, chars, escaped, instr, double_encode;
 
 	path = (argc > 1) ? argv[1] : "input";
@@ -24,6 +26,8 @@ int main(int argc, char **argv)
 		fprintf(stderr, "could not open %s\n", path);
 		return 1;
 	}
+
+	print_double_encode = (argc > 2) ? atoi(argv[2]) : 0;
 
 	total = 0;
 	chars = 0;
@@ -76,6 +80,12 @@ int main(int argc, char **argv)
 	printf("total: %u, mem chars: %u\n", total, chars);
 	printf("overhead: %u, (double_encode: %u)\n", total - chars,
 	       double_encode);
+
+	if (print_double_encode) {
+		printf("%u\n", double_encode - total);
+	} else {
+		printf("%u\n", total - chars);
+	}
 
 	return 0;
 }

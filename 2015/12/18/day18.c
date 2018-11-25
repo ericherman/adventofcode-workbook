@@ -64,9 +64,9 @@ int main(int argc, char **argv)
 	char from_c, to_c;
 	int x, y, i, grid_size, steps, verbose, n_on, corners_stuck;
 
-	corners_stuck = (argc > 1) ? atoi(argv[1]) : 0;
-	steps = (argc > 2) ? atoi(argv[2]) : 100;
-	input_file_name = (argc > 3) ? argv[3] : "input";
+	input_file_name = (argc > 1) ? argv[1] : "input";
+	corners_stuck = (argc > 2) ? atoi(argv[2]) : 0;
+	steps = (argc > 3) ? atoi(argv[3]) : 100;
 	grid_size = (argc > 4) ? atoi(argv[4]) : 100;
 	verbose = (argc > 5) ? atoi(argv[5]) : 0;
 
@@ -167,6 +167,7 @@ int main(int argc, char **argv)
 
 	total = report(last, grid_size, 0);
 	printf("after %d steps, lights on: %d\n", i, total);
+	printf("%d\n", total);
 
 	return 0;
 }

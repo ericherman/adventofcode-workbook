@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 
 	distance = ((x < 0) ? -x : x) + ((y < 0) ? -y : y);
 
-	printf("distance=%d\n", distance);
+	printf("%d\n", distance);
 
 	return 0;
 }

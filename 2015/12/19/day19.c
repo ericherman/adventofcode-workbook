@@ -376,10 +376,10 @@ int main(int argc, char **argv)
 	unsigned best;
 	int max_tries;
 
-	construct = (argc > 1) ? atoi(argv[1]) : 0;
-	max_tries = (argc > 2) ? atoi(argv[2]) : 0;
-	verbose = (argc > 3) ? atoi(argv[3]) : 0;
-	input_file_name = (argc > 4) ? argv[4] : "input";
+	input_file_name = (argc > 1) ? argv[1] : "input";
+	construct = (argc > 2) ? atoi(argv[2]) : 0;
+	max_tries = (argc > 3) ? atoi(argv[3]) : 0;
+	verbose = (argc > 4) ? atoi(argv[4]) : 0;
 	input = fopen(input_file_name, "r");
 	if (!input) {
 		fprintf(stderr, "could not open %s\n", input_file_name);

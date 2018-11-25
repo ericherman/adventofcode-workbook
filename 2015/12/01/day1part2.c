@@ -44,13 +44,13 @@ int main(int argc, char **argv)
 		}
 		if (floor < 0 && first_basement == 0) {
 			first_basement = i;
-			printf("first basement index: %u\n", i);
+			printf("first basement index: \n");
+			printf("%u\n", i);
+			break;
 		}
 	}
 
 	fclose(input);
-
-	printf("floor=%d\n", floor);
 
 	return 0;
 }

@@ -398,7 +398,7 @@ int main(int argc, char **argv)
 	}
 
 	if (a->satisfied) {
-		printf("a: %d\n", a->result);
+		printf("%d\n", a->result);
 	} else {
 		fprintf(stderr, "a: unsatisfied\n");
 		wires->for_each(wires, to_string_each, NULL);

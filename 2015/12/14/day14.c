@@ -38,6 +38,7 @@ struct deerspeed_s {
 int main(int argc, char **argv)
 {
 	size_t i, j, best_distance, best_leading, seconds;
+	int best_points;
 	struct deerspeed_s *d;
 	struct deerspeed_s deer[] = {
 		{"Dancer", 27, 5, 132, 0, 0, 0, 0},
@@ -52,7 +53,10 @@ int main(int argc, char **argv)
 		{0, 0, 0, 0, 0, 0, 0, 0}
 	};
 
-	seconds = (argc > 1) ? atoi(argv[1]) : 2503;
+	best_points = (argc > 1) ? atoi(argv[1]) : 0;
+
+	seconds = (argc > 2) ? atoi(argv[2]) : 2503;
+
 	for (i = 0; i < 9; ++i) {
 		d = &deer[i];
 		d->seconds_left = d->endurance;
@@ -111,5 +115,9 @@ int main(int argc, char **argv)
 			printf("Leading winner %s: %u\n", d->name, d->leading);
 		}
 	}
+
+	printf("%lu\n",
+	       (unsigned long)(best_points ? best_leading : best_distance));
+
 	return 0;
 }
