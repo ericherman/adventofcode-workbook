@@ -12,8 +12,8 @@
 #include <string.h>		/* strncpy */
 #include <stdlib.h>		/* atoi */
 
-/* may be a better include */
-#include <openssl/md5.h>
+#include "global.h"
+#include "md5.h"
 
 /* output len is always 33 */
 static void _md5_string(const char *input, size_t input_len, char *output)
@@ -23,17 +23,17 @@ static void _md5_string(const char *input, size_t input_len, char *output)
 	unsigned char digest[16];
 	size_t offset, bytes, remaining;
 
-	MD5_Init(&c);
+	MD5Init(&c);
 
 	offset = 0;
 	while (offset < input_len) {
 		remaining = (input_len - offset);
 		bytes = remaining > 512 ? 512 : remaining;
-		MD5_Update(&c, input + offset, bytes);
+		MD5Update(&c, input + offset, bytes);
 		offset += bytes;
 	}
 
-	MD5_Final(digest, &c);
+	MD5Final(digest, &c);
 
 	for (i = 0; i < 16; ++i) {
 		snprintf(output + (i * 2), 3, "%02x", digest[i]);

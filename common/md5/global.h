@@ -15,11 +15,13 @@ The following makes PROTOTYPES default to 0 if it has not already
 /* POINTER defines a generic pointer type */
 typedef unsigned char *POINTER;
 
+#include <stdint.h> /* added by Eric Herman */
+
 /* UINT2 defines a two byte word */
-typedef unsigned short int UINT2;
+typedef uint16_t UINT2; /* updated by Eric Herman */
 
 /* UINT4 defines a four byte word */
-typedef unsigned long int UINT4;
+typedef uint32_t UINT4; /* updated by Eric Herman */
 
 /* PROTO_LIST is defined depending on how PROTOTYPES is defined above.
 If using PROTOTYPES, then PROTO_LIST returns the list, otherwise it

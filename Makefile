@@ -10,6 +10,44 @@ default: check
 bindir:
 	mkdir -pv bin
 
+MD5: bindir common/md5/global.h common/md5/md5.h common/md5/md5.c \
+		common/md5/mddriver.c
+	gcc $(GNU89) $(CFLAGS) -o bin/MD5 \
+		-DMD=5 \
+		-Icommon/md5 common/md5/md5.c \
+		common/md5/mddriver.c
+
+check-md5-empty: MD5
+	./check-answer.sh 'MD5 ("") = d41d8cd98f00b204e9800998ecf8427e' bin/MD5 -s""
+
+check-md5-a: MD5
+	./check-answer.sh 'MD5 ("a") = 0cc175b9c0f1b6a831c399e269772661' bin/MD5 -s"a"
+
+check-md5-abc: MD5
+	./check-answer.sh 'MD5 ("abc") = 900150983cd24fb0d6963f7d28e17f72' bin/MD5 -s"abc"
+
+check-md5-with-space: MD5
+	./check-answer.sh 'MD5 ("message digest") = f96b697d7cb7938d525a2f31aaf161d0' bin/MD5 -s"message digest"
+
+check-md5-a-z: MD5
+	./check-answer.sh 'MD5 ("abcdefghijklmnopqrstuvwxyz") = c3fcd3d76192e4007dfb496cca67e13b' bin/MD5 -s"abcdefghijklmnopqrstuvwxyz"
+
+check-md5-A-Za-0-9: MD5
+	./check-answer.sh 'MD5 ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789") = d174ab98d277d9f5a5611c2c9f419d9f' bin/MD5 -s"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+check-md5-80-digits: MD5
+	./check-answer.sh 'MD5 ("12345678901234567890123456789012345678901234567890123456789012345678901234567890") = 57edf4a22be3c955ac49da2e2107b67a' bin/MD5 -s"12345678901234567890123456789012345678901234567890123456789012345678901234567890"
+
+#check-md5-with-space \
+
+check-md5: \
+ check-md5-empty \
+ check-md5-a \
+ check-md5-abc \
+ check-md5-a-z \
+ check-md5-A-Za-0-9 \
+ check-md5-80-digits
+
 # 2015-12-01
 2015-12-01-1: bindir 2015/12/01/day1part1.c
 	gcc $(C89) $(CFLAGS) -o bin/2015-12-01-1 2015/12/01/day1part1.c
@@ -59,12 +97,14 @@ check-2015-12-03-2: bindir 2015-12-03-2
 # 2015-12-04
 2015-12-04: bindir 2015/12/04/day4.c
 	# GNU89 for strnlen
-	gcc $(GNU89) $(CFLAGS) -o bin/2015-12-04 2015/12/04/day4.c
+	gcc $(GNU89) $(CFLAGS) -o bin/2015-12-04 \
+		-Icommon/md5 common/md5/md5.c \
+		2015/12/04/day4.c
 
-check-2015-12-04-1: bindir 2015-12-04
+check-2015-12-04-1: bindir 2015-12-04 check-md5
 	./check-answer.sh 346386 bin/2015-12-04 5
 
-check-2015-12-04-2: bindir 2015-12-04
+check-2015-12-04-2: bindir 2015-12-04 check-md5
 	./check-answer.sh 9958218 bin/2015-12-04 6
 
 
