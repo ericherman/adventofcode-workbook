@@ -1,3 +1,8 @@
+# $@ : target label
+# $< : the first prerequisite after the colon
+# $^ : all of the prerequisite files
+# $* : wildcard matched part
+
 C89=-std=c89 -Wpedantic
 GNU89=-std=gnu89 -Wpedantic
 CFLAGS=-ggdb -O2 -Wall -Wextra -Werror
@@ -10,12 +15,13 @@ default: check
 bindir:
 	mkdir -pv bin
 
-MD5: bindir common/md5/global.h common/md5/md5.h common/md5/md5.c \
-		common/md5/mddriver.c
-	gcc $(GNU89) $(CFLAGS) -o bin/MD5 \
+MD5: bindir common/md5/global.h common/md5/md5.h \
+		common/md5/md5.c common/md5/mddriver.c
+	gcc $(GNU89) $(CFLAGS) \
+		-o bin/MD5 \
 		-DMD=5 \
-		-Icommon/md5 common/md5/md5.c \
-		common/md5/mddriver.c
+		-Icommon/md5 \
+		common/md5/md5.c common/md5/mddriver.c
 
 check-md5-empty: MD5
 	./check-answer.sh 'MD5 ("") = d41d8cd98f00b204e9800998ecf8427e' bin/MD5 -s""
@@ -78,12 +84,14 @@ check-2015-12-02-2: bindir 2015-12-02-2
 
 # 2015-12-03
 2015-12-03-1: bindir 2015/12/03/day3part1.c
-	gcc $(GNU89) $(CFLAGS) -o bin/2015-12-03-1 \
+	gcc $(GNU89) $(CFLAGS) \
+		-o bin/2015-12-03-1 \
 		-Icommon/ehht common/ehht/*.c \
 		2015/12/03/day3part1.c
 
 2015-12-03-2: bindir 2015/12/03/day3part2.c
-	gcc $(C99) $(CFLAGS) -o bin/2015-12-03-2 \
+	gcc $(C99) $(CFLAGS) \
+		-o bin/2015-12-03-2 \
 		-Icommon/ehht common/ehht/*.c \
 		2015/12/03/day3part2.c
 
@@ -97,7 +105,8 @@ check-2015-12-03-2: bindir 2015-12-03-2
 # 2015-12-04
 2015-12-04: bindir 2015/12/04/day4.c
 	# GNU89 for strnlen
-	gcc $(GNU89) $(CFLAGS) -o bin/2015-12-04 \
+	gcc $(GNU89) $(CFLAGS) \
+		-o bin/2015-12-04 \
 		-Icommon/md5 common/md5/md5.c \
 		2015/12/04/day4.c
 
@@ -138,7 +147,8 @@ check-2015-12-06-2: bindir 2015-12-06-2
 
 # 2015-12-07
 2015-12-07: bindir 2015/12/07/day7.c
-	gcc $(GNU89) $(CFLAGS) -o bin/2015-12-07 \
+	gcc $(GNU89) $(CFLAGS) \
+		-o bin/2015-12-07 \
 		-Icommon/ehht common/ehht/*.c \
 		-Icommon/ehstr common/ehstr/*.c \
 		2015/12/07/day7.c
@@ -163,7 +173,8 @@ check-2015-12-08-2: bindir 2015-12-08
 
 # 2015-12-09
 2015-12-09: bindir 2015/12/09/day9.c
-	gcc $(c89) $(CFLAGS) -o bin/2015-12-09 \
+	gcc $(GNU89) $(CFLAGS) \
+		-o bin/2015-12-09 \
 		-Icommon/ehht common/ehht/*.c \
 		-Icommon/ehstr common/ehstr/*.c \
 		-Icommon/misc common/misc/*.c \
@@ -202,12 +213,14 @@ check-2015-12-11-2: bindir 2015-12-11
 
 # 2015-12-12
 2015-12-12-1: bindir 2015/12/12/day12part1.c
-	gcc $(GNU89) $(CFLAGS) -o bin/2015-12-12-1 \
+	gcc $(GNU89) $(CFLAGS) \
+		-o bin/2015-12-12-1 \
 		-Icommon/deque common/deque/*.c \
 		2015/12/12/day12part1.c
 
 2015-12-12-2: bindir 2015/12/12/day12part2.c
-	gcc $(C99) $(CFLAGS) -o bin/2015-12-12-2 \
+	gcc $(C99) $(CFLAGS) \
+		-o bin/2015-12-12-2 \
 		-Icommon/deque common/deque/*.c \
 		2015/12/12/day12part2.c
 
@@ -220,7 +233,8 @@ check-2015-12-12-2: bindir 2015-12-12-2
 
 # 2015-12-13
 2015-12-13: bindir 2015/12/13/day13.c
-	gcc $(GNU89) $(CFLAGS) -o bin/2015-12-13 \
+	gcc $(GNU89) $(CFLAGS) \
+		-o bin/2015-12-13 \
 		-Icommon/ehht common/ehht/*.c \
 		-Icommon/ehstr common/ehstr/*.c \
 		-Icommon/misc common/misc/*.c \
@@ -268,7 +282,8 @@ check-2015-12-16-2: bindir 2015-12-16
 
 # 2015-12-17
 2015-12-17: bindir 2015/12/17/day17.c
-	gcc $(c89) $(CFLAGS) -o bin/2015-12-17 \
+	gcc $(GNU89) $(CFLAGS) \
+		-o bin/2015-12-17 \
 		-Icommon/ehht common/ehht/*.c \
 		-Icommon/ehstr common/ehstr/*.c \
 		2015/12/17/day17.c
@@ -293,7 +308,8 @@ check-2015-12-18-2: bindir 2015-12-18
 
 # 2015-12-19
 2015-12-19: bindir 2015/12/19/day19.c
-	gcc $(c89) $(CFLAGS) -o bin/2015-12-19 \
+	gcc $(GNU89) $(CFLAGS) \
+		-o bin/2015-12-19 \
 		-Icommon/ehht common/ehht/*.c \
 		-Icommon/ehstr common/ehstr/*.c \
 		2015/12/19/day19.c
@@ -351,7 +367,8 @@ check-2015-12-23-2: bindir 2015-12-23
 
 # 2015-12-24
 2015-12-24: bindir 2015/12/24/day24.c
-	gcc $(c89) $(CFLAGS) -o bin/2015-12-24 \
+	gcc $(C89) $(CFLAGS) \
+		-o bin/2015-12-24 \
 		-Icommon/eba common/eba/*.c \
 		-Icommon/ehbigint common/ehbigint/*.c \
 		-Icommon/ehstr common/ehstr/*.c \
@@ -366,7 +383,8 @@ check-2015-12-24-2: bindir 2015-12-24
 
 # 2015-12-25
 2015-12-25: bindir 2015/12/25/day25.c
-	gcc $(c89) $(CFLAGS) -o bin/2015-12-25 \
+	gcc $(C89) $(CFLAGS) \
+		-o bin/2015-12-25 \
 		-Icommon/eba common/eba/*.c \
 		-Icommon/ehbigint common/ehbigint/*.c \
 		-Icommon/ehstr common/ehstr/*.c \
@@ -379,12 +397,14 @@ check-2015-12-25: bindir 2015-12-25
 
 # 2016-12-01
 2016-12-01-1: bindir 2016/12/01/day1part1.c
-	gcc $(GNU89) $(CFLAGS) -o bin/2016-12-01-1 \
+	gcc $(GNU89) $(CFLAGS) \
+		-o bin/2016-12-01-1 \
 		-Icommon/ehht common/ehht/*.c \
 		2016/12/01/day1part1.c
 
 2016-12-01-2: bindir 2016/12/01/day1part2.c
-	gcc $(C99) $(CFLAGS) -o bin/2016-12-01-2 \
+	gcc $(C99) $(CFLAGS) \
+		-o bin/2016-12-01-2 \
 		-Icommon/ehht common/ehht/*.c \
 		2016/12/01/day1part2.c
 
