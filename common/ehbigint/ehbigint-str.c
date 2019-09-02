@@ -1,17 +1,6 @@
-/*
-ehbigint-str.c: to and from string functions for ehbighint structs
-Copyright (C) 2016 Eric Herman <eric@freesa.org>
-
-This work is free software: you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or (at
-your option) any later version.
-
-This work is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-License for more details.
-*/
+/* SPDX-License-Identifier: LGPL-3.0-or-later */
+/* ehbigint-str.c: to and from string functions for ehbighint structs */
+/* Copyright (C) 2016, 2019 Eric Herman <eric@freesa.org> */
 
 #include "ehbigint-str.h"
 #include "ehbigint-log.h"
@@ -79,7 +68,7 @@ int ehbi_set_binary_string(struct ehbigint *bi, const char *str, size_t len)
 		}
 	}
 
-	ehbi_unsafe_reset_bytes_used(bi);
+	ehbi_internal_reset_bytes_used(bi, 2 + (len / 8));
 	return err;
 }
 
@@ -141,7 +130,7 @@ int ehbi_set_hex_string(struct ehbigint *bi, const char *str, size_t str_len)
 	/* let's just zero out the rest of the bytes, for easier debug */
 	Eba_memset(bi->bytes, 0x00, i);
 
-	ehbi_unsafe_reset_bytes_used(bi);
+	ehbi_internal_reset_bytes_used(bi, bi->bytes_used + 1);
 
 	return EHBI_SUCCESS;
 }
@@ -189,9 +178,7 @@ int ehbi_set_decimal_string(struct ehbigint *bi, const char *dec, size_t len)
 		err = err ? err : ehbi_negate(bi);
 	}
 
-	ehbi_unsafe_reset_bytes_used(bi);
-
-	ehbi_stack_free(hex, size);
+	Ehbi_stack_free(hex);
 	return err;
 }
 
@@ -370,9 +357,7 @@ char *ehbi_to_decimal_string(const struct ehbigint *bi, char *buf, size_t len,
 	*err = ehbi_hex_to_decimal(hex, size, buf, len);
 
 ehbi_to_decimal_string_end:
-	if (hex) {
-		ehbi_stack_free(hex, size);
-	}
+	Ehbi_stack_free(hex);
 	if (buf && (err == NULL || *err)) {
 		buf[0] = '\0';
 	}

@@ -1,30 +1,27 @@
-/*
-ehbigint-log.h: definitions for error reporting
-Copyright (C) 2016 Eric Herman <eric@freesa.org>
+/* SPDX-License-Identifier: LGPL-3.0-or-later */
+/* ehbigint-log.h: definitions for error reporting */
+/* Copyright (C) 2016, 2019 Eric Herman <eric@freesa.org> */
 
-This work is free software: you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or (at
-your option) any later version.
-
-This work is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-License for more details.
-*/
 #ifndef EHBIGINT_LOG_H
 #define EHBIGINT_LOG_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "ehbigint.h"		/* struct ehbigint */
 
+#ifdef __cplusplus
+#define Ehbigint_log_begin_C_functions extern "C" {
+#define Ehbigint_log_end_C_functions }
+#else
+#define Ehbigint_log_begin_C_functions
+#define Ehbigint_log_end_C_functions
+#endif
+
+Ehbigint_log_begin_C_functions
+#undef Ehbigint_log_begin_C_functions
+/*****************************************************************************/
 #ifndef Ehbi_noop
 #define Ehbi_noop ((void)(0))
 #endif
-
+/*****************************************************************************/
 #ifndef SKIP_STDIO_H
 #include <stdio.h>		/* FILE */
 /* Get the FILE pointer to where fprintf messages currently target.
@@ -126,8 +123,7 @@ void ehbi_log_backtrace(FILE *log);
 	} while(0)
 #endif /* EHBI_SKIP_STRUCT_NULL_CHECK */
 
-#ifdef __cplusplus
-}
-#endif
-
+/*****************************************************************************/
+Ehbigint_log_end_C_functions
+#undef Ehbigint_log_end_C_functions
 #endif /* EHBIGINT_LOG_H */

@@ -1,21 +1,6 @@
-/* deque.c Double-Ended QUEue
-   Copyright (C) 2016 Eric Herman <eric@freesa.org>
-
-   This work is free software: you can redistribute it and/or modify it
-   under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation, either version 3 of the
-   License, or (at your option) any later version.
-
-   This work is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License and the GNU General Public License for
-   more details.
-
-   You should have received a copy of the GNU Lesser General Public
-   License (COPYING) and the GNU General Public License (COPYING.GPL3).
-   If not, see <http://www.gnu.org/licenses/>.
-*/
+/* SPDX-License-Identifier: LGPL-3.0-or-later */
+/* deque.c Double-Ended QUEue */
+/* Copyright (C) 2016, 2019 Eric Herman <eric@freesa.org> */
 
 /*
    Inspired by: Donald Knuth.
@@ -30,7 +15,7 @@
 struct deque_element_s {
 	struct deque_element_s *above;
 	struct deque_element_s *below;
-	void *data;
+	void *user_data;
 };
 
 struct deque_data_s {
@@ -49,51 +34,66 @@ static void *deque_memalloc(size_t size, void *context)
 	return malloc(size);
 }
 
-static void deque_memfree(void *ptr, size_t size, void *context)
+static void deque_memfree(void *ptr, void *context)
 {
-	assert(size != 0);
 	assert(context == NULL);
 	free(ptr);
+}
+
+static struct deque_data_s *deque_get_internal_data(struct deque_s *deque)
+{
+	assert(deque != NULL);
+	assert(deque->opaque_data != NULL);
+	return (struct deque_data_s *)deque->opaque_data;
+}
+
+static void deque_set_internal_data(struct deque_s *deque,
+				    struct deque_data_s *d)
+{
+	assert(deque != NULL);
+	assert(d != NULL);
+	assert(deque->opaque_data == NULL);
+	deque->opaque_data = (void *)d;
 }
 
 static void *deque_peek_top(struct deque_s *deque)
 {
 	struct deque_data_s *d;
 
-	d = deque->data;
+	d = deque_get_internal_data(deque);
 
-	return d->top_de ? d->top_de->data : NULL;
+	return d->top_de ? d->top_de->user_data : NULL;
 }
 
 static void *deque_peek_bottom(struct deque_s *deque)
 {
 	struct deque_data_s *d;
 
-	d = deque->data;
-	return d->bottom_de ? d->bottom_de->data : NULL;
+	d = deque_get_internal_data(deque);
+	return d->bottom_de ? d->bottom_de->user_data : NULL;
 }
 
 static size_t deque_size(struct deque_s *deque)
 {
 	struct deque_data_s *d;
 
-	d = deque->data;
+	d = deque_get_internal_data(deque);
 	return d->size;
 }
 
-static struct deque_s *deque_push(struct deque_s *deque, void *data)
+static struct deque_s *deque_push(struct deque_s *deque, void *user_data)
 {
 	struct deque_data_s *d;
 	struct deque_element_s *e;
 
-	d = deque->data;
+	d = deque_get_internal_data(deque);
 
 	e = (struct deque_element_s *)
 	    d->mem_alloc(sizeof(struct deque_element_s), d->mem_context);
 	if (!e) {
 		return NULL;
 	}
-	e->data = data;
+	e->user_data = user_data;
 	e->above = NULL;
 
 	if (d->size == 0) {
@@ -112,39 +112,39 @@ static void *deque_pop(struct deque_s *deque)
 {
 	struct deque_data_s *d;
 	struct deque_element_s *freeme;
-	void *data;
+	void *user_data;
 
-	d = deque->data;
+	d = deque_get_internal_data(deque);
 
 	if (d->size == 0) {
 		return NULL;
 	}
 
 	freeme = d->top_de;
-	data = freeme->data;
+	user_data = freeme->user_data;
 	if (d->bottom_de == freeme) {
 		d->top_de = NULL;
 		d->bottom_de = NULL;
 	} else {
 		d->top_de = freeme->below;
 	}
-	d->mem_free(freeme, sizeof(struct deque_element_s), d->mem_context);
+	d->mem_free(freeme, d->mem_context);
 	--d->size;
-	return data;
+	return user_data;
 }
 
-static struct deque_s *deque_unshift(struct deque_s *deque, void *data)
+static struct deque_s *deque_unshift(struct deque_s *deque, void *user_data)
 {
 	struct deque_data_s *d;
 	struct deque_element_s *e;
 
-	d = deque->data;
+	d = deque_get_internal_data(deque);
 	e = (struct deque_element_s *)
 	    d->mem_alloc(sizeof(struct deque_element_s), d->mem_context);
 	if (!e) {
 		return NULL;
 	}
-	e->data = data;
+	e->user_data = user_data;
 	e->below = NULL;
 
 	if (d->size == 0) {
@@ -162,21 +162,21 @@ static struct deque_s *deque_unshift(struct deque_s *deque, void *data)
 static void *deque_shift(struct deque_s *deque)
 {
 	struct deque_data_s *d;
-	void *data;
+	void *user_data;
 	struct deque_element_s *freeme;
 
-	d = deque->data;
+	d = deque_get_internal_data(deque);
 	freeme = d->bottom_de;
-	data = freeme->data;
+	user_data = freeme->user_data;
 	if (d->top_de == freeme) {
 		d->top_de = NULL;
 		d->bottom_de = NULL;
 	} else {
 		d->bottom_de = freeme->above;
 	}
-	d->mem_free(freeme, sizeof(struct deque_element_s), d->mem_context);
+	d->mem_free(freeme, d->mem_context);
 	--d->size;
-	return data;
+	return user_data;
 }
 
 struct deque_s *deque_new()
@@ -193,7 +193,7 @@ struct deque_s *deque_new_custom_allocator(deque_malloc_func a,
 	if (!a) {
 		a = deque_memalloc;
 	}
-	deque = a(sizeof(struct deque_s), mem_context);
+	deque = (struct deque_s *)a(sizeof(struct deque_s), mem_context);
 	if (!deque) {
 		return NULL;
 	}
@@ -206,9 +206,9 @@ struct deque_s *deque_new_custom_allocator(deque_malloc_func a,
 	deque->peek_bottom = deque_peek_bottom;
 	deque->size = deque_size;
 
-	d = a(sizeof(struct deque_data_s), mem_context);
+	d = (struct deque_data_s *)a(sizeof(struct deque_data_s), mem_context);
 	if (!d) {
-		deque_memfree(deque, sizeof(struct deque_s), mem_context);
+		deque_memfree(deque, mem_context);
 		return NULL;
 	}
 
@@ -220,7 +220,7 @@ struct deque_s *deque_new_custom_allocator(deque_malloc_func a,
 	d->mem_free = f ? f : deque_memfree;
 	d->mem_context = mem_context;
 
-	deque->data = d;
+	deque_set_internal_data(deque, d);
 
 	return deque;
 }
@@ -229,10 +229,10 @@ void deque_free(struct deque_s *deque)
 {
 	struct deque_data_s *d;
 
-	d = deque->data;
+	d = deque_get_internal_data(deque);
 	while (d->top_de) {
 		deque_pop(deque);
 	}
-	d->mem_free(deque, sizeof(struct deque_s), d->mem_context);
-	d->mem_free(d, sizeof(struct deque_data_s), d->mem_context);
+	d->mem_free(deque, d->mem_context);
+	d->mem_free(d, d->mem_context);
 }

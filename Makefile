@@ -5,7 +5,8 @@
 
 C89=-std=c89 -Wpedantic
 GNU89=-std=gnu89 -Wpedantic
-CFLAGS=-ggdb -O2 -Wall -Wextra -Werror
+#CFLAGS=-ggdb -O0 -Wall -Wextra -Werror
+CFLAGS=-ggdb -O2 -Wall -Wextra -Werror -DNDEBUG -Wno-unused-parameter
 
 # extracted from https://github.com/torvalds/linux/blob/master/scripts/Lindent
 LINDENT=indent -npro -kr -i8 -ts8 -sob -l80 -ss -ncs -cp1 -il0

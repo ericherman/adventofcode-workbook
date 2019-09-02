@@ -1,23 +1,12 @@
-/*
-ehbigint-malloc.c: malloc wrapper for ehbigints
-Copyright (C) 2017 Eric Herman <eric@freesa.org>
-
-This work is free software: you can redistribute it and/or modify it
-under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or (at
-your option) any later version.
-
-This work is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
-License for more details.
-*/
+/* SPDX-License-Identifier: LGPL-3.0-or-later */
+/* ehbigint-malloc.c: malloc wrapper for ehbigints */
+/* Copyright (C) 2017, 2019 Eric Herman <eric@freesa.org> */
 
 #include "ehbigint-malloc.h"
 #include "ehbigint-log.h"
 #include <stdlib.h>
 
-void (*ehbi_alloc_fail) (int status) = NULL;
+void (*ehbi_alloc_fail)(int status) = NULL;
 
 #define Ehbi_alloc_fail(err) do { \
 	if (ehbi_alloc_fail) { \

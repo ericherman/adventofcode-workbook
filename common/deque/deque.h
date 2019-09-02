@@ -1,21 +1,7 @@
-/* deque.h Double-Ended QUEue interface
-   Copyright (C) 2016 Eric Herman <eric@freesa.org>
+/* SPDX-License-Identifier: LGPL-3.0-or-later */
+/* deque.h Double-Ended QUEue interface */
+/* Copyright (C) 2016, 2019 Eric Herman <eric@freesa.org> */
 
-   This work is free software: you can redistribute it and/or modify it
-   under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation, either version 3 of the
-   License, or (at your option) any later version.
-
-   This work is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License and the GNU General Public License for
-   more details.
-
-   You should have received a copy of the GNU Lesser General Public
-   License (COPYING) and the GNU General Public License (COPYING.GPL3).
-   If not, see <http://www.gnu.org/licenses/>.
-*/
 #ifndef DEQUE_H
 #define DEQUE_H
 
@@ -27,40 +13,50 @@
 */
 
 #ifdef __cplusplus
-extern "C" {
+#define Deque_begin_C_functions extern "C" {
+#define Deque_end_C_functions }
+#else
+#define Deque_begin_C_functions
+#define Deque_end_C_functions
 #endif
 
 #include <stddef.h>		/* size_t */
 
 struct deque_s {
-	void *data;
+	void *opaque_data;
 
 	/* add items to the end of queue (or top of stack): */
 	struct deque_s *(*push) (struct deque_s *d, void *data);
 
 	/* remove items from end of queue (or top of stack): */
-	void *(*pop) (struct deque_s *d);
+	void *(*pop)(struct deque_s *d);
 
 	/* prepend items to queue (or bottom of stack): */
 	struct deque_s *(*unshift) (struct deque_s *d, void *data);
 
 	/* remove item from front of queue (or bottom of stack): */
-	void *(*shift) (struct deque_s *d);
+	void *(*shift)(struct deque_s *d);
 
 	/* pointer to data at the end of the queue, or top of the stack */
-	void *(*peek_top) (struct deque_s *d);
+	void *(*peek_top)(struct deque_s *d);
 
 	/* pointer to  data at the front of the queue, or bottom of the stack */
-	void *(*peek_bottom) (struct deque_s *d);
+	void *(*peek_bottom)(struct deque_s *d);
 
 	/* return the number of items in the deque */
-	size_t (*size) (struct deque_s *d);
+	size_t (*size)(struct deque_s *d);
 };
 
-struct deque_s *deque_new();
+Deque_begin_C_functions
+#undef Deque_begin_C_functions
+/* function pointer typedefs for ease of use in full constructor */
+typedef void *(*deque_malloc_func)(size_t size, void *context);
+typedef void (*deque_free_func)(void *ptr, void *context);
 
-typedef void *(*deque_malloc_func) (size_t size, void *context);
-typedef void (*deque_free_func) (void *ptr, size_t size, void *context);
+/* constructors */
+
+/* uses libc malloc and free */
+struct deque_s *deque_new();
 
 struct deque_s *deque_new_custom_allocator(deque_malloc_func mfunc,
 					   deque_free_func mfree,
@@ -68,8 +64,6 @@ struct deque_s *deque_new_custom_allocator(deque_malloc_func mfunc,
 
 void deque_free(struct deque_s *d);
 
-#ifdef __cplusplus
-}
-#endif
-
+Deque_end_C_functions
+#undef Deque_end_C_functions
 #endif /* DEQUE_H */
