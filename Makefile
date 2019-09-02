@@ -91,7 +91,7 @@ check-2015-12-02-2: bindir 2015-12-02-2
 		2015/12/03/day3part1.c
 
 2015-12-03-2: bindir 2015/12/03/day3part2.c
-	gcc $(C99) $(CFLAGS) \
+	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2015-12-03-2 \
 		-Icommon/ehht common/ehht/*.c \
 		2015/12/03/day3part2.c
@@ -220,7 +220,7 @@ check-2015-12-11-2: bindir 2015-12-11
 		2015/12/12/day12part1.c
 
 2015-12-12-2: bindir 2015/12/12/day12part2.c
-	gcc $(C99) $(CFLAGS) \
+	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2015-12-12-2 \
 		-Icommon/deque common/deque/*.c \
 		2015/12/12/day12part2.c
@@ -404,7 +404,7 @@ check-2015-12-25: bindir 2015-12-25
 		2016/12/01/day1part1.c
 
 2016-12-01-2: bindir 2016/12/01/day1part2.c
-	gcc $(C99) $(CFLAGS) \
+	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2016-12-01-2 \
 		-Icommon/ehht common/ehht/*.c \
 		2016/12/01/day1part2.c
