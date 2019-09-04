@@ -6,6 +6,7 @@
 C89=-std=c89 -Wpedantic
 GNU89=-std=gnu89 -Wpedantic
 #CFLAGS=-ggdb -O0 -Wall -Wextra -Werror
+#CFLAGS=-ggdb -pg -O2 -Wall -Wextra -Werror -DNDEBUG -Wno-unused-parameter
 CFLAGS=-ggdb -O2 -Wall -Wextra -Werror -DNDEBUG -Wno-unused-parameter
 
 # extracted from https://github.com/torvalds/linux/blob/master/scripts/Lindent
@@ -109,6 +110,7 @@ check-2015-12-03-2: bindir 2015-12-03-2
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2015-12-04 \
 		-Icommon/md5 common/md5/md5.c \
+		-Icommon/ehstr common/ehstr/ehstr.c \
 		2015/12/04/day4.c
 
 check-2015-12-04-1: bindir 2015-12-04 check-md5
