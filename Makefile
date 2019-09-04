@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2018, 2019 Eric Herman <eric@freesa.org>
+
 # $@ : target label
 # $< : the first prerequisite after the colon
 # $^ : all of the prerequisite files

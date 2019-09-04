@@ -1,5 +1,6 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
 /* day4.c 2015 AdventOfCode solution
-   Copyright (C) 2015-2016 Eric Herman <eric@freesa.org>
+   Copyright (C) 2015, 2016, 2019 Eric Herman <eric@freesa.org>
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
