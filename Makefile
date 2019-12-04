@@ -434,6 +434,19 @@ check-2019-12-01-1: bindir 2019-12-01-1
 check-2019-12-01-2: bindir 2019-12-01-2
 	./check-answer.sh 5194864 bin/2019-12-01-2 2019/12/01/input
 
+# 2019-12-02
+2019-12-02-1: bindir 2019/12/01/01-1.c
+	gcc $(C89) $(CFLAGS) -o bin/2019-12-02-1 2019/12/02/02-1.c
+
+2019-12-02-2: bindir 2019/12/01/01-2.c
+	gcc $(C89) $(CFLAGS) -o bin/2019-12-02-2 2019/12/02/02-2.c
+
+check-2019-12-02-1: bindir 2019-12-02-1
+	./check-answer.sh 4138687 bin/2019-12-02-1 2019/12/02/input
+
+check-2019-12-02-2: bindir 2019-12-02-2
+	./check-answer.sh 6635 bin/2019-12-02-2 2019/12/02/input
+
 check: \
 	check-2015-12-01-1 check-2015-12-01-2 \
 	check-2015-12-02-1 check-2015-12-02-2 \
@@ -463,6 +476,7 @@ check: \
 	check-2016-12-01-1 check-2016-12-01-2 \
 	\
 	check-2019-12-01-1 check-2019-12-01-2 \
+	check-2019-12-02-1 check-2019-12-02-2 \
 
 
 
@@ -475,7 +489,7 @@ tidy:
 		-T eba_s \
 		-T ehht_s -T ehht_key_s -T ehht_keys_s \
 		-T ehbigint \
-                `find 2015 2016 -name '*.c'`
+                `find 2015 2016 2019 -name '*.c'`
 
 
 clean:

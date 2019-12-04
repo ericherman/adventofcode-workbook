@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 	total_fuel = 0;
 	while ((matched = fscanf(input, "%d", &mass)) != EOF) {
 		if (matched) {
-			fuel = (mass/3)-2;
+			fuel = (mass / 3) - 2;
 			total_fuel += fuel;
 		}
 	}
