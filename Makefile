@@ -447,7 +447,27 @@ check-2019-12-02-1: bindir 2019-12-02-1
 check-2019-12-02-2: bindir 2019-12-02-2
 	./check-answer.sh 6635 bin/2019-12-02-2 2019/12/02/input
 
-check: \
+# 2019-12-03
+2019-12-03-1: bindir 2019/12/03/03-1.c
+	gcc $(GNU89) $(CFLAGS) \
+		-o bin/2019-12-03-1 \
+		-Icommon/ehht common/ehht/*.c \
+		2019/12/03/03-1.c
+
+check-2019-12-03-1: bindir 2019-12-03-1
+	./check-answer.sh 5357 bin/2019-12-03-1 2019/12/03/input
+
+2019-12-03-2: bindir 2019/12/03/03-2.c
+	gcc $(GNU89) $(CFLAGS) \
+		-o bin/2019-12-03-2 \
+		-Icommon/ehht common/ehht/*.c \
+		2019/12/03/03-2.c
+
+check-2019-12-03-2: bindir 2019-12-03-2
+	./check-answer.sh 101956 bin/2019-12-03-2 2019/12/03/input
+
+
+check-2015: \
 	check-2015-12-01-1 check-2015-12-01-2 \
 	check-2015-12-02-1 check-2015-12-02-2 \
 	check-2015-12-03-1 check-2015-12-03-2 \
@@ -473,12 +493,17 @@ check: \
 	check-2015-12-23-1 check-2015-12-23-2 \
 	check-2015-12-24-1 check-2015-12-24-2 \
 	check-2015-12-25 \
+
+check-2016: \
 	check-2016-12-01-1 check-2016-12-01-2 \
-	\
+
+check-2019: \
 	check-2019-12-01-1 check-2019-12-01-2 \
 	check-2019-12-02-1 check-2019-12-02-2 \
+	check-2019-12-03-1 check-2019-12-03-2 \
 
 
+check: check-2015 check-2016 check-2019
 
 tidy:
 	$(LINDENT) \

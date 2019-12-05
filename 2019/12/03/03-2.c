@@ -1,0 +1,160 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* 03-2.c 2019 AdventOfCode solution
+   Copyright (C) 2019 Eric Herman <eric@freesa.org>
+*/
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "ehht.h"		/* github.com/ericherman/libehht */
+
+struct wires_s {
+	int black;
+	int red;
+};
+
+static int find_closest(struct ehht_key_s key, void *each_val, void *context)
+{
+	struct wires_s *closest = (struct wires_s *)context;
+	struct wires_s *val = (struct wires_s *)each_val;
+	if (val->black && val->red) {
+		if ((val->black + val->red) < (closest->black + closest->red)) {
+			closest->black = val->black;
+			closest->red = val->red;
+		}
+	}
+	return 0;
+}
+
+static int null_and_free(struct ehht_key_s key, void *each_val, void *context)
+{
+	struct ehht_s *grid = (struct ehht_s *)context;
+	grid->put(grid, key.str, key.len, NULL);
+	free(each_val);
+	return 0;
+}
+
+static void add_wire(struct ehht_s *grid, int x, int y, int wire, int steps)
+{
+	char buf[80];
+	struct wires_s *xy;
+
+	if (wire != 0 && wire != 1) {
+		fprintf(stderr, "Error wire: '%d'\n", wire);
+		exit(EXIT_FAILURE);
+	}
+
+	sprintf(buf, "[%d,%d]", x, y);
+	xy = grid->get(grid, buf, strlen(buf));
+	if (!xy) {
+		xy = calloc(1, sizeof(struct wires_s));
+		if (!xy) {
+			exit(EXIT_FAILURE);
+		}
+		grid->put(grid, buf, strlen(buf), xy);
+	}
+
+	switch (wire) {
+	case 0:
+		if (xy->black == 0) {
+			xy->black = steps;
+		}
+		break;
+	case 1:
+		if (xy->red == 0) {
+			xy->red = steps;
+		}
+		break;
+	}
+}
+
+static void route_wire(struct ehht_s *grid, int *steps, int *x, int *y,
+		       char dir, int dist, int wire)
+{
+	int i;
+
+	if (dir != 'U' && dir != 'D' && dir != 'L' && dir != 'R') {
+		fprintf(stderr, "Error dir: '%c' (%d)\n", dir, dist);
+		return;
+	}
+
+	for (i = 0; i < dist; ++i) {
+		++(*steps);
+		switch (dir) {
+		case 'U':
+			++(*y);
+			break;
+		case 'D':
+			--(*y);
+			break;
+		case 'L':
+			--(*x);
+			break;
+		case 'R':
+			++(*x);
+			break;
+		}
+		add_wire(grid, *x, *y, wire, *steps);
+	}
+}
+
+int main(int argc, char **argv)
+{
+	const char *path;
+	FILE *input;
+	char *line;
+	size_t len;
+	ssize_t read;
+	char *token, *rest;
+	struct ehht_s *grid;
+	char direction;
+	int matched, wire, x, y, steps, distance;
+	struct wires_s closest_cross;
+
+	path = (argc > 1) ? argv[1] : "input";
+
+	input = fopen(path, "r");
+	if (!input) {
+		fprintf(stderr, "could not open %s\n", path);
+		return 1;
+	}
+
+	grid = ehht_new(0, NULL, NULL, NULL, NULL);
+	if (!grid) {
+		exit(EXIT_FAILURE);
+	}
+
+	line = NULL;
+	wire = -1;
+	while ((read = getline(&line, &len, input)) != -1) {
+		++wire;
+		steps = 0;
+		x = 0;
+		y = 0;
+		rest = line;
+		while ((token = strtok_r(rest, ",", &rest))) {
+			matched = sscanf(token, "%c%d", &direction, &distance);
+			if (matched) {
+				route_wire(grid, &steps, &x, &y, direction,
+					   distance, wire);
+			}
+		}
+	}
+	fclose(input);
+	if (line) {
+		free(line);
+	}
+
+	closest_cross.black = INT_MAX / 2;
+	closest_cross.red = INT_MAX / 2;
+
+	grid->for_each(grid, find_closest, &closest_cross);
+
+	printf("%d\n", closest_cross.black + closest_cross.red);
+
+	grid->for_each(grid, null_and_free, grid);
+	grid->clear(grid);
+	ehht_free(grid);
+
+	return 0;
+}
