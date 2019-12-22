@@ -520,6 +520,23 @@ check-2019-12-06-1: bindir 2019-12-06-1
 check-2019-12-06-2: bindir 2019-12-06-2
 	./check-answer.sh 451 bin/2019-12-06-2 2019/12/06/input
 
+# 2019-12-07
+2019-12-07-1: bindir 2019/12/07/07-1.c $(INTCODE_2019_SRC)
+	gcc $(GNU89) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
+		-Icommon/misc common/misc/*.c \
+		-o bin/2019-12-07-1 2019/12/07/07-1.c
+
+check-2019-12-07-1: bindir 2019-12-07-1
+	./check-answer.sh 70597 bin/2019-12-07-1 2019/12/07/input
+
+2019-12-07-2: bindir 2019/12/07/07-2.c $(INTCODE_2019_SRC)
+	gcc $(GNU89) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
+		-Icommon/misc common/misc/*.c \
+		-o bin/2019-12-07-2 2019/12/07/07-2.c \
+		-pthread
+
+check-2019-12-07-2: bindir 2019-12-07-2
+	./check-answer.sh 30872528 bin/2019-12-07-2 2019/12/07/input
 
 
 check-2015: \
@@ -549,8 +566,10 @@ check-2015: \
 	check-2015-12-24-1 check-2015-12-24-2 \
 	check-2015-12-25 \
 
+
 check-2016: \
 	check-2016-12-01-1 check-2016-12-01-2 \
+
 
 check-2019: \
 	check-2019-12-01-1 check-2019-12-01-2 \
@@ -559,6 +578,7 @@ check-2019: \
 	check-2019-12-04-1 check-2019-12-04-2 \
 	check-2019-12-05-1 check-2019-12-05-2 \
 	check-2019-12-06-1 check-2019-12-06-2 \
+	check-2019-12-07-1 check-2019-12-07-2 \
 
 
 check: check-2015 check-2016 check-2019
