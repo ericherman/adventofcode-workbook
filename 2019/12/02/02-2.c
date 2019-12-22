@@ -6,73 +6,19 @@
 #include <stdlib.h>		/* malloc */
 #include <string.h>		/* memcpy */
 
-void run_intcodes(int *memory, size_t size)
-{
-	size_t pos = 0;
-	int halt = 0;
-
-	while (pos < size && !halt) {
-		switch (memory[pos]) {
-		case 99:
-			halt = 1;
-			break;
-		case 1:
-			memory[memory[pos + 3]] =
-			    memory[memory[pos + 1]] + memory[memory[pos + 2]];
-			break;
-		case 2:
-			memory[memory[pos + 3]] =
-			    memory[memory[pos + 1]] * memory[memory[pos + 2]];
-			break;
-		default:
-			fprintf(stderr, "unsupported opcoded: %d at %lu\n",
-				memory[pos], pos);
-			break;
-		}
-		if (!halt) {
-			pos += 4;
-		}
-	}
-}
+#include "intcode-computer.c"
 
 int main(int argc, char **argv)
 {
-	const char *path = "input";
-	FILE *input;
-	int *orig_mem, *memory, *new_mem;
-	int n, v, matched, val;
-	size_t size, used;
+	const char *path;
+	int *orig_mem, *memory;
+	int n, v;
+	size_t size;
 
 	path = (argc > 1) ? argv[1] : "input";
-	input = fopen(path, "r");
-	if (!input) {
-		fprintf(stderr, "could not open %s\n", path);
-		return 1;
-	}
+	size = 0;
+	orig_mem = load_ints_from_csv(path, &size);
 
-	size = 255;
-	memory = malloc(size * sizeof(int));
-	if (!memory) {
-		return EXIT_FAILURE;
-	}
-
-	used = 0;
-	while ((matched = fscanf(input, "%d", &val)) != EOF) {
-		if (matched) {
-			memory[used++] = val;
-			if (used == size) {
-				size *= 2;
-				new_mem = realloc(memory, size * sizeof(int));
-				if (!new_mem) {
-					return EXIT_FAILURE;
-				}
-				memory = new_mem;
-			}
-		}
-	}
-	fclose(input);
-
-	orig_mem = memory;
 	memory = malloc(size * sizeof(int));
 
 	for (n = 0; n <= 99; ++n) {
@@ -80,12 +26,15 @@ int main(int argc, char **argv)
 			memcpy(memory, orig_mem, size * sizeof(int));
 			memory[1] = n;
 			memory[2] = v;
-			run_intcodes(memory, used);
+			run_intcodes(memory, size, NULL, NULL, NULL, NULL);
 			if (memory[0] == 19690720) {
 				printf("%d%02d\n", n, v);
 			}
 		}
 	}
+
+	free(memory);
+	free(orig_mem);
 
 	return 0;
 }

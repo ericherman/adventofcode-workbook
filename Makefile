@@ -421,6 +421,9 @@ check-2016-12-01-2: bindir 2016-12-01-2
 	./check-answer.sh 136 bin/2016-12-01-2 2016/12/01/input
 
 
+INTCODE_2019_SRC=2019/intcode-computer.c
+CFLAGS_INTCODE_2019=-I ./2019
+
 # 2019-12-01
 2019-12-01-1: bindir 2019/12/01/01-1.c
 	gcc $(C89) $(CFLAGS) -o bin/2019-12-01-1 2019/12/01/01-1.c
@@ -435,11 +438,14 @@ check-2019-12-01-2: bindir 2019-12-01-2
 	./check-answer.sh 5194864 bin/2019-12-01-2 2019/12/01/input
 
 # 2019-12-02
-2019-12-02-1: bindir 2019/12/01/01-1.c
-	gcc $(C89) $(CFLAGS) -o bin/2019-12-02-1 2019/12/02/02-1.c
+2019-12-02-1: bindir 2019/12/01/01-1.c $(INTCODE_2019_SRC)
+	gcc $(GNU89) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
+		-o bin/2019-12-02-1 2019/12/02/02-1.c
 
-2019-12-02-2: bindir 2019/12/01/01-2.c
-	gcc $(C89) $(CFLAGS) -o bin/2019-12-02-2 2019/12/02/02-2.c
+2019-12-02-2: bindir 2019/12/01/01-2.c $(INTCODE_2019_SRC)
+	gcc $(GNU89) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
+		-o bin/2019-12-02-2 2019/12/02/02-2.c
+
 
 check-2019-12-02-1: bindir 2019-12-02-1
 	./check-answer.sh 4138687 bin/2019-12-02-1 2019/12/02/input
@@ -480,14 +486,16 @@ check-2019-12-04-2: bindir 2019-12-04-2
 	./check-answer.sh 288 bin/2019-12-04-2
 
 # 2019-12-05
-2019-12-05-1: bindir 2019/12/05/05-1.c
-	gcc $(GNU89) $(CFLAGS) -o bin/2019-12-05-1 2019/12/05/05-1.c
+2019-12-05-1: bindir 2019/12/05/05-1.c $(INTCODE_2019_SRC)
+	gcc $(GNU89) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
+		-o bin/2019-12-05-1 2019/12/05/05-1.c
 
 check-2019-12-05-1: bindir 2019-12-05-1
 	./check-answer.sh 6069343 bin/2019-12-05-1 2019/12/05/input
 
-2019-12-05-2: bindir 2019/12/05/05-2.c
-	gcc $(GNU89) $(CFLAGS) -o bin/2019-12-05-2 2019/12/05/05-2.c
+2019-12-05-2: bindir 2019/12/05/05-2.c $(INTCODE_2019_SRC)
+	gcc $(GNU89) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
+		-o bin/2019-12-05-2 2019/12/05/05-2.c
 
 check-2019-12-05-2: bindir 2019-12-05-2
 	./check-answer.sh 3188550 bin/2019-12-05-2 2019/12/05/input
