@@ -11,28 +11,27 @@
 int main(int argc, char **argv)
 {
 	const char *path;
-	int *memory;
+	struct intcode_cpu_s *cpu;
 	int set_1202_alarm;
-	size_t size;
+	char buf[80];
 
 	path = (argc > 1) ? argv[1] : "input";
 
 	set_1202_alarm = (argc > 2) ? atoi(argv[2]) : 1;
 
-	size = 0;
-	memory = load_ints_from_csv(path, &size);
+	cpu = intcode_new_from_csv(path);
 
 	if (set_1202_alarm) {
-		memory[1] = 12;
-		memory[2] = 2;
+		cpu->poke(cpu, 1, 12);
+		cpu->poke(cpu, 2, 2);
 	}
 
-	run_intcodes(memory, size, NULL, NULL, NULL, NULL);
+	cpu->run(cpu, NULL, NULL, NULL, NULL);
 
 	printf("memory[0]=\n");
-	printf("%d\n", memory[0]);
+	printf("%s\n", cpu->peek(cpu, 0, buf, 80));
 
-	free(memory);
+	cpu->free(&cpu);
 
 	return 0;
 }

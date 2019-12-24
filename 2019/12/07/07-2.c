@@ -12,8 +12,7 @@
 struct exec_context_s {
 	char id;
 	pthread_mutex_t lock;
-	int *memory;
-	size_t mem_len;
+	struct intcode_cpu_s *cpu;
 	int phase_retreived;
 	int phase;
 	int atomic_have_input;
@@ -71,9 +70,12 @@ static void put_out(void *output_context, int x)
 void *start_routine_run_intcodes(void *context)
 {
 	struct exec_context_s *ctx;
+	struct intcode_cpu_s *cpu;
 
 	ctx = context;
-	run_intcodes(ctx->memory, ctx->mem_len, get_in, ctx, put_out, ctx);
+	cpu = ctx->cpu;
+
+	cpu->run(cpu, get_in, ctx, put_out, ctx);
 
 	return NULL;
 }
@@ -81,8 +83,9 @@ void *start_routine_run_intcodes(void *context)
 int main(int argc, char **argv)
 {
 	const char *path;
-	int *orig_mem, *amps_orig, *amps_temp;
-	size_t i, j, size, amps_len, combos, swap;
+	struct intcode_cpu_s *orig;
+	int *amps_orig, *amps_temp;
+	size_t i, j, amps_len, combos, swap;
 	struct exec_context_s *exec_ctxs;
 	pthread_t *threads;
 	pthread_attr_t *attr;
@@ -90,8 +93,7 @@ int main(int argc, char **argv)
 	int err, output, max_out;
 
 	path = (argc > 1) ? argv[1] : "input";
-	size = 0;
-	orig_mem = load_ints_from_csv(path, &size);
+	orig = intcode_new_from_csv(path);
 
 	amps_len = 5;
 	amps_orig = calloc(amps_len, sizeof(int));
@@ -121,13 +123,7 @@ int main(int argc, char **argv)
 				exec_ctxs[j].output_ctx = &(exec_ctxs[j + 1]);
 			}
 
-			exec_ctxs[j].mem_len = size;
-			exec_ctxs[j].memory = calloc(size, sizeof(int));
-			if (!exec_ctxs[j].memory) {
-				exit(EXIT_FAILURE);
-			}
-			memcpy(exec_ctxs[j].memory, orig_mem,
-			       size * sizeof(int));
+			exec_ctxs[j].cpu = orig->copy(orig);
 			err = pthread_mutex_init(&(exec_ctxs[j].lock), NULL);
 			if (err) {
 				exit(EXIT_FAILURE);
@@ -167,7 +163,7 @@ int main(int argc, char **argv)
 		}
 
 		for (j = 0; j < amps_len; ++j) {
-			free(exec_ctxs[j].memory);
+			exec_ctxs[j].cpu->free(&(exec_ctxs[j].cpu));
 			pthread_mutex_destroy(&(exec_ctxs[j].lock));
 		}
 		free(exec_ctxs);
@@ -177,7 +173,7 @@ int main(int argc, char **argv)
 
 	free(amps_temp);
 	free(amps_orig);
-	free(orig_mem);
+	orig->free(&orig);
 
 	return 0;
 }

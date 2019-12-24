@@ -21,21 +21,20 @@ static void put_output(void *ctx, int x)
 int main(int argc, char **argv)
 {
 	const char *path;
-	size_t size;
-	int *memory;
+	struct intcode_cpu_s *cpu;
 	int input, output;
 
 	path = (argc > 1) ? argv[1] : "input";
-	size = 0;
-	memory = load_ints_from_csv(path, &size);
+	cpu = intcode_new_from_csv(path);
 
 	input = 1;
 	output = INT_MIN;
-	run_intcodes(memory, size, get_input, &input, put_output, &output);
+
+	cpu->run(cpu, get_input, &input, put_output, &output);
 
 	printf("%d\n", output);
 
-	free(memory);
+	cpu->free(&cpu);
 
 	return 0;
 }

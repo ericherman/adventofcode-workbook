@@ -11,30 +11,28 @@
 int main(int argc, char **argv)
 {
 	const char *path;
-	int *orig_mem, *memory;
+	struct intcode_cpu_s *orig, *cpu;
 	int n, v;
-	size_t size;
+	char buf[80];
 
 	path = (argc > 1) ? argv[1] : "input";
-	size = 0;
-	orig_mem = load_ints_from_csv(path, &size);
-
-	memory = malloc(size * sizeof(int));
+	orig = intcode_new_from_csv(path);
 
 	for (n = 0; n <= 99; ++n) {
 		for (v = 0; v <= 99; ++v) {
-			memcpy(memory, orig_mem, size * sizeof(int));
-			memory[1] = n;
-			memory[2] = v;
-			run_intcodes(memory, size, NULL, NULL, NULL, NULL);
-			if (memory[0] == 19690720) {
+			cpu = orig->copy(orig);
+			cpu->poke(cpu, 1, n);
+			cpu->poke(cpu, 2, v);
+			cpu->run(cpu, NULL, NULL, NULL, NULL);
+			cpu->peek(cpu, 0, buf, 80);
+			if (strncmp(buf, "19690720", 80) == 0) {
 				printf("%d%02d\n", n, v);
 			}
+			cpu->free(&cpu);
 		}
 	}
 
-	free(memory);
-	free(orig_mem);
+	orig->free(&orig);
 
 	return 0;
 }
