@@ -8,50 +8,107 @@
 #include <string.h>
 
 struct intcode_cpu_s {
-	int *memory;
+	int64_t *memory;
 	size_t len;
-	int pos; /* code pointer */
+	size_t code_size;
+	int64_t pos;		/* code pointer */
+	int64_t base;		/* base pointer */
 	void (*run)(struct intcode_cpu_s * cpu,
-		    int (*get_input)(void *input_context), void *input_context,
-		    void (*put_output)(void *output_context, int val),
+		    int64_t (*get_input)(void *input_context),
+		    void *input_context,
+		    void (*put_output)(void *output_context, int64_t val),
 		    void *output_context);
-	char *(*peek)(struct intcode_cpu_s * cpu, int addr, char *buf,
-		      size_t buf_len);
-	void (*poke)(struct intcode_cpu_s * cpu, int addr, int val);
+	int64_t (*peek)(struct intcode_cpu_s * cpu, int64_t addr);
+	void (*poke)(struct intcode_cpu_s * cpu, int64_t addr, int64_t val);
 	struct intcode_cpu_s *(*copy) (struct intcode_cpu_s * cpu);
 	void (*free)(struct intcode_cpu_s ** cpu_ref);
 };
 
-static int value_for_param(struct intcode_cpu_s *cpu, int mode, int argc)
+static void intcode_dump_code(struct intcode_cpu_s *cpu, FILE *log)
 {
-	if (mode == 1) {
-		return cpu->pos + argc;
+	size_t i;
+	if (!cpu) {
+		return;
 	}
-	if (mode == 0) {
-		if ((cpu->pos + argc) >= ((ssize_t)cpu->len)) {
-			exit(EXIT_FAILURE);
+	fprintf(log, "%p {\n", (void *)cpu);
+	fprintf(log, "\tmemory = %p\n", (void *)cpu->memory);
+	fprintf(log, "\tlen = %llu\n", (unsigned long long)cpu->len);
+	fprintf(log, "\tcode_size = %llu\n",
+		(unsigned long long)cpu->code_size);
+	fprintf(log, "\tpos = %lld\n", (long long)cpu->pos);
+	fprintf(log, "\tbase = %lld\n", (long long)cpu->base);
+	fprintf(log, "\tcode:\n");
+	for (i = 0; i < cpu->code_size; ++i) {
+		fprintf(log, "%lld,", (long long)cpu->memory[i]);
+		if ((i + 1) % 16 == 0) {
+			fprintf(log, "\n");
 		}
-		return cpu->memory[cpu->pos + argc];
 	}
-	exit(EXIT_FAILURE);
+	fprintf(log, "\n}\n");
+}
+
+#ifndef die1
+#define die1(cpu, str, a) do { \
+	intcode_dump_code(cpu, stderr); \
+	fprintf(stderr, "%s:%d: ", __FILE__, __LINE__); \
+	fprintf(stderr, str, a); \
+	fprintf(stderr, "\n"); \
+	exit(EXIT_FAILURE); \
+	} while (0)
+#endif
+
+#ifndef die2
+#define die2(cpu, str, a, b) do { \
+	intcode_dump_code(cpu, stderr); \
+	fprintf(stderr, "%s:%d: ", __FILE__, __LINE__); \
+	fprintf(stderr, str, a, b); \
+	fprintf(stderr, "\n"); \
+	exit(EXIT_FAILURE); \
+	} while (0)
+#endif
+
+static int64_t value_for_param(struct intcode_cpu_s *cpu, int mode, int argc)
+{
+	ssize_t dest, base;
+
+	if (mode < 0 || mode > 2) {
+		die1(cpu, "unsuppored mode: %d", mode);
+	}
+
+	dest = (cpu->pos + argc);
+	if (dest < 0) {
+		die1(cpu, "negative dest %lld", (long long)dest);
+	} else if (dest >= ((ssize_t)cpu->len)) {
+		die2(cpu, "%lld >= %lld", (long long)dest, (long long)cpu->len);
+	}
+
+	if (mode == 1) {
+		return dest;
+	}
+
+	base = (mode == 2) ? cpu->base : 0;
+	dest = base + cpu->memory[dest];
+	if (dest < 0) {
+		die1(cpu, "negative dest %lld", (long long)dest);
+	} else if (dest >= ((ssize_t)cpu->len)) {
+		die2(cpu, "%lld >= %lld", (long long)dest, (long long)cpu->len);
+	}
+	return dest;
 }
 
 static void intcode_run(struct intcode_cpu_s *cpu,
-			int (*get_input)(void *input_context),
+			int64_t (*get_input)(void *input_context),
 			void *input_context,
-			void (*put_output)(void *output_context, int val),
+			void (*put_output)(void *output_context, int64_t val),
 			void *output_context)
 {
 	int halt = 0;
-	int code, op, mode1, mode2, mode3;
-	int a, b, c, advance;
-
-	cpu->pos = 0;
+	int op, mode1, mode2, mode3, advance;
+	int64_t code, a, b, c;
 
 	if (cpu->len > SSIZE_MAX) {
-		fprintf(stderr, "len %lu > %ld\n", (unsigned long)cpu->len,
-			(long)SSIZE_MAX);
-		exit(EXIT_FAILURE);
+		die2(cpu, "len %llu > %lld",
+		     (unsigned long long)cpu->len, (long long)SSIZE_MAX);
 	}
 
 	while ((cpu->pos < (ssize_t)cpu->len) && !halt) {
@@ -135,10 +192,15 @@ static void intcode_run(struct intcode_cpu_s *cpu,
 				cpu->memory[c] = 0;
 			}
 			break;
+		case 9:	/* add to base  */
+			advance = 2;
+			a = value_for_param(cpu, mode1, 1);
+			cpu->base += cpu->memory[a];
+			break;
 		default:
-			fprintf(stderr, "unsupported opcoded: %d at %d\n",
-				cpu->memory[cpu->pos], cpu->pos);
-			advance = 4;
+			die2(cpu, "unsupported opcoded: %lld at %lld",
+			     (long long)cpu->memory[cpu->pos],
+			     (long long)cpu->pos);
 			break;
 		}
 		if (!halt) {
@@ -147,20 +209,20 @@ static void intcode_run(struct intcode_cpu_s *cpu,
 	}
 }
 
-static char *intcode_peek(struct intcode_cpu_s *cpu, int addr, char *buf,
-			  size_t buf_len)
+static int64_t intcode_peek(struct intcode_cpu_s *cpu, int64_t addr)
 {
 	if (addr >= (ssize_t)cpu->len) {
-		exit(EXIT_FAILURE);
+		die2(cpu, "%lld > %lld\n", (long long)addr,
+		     (long long)(cpu->len));
 	}
-	snprintf(buf, buf_len, "%d", cpu->memory[addr]);
-	return buf;
+	return cpu->memory[addr];
 }
 
-static void intcode_poke(struct intcode_cpu_s *cpu, int addr, int val)
+static void intcode_poke(struct intcode_cpu_s *cpu, int64_t addr, int64_t val)
 {
 	if (addr >= (ssize_t)cpu->len) {
-		exit(EXIT_FAILURE);
+		die2(cpu, "%lld > %lld\n", (long long)addr,
+		     (long long)(cpu->len));
 	}
 	cpu->memory[addr] = val;
 }
@@ -169,11 +231,11 @@ static void intcode_free(struct intcode_cpu_s **cpu_ref)
 {
 	struct intcode_cpu_s *cpu;
 	if (!cpu_ref) {
-		exit(EXIT_FAILURE);
+		die1(NULL, "%s is NULL", "cpu_ref");
 	}
 	cpu = *cpu_ref;
 	if (!cpu) {
-		exit(EXIT_FAILURE);
+		die1(cpu, "%s is NULL", "cpu");
 	}
 	free(cpu->memory);
 	free(cpu);
@@ -185,18 +247,22 @@ static struct intcode_cpu_s *intcode_copy(struct intcode_cpu_s *cpu)
 	struct intcode_cpu_s *copy;
 	copy = malloc(sizeof(struct intcode_cpu_s));
 	if (!copy) {
-		exit(EXIT_FAILURE);
+		die1(cpu, "could not allocat %llu bytes?",
+		     (unsigned long long)sizeof(struct intcode_cpu_s));
 	}
-	copy->pos = 0;
+	copy->code_size = cpu->code_size;
+	copy->pos = cpu->pos;
+	copy->base = cpu->base;
 	copy->run = intcode_run;
 	copy->peek = intcode_peek;
 	copy->poke = intcode_poke;
 	copy->copy = intcode_copy;
 	copy->free = intcode_free;
 
-	copy->memory = malloc(cpu->len * sizeof(int));
+	copy->memory = malloc(cpu->len * sizeof(int64_t));
 	if (!(copy->memory)) {
-		exit(EXIT_FAILURE);
+		die1(cpu, "could not allocat %llu bytes?",
+		     (unsigned long long)cpu->len * sizeof(int64_t));
 	}
 	copy->len = cpu->len;
 	memcpy(copy->memory, cpu->memory, cpu->len);
@@ -207,33 +273,38 @@ struct intcode_cpu_s *intcode_new_from_csv(const char *path)
 {
 	FILE *input;
 	char *line;
-	size_t line_len;
+	size_t line_len, size;
 	char *rest;
 	char *token;
-	size_t used;
 	ssize_t read;
-	int matched, val;
+	int matched;
+	long long val;
 	struct intcode_cpu_s *cpu;
 
 	input = fopen(path, "r");
 	if (!input) {
-		fprintf(stderr, "could not open %s\n", path);
-		exit(EXIT_FAILURE);
+		die1(NULL, "could not open %s\n", path);
 	}
 
 	cpu = malloc(sizeof(struct intcode_cpu_s));
 	if (!cpu) {
-		exit(EXIT_FAILURE);
+		die1(cpu, "could not allocat %llu bytes?",
+		     (unsigned long long)sizeof(struct intcode_cpu_s));
 	}
 
+	/* the original apollo computer was 38K */
 	/* https://www.ibiblio.org/apollo/assembly_language_manual.html */
 	/* Memory 15-bit wordlength + 1-bit parity */
-	if ((sizeof(int) * CHAR_BIT) < 15) {
-		exit(EXIT_FAILURE);
-	}
 	/* 36K words ROM (core rope memory) */
 	/*  2K words RAM (magnetic-core memory) */
+	size = (sizeof(int64_t) * CHAR_BIT);	/* word bit length */
+	if (size != 64) {
+		die1(cpu, "word bit length %llu != 64?",
+		     (unsigned long long)size);
+	}
 	cpu->len = ((36 * 1024) + (2 * 1024));
+
+	cpu->base = 0;
 	cpu->pos = 0;
 
 	cpu->run = intcode_run;
@@ -242,10 +313,12 @@ struct intcode_cpu_s *intcode_new_from_csv(const char *path)
 	cpu->copy = intcode_copy;
 	cpu->free = intcode_free;
 
-	used = 0;
-	cpu->memory = calloc(cpu->len, sizeof(int));
+	cpu->code_size = 0;
+	cpu->memory = calloc(cpu->len, sizeof(int64_t));
 	if (!cpu->memory) {
-		exit(EXIT_FAILURE);
+		size = cpu->len * sizeof(int64_t);
+		die1(cpu, "could not allocat %llu bytes?",
+		     (unsigned long long)size);
 	}
 
 	line = NULL;
@@ -253,11 +326,12 @@ struct intcode_cpu_s *intcode_new_from_csv(const char *path)
 	while ((read = getline(&line, &line_len, input)) != -1) {
 		rest = line;
 		while ((token = strtok_r(rest, ",", &rest))) {
-			matched = sscanf(token, "%d", &val);
+			matched = sscanf(token, "%lld", &val);
 			if (matched) {
-				cpu->memory[used++] = val;
-				if (used == cpu->len) {
-					exit(EXIT_FAILURE);
+				cpu->memory[cpu->code_size++] = val;
+				if (cpu->code_size == cpu->len) {
+					die1(cpu, "%llu", (unsigned long long)
+					     cpu->code_size);
 				}
 			}
 		}

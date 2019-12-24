@@ -8,20 +8,20 @@
 
 #include "intcode-computer.c"
 
-static int get_input(void *input_context)
+static int64_t get_input(void *input_context)
 {
-	return *((int *)input_context);
+	return *((int64_t *)input_context);
 }
 
-static void put_output(void *output_context, int x)
+static void put_output(void *output_context, int64_t x)
 {
-	*((int *)output_context) = x;
+	*((int64_t *)output_context) = x;
 }
 
 int main(int argc, char **argv)
 {
 	const char *path;
-	int input, output;
+	int64_t input, output;
 	struct intcode_cpu_s *cpu;
 
 	path = (argc > 1) ? argv[1] : "input";
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 
 	cpu->run(cpu, get_input, &input, put_output, &output);
 
-	printf("%d\n", output);
+	printf("%lld\n", (long long)output);
 
 	cpu->free(&cpu);
 

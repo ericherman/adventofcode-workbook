@@ -13,7 +13,6 @@ int main(int argc, char **argv)
 	const char *path;
 	struct intcode_cpu_s *orig, *cpu;
 	int n, v;
-	char buf[80];
 
 	path = (argc > 1) ? argv[1] : "input";
 	orig = intcode_new_from_csv(path);
@@ -24,8 +23,7 @@ int main(int argc, char **argv)
 			cpu->poke(cpu, 1, n);
 			cpu->poke(cpu, 2, v);
 			cpu->run(cpu, NULL, NULL, NULL, NULL);
-			cpu->peek(cpu, 0, buf, 80);
-			if (strncmp(buf, "19690720", 80) == 0) {
+			if (cpu->peek(cpu, 0) == 19690720) {
 				printf("%d%02d\n", n, v);
 			}
 			cpu->free(&cpu);

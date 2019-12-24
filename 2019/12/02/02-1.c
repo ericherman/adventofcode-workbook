@@ -13,7 +13,6 @@ int main(int argc, char **argv)
 	const char *path;
 	struct intcode_cpu_s *cpu;
 	int set_1202_alarm;
-	char buf[80];
 
 	path = (argc > 1) ? argv[1] : "input";
 
@@ -29,7 +28,7 @@ int main(int argc, char **argv)
 	cpu->run(cpu, NULL, NULL, NULL, NULL);
 
 	printf("memory[0]=\n");
-	printf("%s\n", cpu->peek(cpu, 0, buf, 80));
+	printf("%lld\n", (long long)cpu->peek(cpu, 0));
 
 	cpu->free(&cpu);
 

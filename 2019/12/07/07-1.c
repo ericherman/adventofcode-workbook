@@ -8,10 +8,10 @@
 
 struct two_inputs_context_s {
 	size_t cnt;
-	int inputs[2];
+	int64_t inputs[2];
 };
 
-static int get_in(void *input_context)
+static int64_t get_in(void *input_context)
 {
 	struct two_inputs_context_s *ctx;
 
@@ -23,9 +23,9 @@ static int get_in(void *input_context)
 	return ctx->inputs[ctx->cnt++];
 }
 
-static void put_out(void *output_context, int x)
+static void put_out(void *output_context, int64_t x)
 {
-	*((int *)output_context) = x;
+	*((int64_t *)output_context) = x;
 }
 
 int main(int argc, char **argv)
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 	int *amps_orig, *amps_temp;
 	size_t i, j, amps_len, combos, swap;
 	struct two_inputs_context_s input_ctx;
-	int output, max_out;
+	int64_t output, max_out;
 
 	path = (argc > 1) ? argv[1] : "input";
 	orig = intcode_new_from_csv(path);
@@ -52,23 +52,21 @@ int main(int argc, char **argv)
 	for (i = 0; i < combos; ++i) {
 		permute(i, amps_orig, amps_temp, amps_len, &swap, sizeof(int));
 
-		cpu = orig->copy(orig);
-
 		output = 0;
 		for (j = 0; j < amps_len; ++j) {
 			input_ctx.cnt = 0;
-			input_ctx.inputs[0] = (int)amps_temp[j];
+			input_ctx.inputs[0] = (int64_t)amps_temp[j];
 			input_ctx.inputs[1] = output;
+			cpu = orig->copy(orig);
 			cpu->run(cpu, get_in, &input_ctx, put_out, &output);
-
+			cpu->free(&cpu);
 			if (output > max_out) {
 				max_out = output;
 			}
 		}
-		cpu->free(&cpu);
 	}
 
-	printf("%d\n", max_out);
+	printf("%lld\n", (long long)max_out);
 
 	free(amps_temp);
 	free(amps_orig);

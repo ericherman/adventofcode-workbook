@@ -20,7 +20,7 @@ struct exec_context_s {
 	struct exec_context_s *output_ctx;
 };
 
-static int get_in(void *input_context)
+static int64_t get_in(void *input_context)
 {
 	struct exec_context_s *ctx;
 	int input;
@@ -47,7 +47,7 @@ static int get_in(void *input_context)
 	return input;
 }
 
-static void put_out(void *output_context, int x)
+static void put_out(void *output_context, int64_t x)
 {
 	struct exec_context_s *ctx, *in;
 	in = output_context;
