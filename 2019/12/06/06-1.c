@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	map = ehht_new(0, NULL, NULL, NULL, NULL);
+	map = ehht_new();
 	line = NULL;
 	while ((read = getline(&line, &len, input)) != -1) {
 		rest = line;

@@ -163,8 +163,8 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	combos = ehht_new(0, NULL, NULL, NULL, NULL);
-	names = ehht_new(0, NULL, NULL, NULL, NULL);
+	combos = ehht_new();
+	names = ehht_new();
 	if (include_you) {
 		names->put(names, "you", strlen("you"), NULL);
 	}

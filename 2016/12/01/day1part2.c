@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	table = ehht_new(0, NULL, NULL, NULL, NULL);
+	table = ehht_new();
 	if (!table) {
 		fprintf(stderr, "could not allocate hashtable\n");
 		return 1;

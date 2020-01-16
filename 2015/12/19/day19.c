@@ -231,7 +231,7 @@ static struct ehht_s *reverse_table(struct ehht_s *table, int verbose)
 	int copy_keys;
 	size_t i, j;
 
-	rev = ehht_new(0, NULL, NULL, NULL, NULL);
+	rev = ehht_new();
 
 	copy_keys = 0;
 	ks = table->keys(table, copy_keys);
@@ -244,7 +244,7 @@ static struct ehht_s *reverse_table(struct ehht_s *table, int verbose)
 			    rev->get(rev, subks->keys[j].str,
 				     subks->keys[j].len);
 			if (!subs) {
-				subs = ehht_new(0, NULL, NULL, NULL, NULL);
+				subs = ehht_new();
 				rev->put(rev, subks->keys[j].str,
 					 subks->keys[j].len, subs);
 			}
@@ -387,7 +387,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	table = ehht_new(0, NULL, NULL, NULL, NULL);
+	table = ehht_new();
 
 	buf = mallocd(sizeof(char) * BIG_BUF_LEN);
 	molecule = NULL;
@@ -398,7 +398,7 @@ int main(int argc, char **argv)
 			len = strlen(from);
 			subs = table->get(table, from, len);
 			if (!subs) {
-				subs = ehht_new(0, NULL, NULL, NULL, NULL);
+				subs = ehht_new();
 				table->put(table, from, len, subs);
 			}
 			subs->put(subs, to, strlen(to), NULL);
@@ -454,7 +454,7 @@ int main(int argc, char **argv)
 			table->free_keys(table, tks);
 		}
 	} else {
-		perms = ehht_new(0, NULL, NULL, NULL, NULL);
+		perms = ehht_new();
 		result = permute(table, molecule, perms, verbose);
 		printf("%lu\n", (unsigned long)result);
 		if (MAKE_VALGRIND_HAPPY) {

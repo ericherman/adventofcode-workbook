@@ -76,7 +76,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	houses = ehht_new(0, NULL, NULL, NULL, NULL);
+	houses = ehht_new();
 	house = new_house(0, 0);
 	ax = 0;
 	ay = 0;

@@ -366,7 +366,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	wires = ehht_new(0, NULL, NULL, NULL, NULL);
+	wires = ehht_new();
 	while (fgets(buf, 80, input)) {
 		trimstr(buf, 80);
 		ops = parse_token(buf, 80);

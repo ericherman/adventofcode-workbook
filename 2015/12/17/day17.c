@@ -177,7 +177,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	table = ehht_new(0, NULL, NULL, NULL, NULL);
+	table = ehht_new();
 
 	container = NULL;
 	num_containers = 0;

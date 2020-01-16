@@ -117,7 +117,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	grid = ehht_new(0, NULL, NULL, NULL, NULL);
+	grid = ehht_new();
 	if (!grid) {
 		exit(EXIT_FAILURE);
 	}
