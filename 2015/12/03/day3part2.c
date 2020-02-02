@@ -50,9 +50,13 @@ static unsigned int make_key(char *key, int x, int y)
 static int null_and_free(struct ehht_key_s key, void *each_val, void *context)
 {
 	struct ehht_s *houses_1 = (struct ehht_s *)context;
-	houses_1->put(houses_1, key.str, key.len, NULL);
+	int err = 0;
+	houses_1->put(houses_1, key.str, key.len, NULL, &err);
+	if (err) {
+		fprintf(stderr, "put(%s) failed.\n", key.str);
+	}
 	free(each_val);
-	return 0;
+	return err;
 }
 
 int main(int argc, char **argv)
@@ -65,6 +69,7 @@ int main(int argc, char **argv)
 	char key[EKH_HOUSE_KEY_BUF_LEN];
 	unsigned a_or_b, total_presents, max_presents;
 	size_t key_len;
+	int err;
 
 	if (argc > 1) {
 		path = argv[1];
@@ -88,7 +93,12 @@ int main(int argc, char **argv)
 	a_or_b = 0;
 
 	key_len = make_key(key, house->x, house->y);
-	houses->put(houses, key, key_len, house);
+	err = 0;
+	houses->put(houses, key, key_len, house, &err);
+	if (err) {
+		fprintf(stderr, "put(%s) failed.\n", key);
+		return 1;
+	}
 
 	while ((c = fgetc(input)) != EOF) {
 		if ((a_or_b % 2) == 0) {
@@ -123,7 +133,13 @@ int main(int argc, char **argv)
 			    (struct house_s *)houses->get(houses, key, key_len);
 			if (house == NULL) {
 				house = new_house(x, y);
-				houses->put(houses, key, key_len, house);
+				err = 0;
+				houses->put(houses, key, key_len, house, &err);
+				if (err) {
+					fprintf(stderr, "put(%s) failed.\n",
+						key);
+					return 1;
+				}
 			}
 			house->presents += 1;
 			if (house->presents > max_presents) {

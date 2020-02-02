@@ -19,6 +19,7 @@ int descend(int depth, char *key, struct ehht_s *map)
 	struct mass_pair_s *pair;
 	int total = depth;
 	struct deque_s *pair_list;
+	int err;
 
 	pair_list = map->get(map, key, strlen(key));
 	if (pair_list) {
@@ -28,7 +29,12 @@ int descend(int depth, char *key, struct ehht_s *map)
 			free(pair->child);
 			free(pair);
 		}
-		map->put(map, key, strlen(key), NULL);
+		err = 0;
+		map->put(map, key, strlen(key), NULL, &err);
+		if (err) {
+			fprintf(stderr, "put(%s) failed\n", key);
+			exit(EXIT_FAILURE);
+		}
 		deque_free(pair_list);
 	}
 	return total;
@@ -51,6 +57,7 @@ int main(int argc, char **argv)
 	struct mass_pair_s *pair;
 	size_t depth;
 	int totals;
+	int err;
 
 	path = (argc > 1) ? argv[1] : "input";
 	input = fopen(path, "r");
@@ -84,7 +91,14 @@ int main(int argc, char **argv)
 					if (!pair_list) {
 						exit(EXIT_FAILURE);
 					}
-					map->put(map, l, strlen(l), pair_list);
+					err = 0;
+					map->put(map, l, strlen(l), pair_list,
+						 &err);
+					if (err) {
+						fprintf(stderr,
+							"put(%s) failed\n", l);
+						exit(EXIT_FAILURE);
+					}
 				}
 				pair_list->push(pair_list, pair);
 			}

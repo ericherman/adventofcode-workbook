@@ -10,6 +10,7 @@
    See COPYING or <http://www.gnu.org/licenses/>.
 */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ehht.h>
 
@@ -19,6 +20,7 @@ static int _walk(struct ehht_s *table, int *x, int *y, unsigned distance,
 	size_t i;
 	char buf[80];
 	int found;
+	int err;
 
 	found = 0;
 	for (i = 0; i < distance; ++i) {
@@ -50,7 +52,12 @@ static int _walk(struct ehht_s *table, int *x, int *y, unsigned distance,
 				printf("%u\n", distance);
 			}
 		}
-		table->put(table, buf, strlen(buf), NULL);
+		err = 0;
+		table->put(table, buf, strlen(buf), NULL, &err);
+		if (err) {
+			fprintf(stderr, "put(%s) failed\n", buf);
+			exit(EXIT_FAILURE);
+		}
 	}
 	return found;
 }
@@ -62,6 +69,7 @@ int main(int argc, char **argv)
 	char c;
 	int found, x, y, distance, facing;
 	struct ehht_s *table;
+	int err;
 
 	if (argc > 1) {
 		path = argv[1];
@@ -85,7 +93,12 @@ int main(int argc, char **argv)
 	facing = 0;		/* north */
 	distance = 0;
 
-	table->put(table, "[0,0]", 5, NULL);
+	err = 0;
+	table->put(table, "[0,0]", 5, NULL, &err);
+	if (err) {
+		fprintf(stderr, "put([0,0]) failed\n");
+		exit(EXIT_FAILURE);
+	}
 
 	while ((!found) && ((c = fgetc(input)) != EOF)) {
 		if ((c >= '0') && (c <= '9')) {

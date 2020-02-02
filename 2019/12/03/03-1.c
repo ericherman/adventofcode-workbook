@@ -31,7 +31,12 @@ static int find_closest(struct ehht_key_s key, void *each_val, void *context)
 static int null_and_free(struct ehht_key_s key, void *each_val, void *context)
 {
 	struct ehht_s *grid = (struct ehht_s *)context;
-	grid->put(grid, key.str, key.len, NULL);
+	int err = 0;
+	grid->put(grid, key.str, key.len, NULL, &err);
+	if (err) {
+		fprintf(stderr, "put(%s) failed\n", key.str);
+		exit(EXIT_FAILURE);
+	}
 	free(each_val);
 	return 0;
 }
@@ -40,6 +45,7 @@ static void add_wire(struct ehht_s *grid, int *x, int *y, int wire)
 {
 	char buf[80];
 	struct wires_s *xy;
+	int err;
 
 	if (wire != 0 && wire != 1) {
 		fprintf(stderr, "Error wire: '%d'\n", wire);
@@ -54,7 +60,12 @@ static void add_wire(struct ehht_s *grid, int *x, int *y, int wire)
 			exit(EXIT_FAILURE);
 		}
 		xy->dist_from_origin = abs(*x) + abs(*y);
-		grid->put(grid, buf, strlen(buf), xy);
+		err = 0;
+		grid->put(grid, buf, strlen(buf), xy, &err);
+		if (err) {
+			fprintf(stderr, "put(%s) failed\n", buf);
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	switch (wire) {

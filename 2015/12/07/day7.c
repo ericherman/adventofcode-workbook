@@ -341,9 +341,15 @@ static int set_null_and_free(struct ehht_key_s key, void *each_val,
 			     void *context)
 {
 	struct ehht_s *wires;
+	int err;
 
 	wires = context;
-	wires->put(wires, key.str, key.len, NULL);
+	err = 0;
+	wires->put(wires, key.str, key.len, NULL, &err);
+	if (err) {
+		fprintf(stderr, "put(%s) failed\n", key.str);
+		exit(EXIT_FAILURE);
+	}
 	free_op_s((struct op_s *)each_val);
 	return 0;
 }
@@ -358,6 +364,7 @@ int main(int argc, char **argv)
 	struct op_s *a;
 	size_t i;
 	int end;
+	int err;
 
 	path = (argc > 1) ? argv[1] : "input";
 	input = fopen(path, "r");
@@ -374,8 +381,13 @@ int main(int argc, char **argv)
 			if (0) {
 				fprintf(stderr, "(%s)\n", ops->out);
 			}
+			err = 0;
 			wires->put(wires, ops->out,
-				   strnlen(ops->out, TOKEN_BUF_LEN), ops);
+				   strnlen(ops->out, TOKEN_BUF_LEN), ops, &err);
+			if (err) {
+				fprintf(stderr, "put(%s) failed\n", ops->out);
+				exit(EXIT_FAILURE);
+			}
 		}
 	}
 	fclose(input);

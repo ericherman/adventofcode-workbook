@@ -124,6 +124,7 @@ static size_t find_combos(struct container_s **containers,
 	unsigned short int num_on, min_num_on;
 	char buf1[BUF_LEN];
 	char buf2[BUF_LEN];
+	int err;
 
 	min_num_on = num_containers;
 	max = 1 << (num_containers);
@@ -142,7 +143,12 @@ static size_t find_combos(struct container_s **containers,
 					(unsigned long)BUF_LEN);
 				exit(EXIT_FAILURE);
 			}
-			table->put(table, buf1, len, NULL);
+			err = 0;
+			table->put(table, buf1, len, NULL, &err);
+			if (err) {
+				fprintf(stderr, "put(%s) failed\n", buf1);
+				exit(EXIT_FAILURE);
+			}
 			if (verbose) {
 				print_containers_bits(buf2, BUF_LEN, containers,
 						      num_containers, i);
@@ -164,6 +170,7 @@ int main(int argc, char **argv)
 	struct ehht_s *table;
 	struct container_s *container, **containers;
 	size_t i, len, num_containers;
+	int err;
 
 	input_file_name = (argc > 1) ? argv[1] : "input";
 	min_only = (argc > 2) ? atoi(argv[2]) : 0;
@@ -188,7 +195,12 @@ int main(int argc, char **argv)
 		} else {
 			container = new_container(num_containers++, capacity);
 			len = to_key(container->i, buf, BUF_LEN);
-			table->put(table, buf, len, container);
+			err = 0;
+			table->put(table, buf, len, container, &err);
+			if (err) {
+				fprintf(stderr, "put(%s) failed\n", buf);
+				exit(EXIT_FAILURE);
+			}
 		}
 	}
 	fclose(input);

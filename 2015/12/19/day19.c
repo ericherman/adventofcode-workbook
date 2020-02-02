@@ -34,12 +34,18 @@ static void construct_molecule(struct ehht_s *table, struct ehht_keys_s *tks,
 static int free_tables(struct ehht_key_s key, void *val, void *context)
 {
 	struct ehht_s *table, *subs;
+	int err;
 
 	subs = val;
 	ehht_free(subs);
 
 	table = context;
-	table->put(table, key.str, key.len, NULL);
+	err = 0;
+	table->put(table, key.str, key.len, NULL, &err);
+	if (err) {
+		fprintf(stderr, "put(%s) failed\n", key.str);
+		exit(EXIT_FAILURE);
+	}
 
 	return 0;
 }
@@ -141,6 +147,7 @@ int permute_subs(struct ehht_key_s key, void *val, void *context)
 {
 	struct prefix_remainder_subs_s *ctx;
 	char *perm;
+	int err;
 
 	ctx = context;
 
@@ -155,7 +162,12 @@ int permute_subs(struct ehht_key_s key, void *val, void *context)
 	    substitute(ctx->molecule, key.str, ctx->prefix_to,
 		       ctx->postfix_from, ctx->verbose);
 
-	ctx->perms->put(ctx->perms, perm, strlen(perm), NULL);
+	err = 0;
+	ctx->perms->put(ctx->perms, perm, strlen(perm), NULL, &err);
+	if (err) {
+		fprintf(stderr, "put(%s) failed\n", perm);
+		exit(EXIT_FAILURE);
+	}
 
 	free(perm);
 
@@ -230,6 +242,7 @@ static struct ehht_s *reverse_table(struct ehht_s *table, int verbose)
 	struct ehht_keys_s *ks, *subks;
 	int copy_keys;
 	size_t i, j;
+	int err;
 
 	rev = ehht_new();
 
@@ -245,10 +258,23 @@ static struct ehht_s *reverse_table(struct ehht_s *table, int verbose)
 				     subks->keys[j].len);
 			if (!subs) {
 				subs = ehht_new();
+				err = 0;
 				rev->put(rev, subks->keys[j].str,
-					 subks->keys[j].len, subs);
+					 subks->keys[j].len, subs, &err);
+				if (err) {
+					fprintf(stderr, "put(%s) failed.\n",
+						subks->keys[j].str);
+					exit(EXIT_FAILURE);
+				}
 			}
-			subs->put(subs, ks->keys[i].str, ks->keys[i].len, NULL);
+			err = 0;
+			subs->put(subs, ks->keys[i].str, ks->keys[i].len, NULL,
+				  &err);
+			if (err) {
+				fprintf(stderr, "put(%s) failed.\n",
+					subks->keys[j].str);
+				exit(EXIT_FAILURE);
+			}
 		}
 		subs->free_keys(subs, subks);
 	}
@@ -376,6 +402,7 @@ int main(int argc, char **argv)
 	struct ehht_keys_s *tks;
 	unsigned best;
 	int max_tries;
+	int err;
 
 	input_file_name = (argc > 1) ? argv[1] : "input";
 	construct = (argc > 2) ? atoi(argv[2]) : 0;
@@ -399,9 +426,20 @@ int main(int argc, char **argv)
 			subs = table->get(table, from, len);
 			if (!subs) {
 				subs = ehht_new();
-				table->put(table, from, len, subs);
+				err = 0;
+				table->put(table, from, len, subs, &err);
+				if (err) {
+					fprintf(stderr, "put(%s) failed\n",
+						from);
+					exit(EXIT_FAILURE);
+				}
 			}
-			subs->put(subs, to, strlen(to), NULL);
+			err = 0;
+			subs->put(subs, to, strlen(to), NULL, &err);
+			if (err) {
+				fprintf(stderr, "put(%s) failed\n", to);
+				exit(EXIT_FAILURE);
+			}
 		} else {
 			if (strlen(buf) < 3 || molecule) {
 				continue;

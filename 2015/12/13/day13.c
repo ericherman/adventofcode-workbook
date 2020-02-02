@@ -152,6 +152,7 @@ int main(int argc, char **argv)
 	struct combo_s *combo;
 	struct name_list_s *tmp_list, *master_name_list;
 	size_t i, j, len, perms;
+	int err;
 
 	input_file_name = (argc > 1) ? argv[1] : "input";
 	include_you = (argc > 2) ? atoi(argv[2]) : 0;
@@ -165,8 +166,13 @@ int main(int argc, char **argv)
 
 	combos = ehht_new();
 	names = ehht_new();
+	err = 0;
 	if (include_you) {
-		names->put(names, "you", strlen("you"), NULL);
+		names->put(names, "you", strlen("you"), NULL, &err);
+		if (err) {
+			fprintf(stderr, "put(you) failed\n");
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	combo = NULL;
@@ -176,8 +182,18 @@ int main(int argc, char **argv)
 			fprintf(stderr, "failed to match '%s'\n", buf);
 		} else {
 			trim_at_period(to, NBUF_LEN);
-			names->put(names, from, strnlen(from, NBUF_LEN), NULL);
-			names->put(names, to, strnlen(to, NBUF_LEN), NULL);
+			names->put(names, from, strnlen(from, NBUF_LEN), NULL,
+				   &err);
+			if (err) {
+				fprintf(stderr, "put(%s) failed\n", from);
+				exit(EXIT_FAILURE);
+			}
+			names->put(names, to, strnlen(to, NBUF_LEN), NULL,
+				   &err);
+			if (err) {
+				fprintf(stderr, "put(%s) failed\n", to);
+				exit(EXIT_FAILURE);
+			}
 
 			if (strcmp("lose", sort) == 0) {
 				happiness *= -1;
@@ -185,7 +201,11 @@ int main(int argc, char **argv)
 
 			combo = new_combo(from, to, happiness);
 			len = to_key(combo, buf, BUF_LEN);
-			combos->put(combos, buf, len, combo);
+			combos->put(combos, buf, len, combo, &err);
+			if (err) {
+				fprintf(stderr, "put(%s) failed\n", buf);
+				exit(EXIT_FAILURE);
+			}
 			if (verbose > 1) {
 				printf("%s -> %s: %d (%p)\n", from, to,
 				       happiness, (void *)combo);
@@ -194,14 +214,24 @@ int main(int argc, char **argv)
 			if (include_you) {
 				combo = new_combo(from, "you", 0);
 				len = to_key(combo, buf, BUF_LEN);
-				combos->put(combos, buf, len, combo);
+				combos->put(combos, buf, len, combo, &err);
+				if (err) {
+					fprintf(stderr, "put(%s) failed\n",
+						buf);
+					exit(EXIT_FAILURE);
+				}
 				if (verbose > 1) {
 					printf("%s -> %s: %d (%p)\n", from, to,
 					       happiness, (void *)combo);
 				}
 				combo = new_combo("you", from, 0);
 				len = to_key(combo, buf, BUF_LEN);
-				combos->put(combos, buf, len, combo);
+				combos->put(combos, buf, len, combo, &err);
+				if (err) {
+					fprintf(stderr, "put(%s) failed\n",
+						buf);
+					exit(EXIT_FAILURE);
+				}
 				if (verbose > 1) {
 					printf("%s -> %s: %d (%p)\n", from, to,
 					       happiness, (void *)combo);

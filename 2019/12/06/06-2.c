@@ -37,6 +37,7 @@ int main(int argc, char **argv)
 	char r[4];
 	struct ehht_s *map;
 	int found, deorbits, steps;
+	int err;
 
 	path = (argc > 1) ? argv[1] : "input";
 	input = fopen(path, "r");
@@ -57,7 +58,12 @@ int main(int argc, char **argv)
 					exit(EXIT_FAILURE);
 				}
 				printf("%s -> %s\n", r, tmp);
-				map->put(map, r, strlen(r), tmp);
+				err = 0;
+				map->put(map, r, strlen(r), tmp, &err);
+				if (err) {
+					fprintf(stderr, "put(%s) failed\n", r);
+					exit(EXIT_FAILURE);
+				}
 			}
 		}
 	}

@@ -120,6 +120,7 @@ int main(int argc, char **argv)
 	struct leg_s *leg;
 	struct name_list_s *tmp_list, *master_name_list;
 	size_t i, j, len, combos;
+	int err;
 
 	input_file_name = (argc > 1) ? argv[1] : "input";
 	print_worst = (argc > 2) ? atoi(argv[2]) : 0;
@@ -132,6 +133,7 @@ int main(int argc, char **argv)
 
 	legs = ehht_new();
 	names = ehht_new();
+	err = 0;
 
 	leg = NULL;
 	while (fgets(buf, 255, input)) {
@@ -139,16 +141,34 @@ int main(int argc, char **argv)
 		if (matched != 3) {
 			fprintf(stderr, "failed to match '%s'\n", buf);
 		} else {
-			names->put(names, from, strnlen(from, NAME_MAX), NULL);
-			names->put(names, to, strnlen(to, NAME_MAX), NULL);
+			names->put(names, from, strnlen(from, NAME_MAX), NULL,
+				   &err);
+			if (err) {
+				fprintf(stderr, "put(%s) failed\n", from);
+				exit(EXIT_FAILURE);
+			}
+			names->put(names, to, strnlen(to, NAME_MAX), NULL,
+				   &err);
+			if (err) {
+				fprintf(stderr, "put(%s) failed\n", to);
+				exit(EXIT_FAILURE);
+			}
 
 			leg = new_leg(from, to, dist);
 			len = to_key(leg, buf, BUF_LEN);
-			legs->put(legs, buf, len, leg);
+			legs->put(legs, buf, len, leg, &err);
+			if (err) {
+				fprintf(stderr, "put(%s) failed\n", from);
+				exit(EXIT_FAILURE);
+			}
 
 			leg = new_leg(to, from, dist);
 			len = to_key(leg, buf, BUF_LEN);
-			legs->put(legs, buf, len, leg);
+			legs->put(legs, buf, len, leg, &err);
+			if (err) {
+				fprintf(stderr, "put(%s) failed\n", from);
+				exit(EXIT_FAILURE);
+			}
 		}
 	}
 	fclose(input);
