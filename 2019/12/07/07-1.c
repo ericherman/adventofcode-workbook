@@ -31,7 +31,7 @@ static void put_out(void *output_context, int64_t x)
 int main(int argc, char **argv)
 {
 	const char *path;
-	struct intcode_cpu_s *orig, *cpu;
+	intcode_cpu_s *orig, *cpu;
 	int *amps_orig, *amps_temp;
 	size_t i, j, amps_len, combos, swap;
 	struct two_inputs_context_s input_ctx;
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	printf("%lld\n", (long long)max_out);
+	printf("%" PRIi64 "\n", max_out);
 
 	free(amps_temp);
 	free(amps_orig);

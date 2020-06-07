@@ -11,7 +11,7 @@
 int main(int argc, char **argv)
 {
 	const char *path;
-	struct intcode_cpu_s *cpu;
+	intcode_cpu_s *cpu;
 	int set_1202_alarm;
 
 	path = (argc > 1) ? argv[1] : "input";
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 	cpu->run(cpu, NULL, NULL, NULL, NULL);
 
 	printf("memory[0]=\n");
-	printf("%lld\n", (long long)cpu->peek(cpu, 0));
+	printf("%" PRIi64 "\n", cpu->peek(cpu, 0));
 
 	cpu->free(&cpu);
 

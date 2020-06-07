@@ -8,6 +8,7 @@
 
 C89=-std=c89 -Wpedantic
 GNU89=-std=gnu89 -Wpedantic
+GNU11=-std=gnu11 -Wpedantic
 #CFLAGS=-ggdb -O0 -Wall -Wextra -Werror
 #CFLAGS=-ggdb -pg -O2 -Wall -Wextra -Werror -DNDEBUG -Wno-unused-parameter
 CFLAGS=-ggdb -O2 -Wall -Wextra -Werror -DNDEBUG -Wno-unused-parameter
@@ -439,11 +440,11 @@ check-2019-12-01-2: bindir 2019-12-01-2
 
 # 2019-12-02
 2019-12-02-1: bindir 2019/12/01/01-1.c $(INTCODE_2019_SRC)
-	gcc $(GNU89) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
+	gcc $(GNU11) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
 		-o bin/2019-12-02-1 2019/12/02/02-1.c
 
 2019-12-02-2: bindir 2019/12/01/01-2.c $(INTCODE_2019_SRC)
-	gcc $(GNU89) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
+	gcc $(GNU11) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
 		-o bin/2019-12-02-2 2019/12/02/02-2.c
 
 
@@ -487,14 +488,14 @@ check-2019-12-04-2: bindir 2019-12-04-2
 
 # 2019-12-05
 2019-12-05-1: bindir 2019/12/05/05-1.c $(INTCODE_2019_SRC)
-	gcc $(GNU89) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
+	gcc $(GNU11) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
 		-o bin/2019-12-05-1 2019/12/05/05-1.c
 
 check-2019-12-05-1: bindir 2019-12-05-1
 	./check-answer.sh 6069343 bin/2019-12-05-1 2019/12/05/input
 
 2019-12-05-2: bindir 2019/12/05/05-2.c $(INTCODE_2019_SRC)
-	gcc $(GNU89) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
+	gcc $(GNU11) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
 		-o bin/2019-12-05-2 2019/12/05/05-2.c
 
 check-2019-12-05-2: bindir 2019-12-05-2
@@ -522,7 +523,7 @@ check-2019-12-06-2: bindir 2019-12-06-2
 
 # 2019-12-07
 2019-12-07-1: bindir 2019/12/07/07-1.c $(INTCODE_2019_SRC)
-	gcc $(GNU89) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
+	gcc $(GNU11) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
 		-Icommon/misc common/misc/*.c \
 		-o bin/2019-12-07-1 2019/12/07/07-1.c
 
@@ -530,7 +531,7 @@ check-2019-12-07-1: bindir 2019-12-07-1
 	./check-answer.sh 70597 bin/2019-12-07-1 2019/12/07/input
 
 2019-12-07-2: bindir 2019/12/07/07-2.c $(INTCODE_2019_SRC)
-	gcc $(GNU89) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
+	gcc $(GNU11) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
 		-Icommon/misc common/misc/*.c \
 		-o bin/2019-12-07-2 2019/12/07/07-2.c \
 		-pthread
@@ -556,14 +557,14 @@ check-2019-12-08-2: bindir 2019-12-08-2
 
 # 2019-12-09
 2019-12-09-1: bindir 2019/12/09/09-1.c $(INTCODE_2019_SRC)
-	gcc $(GNU89) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
+	gcc $(GNU11) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
 		-o bin/2019-12-09-1 2019/12/09/09-1.c
 
 check-2019-12-09-1: bindir 2019-12-09-1
 	./check-answer.sh '2682107844' bin/2019-12-09-1 2019/12/09/input
 
 2019-12-09-2: bindir 2019/12/09/09-2.c $(INTCODE_2019_SRC)
-	gcc $(GNU89) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
+	gcc $(GNU11) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
 		-o bin/2019-12-09-2 2019/12/09/09-2.c
 
 check-2019-12-09-2: bindir 2019-12-09-2
@@ -626,6 +627,7 @@ tidy:
 		-T eba_s \
 		-T ehht_s -T ehht_key_s -T ehht_keys_s \
 		-T ehbigint \
+		-T intcode_cpu_s -T intcode_op \
                 `find 2015 2016 2019 -name '*.c'`
 
 

@@ -21,7 +21,7 @@ static void put_output(void *ctx, int64_t x)
 int main(int argc, char **argv)
 {
 	const char *path;
-	struct intcode_cpu_s *cpu;
+	intcode_cpu_s *cpu;
 	int64_t input, output;
 
 	path = (argc > 1) ? argv[1] : "input";
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 
 	cpu->run(cpu, get_input, &input, put_output, &output);
 
-	printf("%lld\n", (long long)output);
+	printf("%" PRIi64 "\n", output);
 
 	cpu->free(&cpu);
 

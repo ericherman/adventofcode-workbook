@@ -12,7 +12,7 @@
 struct exec_context_s {
 	char id;
 	pthread_mutex_t lock;
-	struct intcode_cpu_s *cpu;
+	intcode_cpu_s *cpu;
 	int phase_retreived;
 	int phase;
 	int atomic_have_input;
@@ -70,7 +70,7 @@ static void put_out(void *output_context, int64_t x)
 void *start_routine_run_intcodes(void *context)
 {
 	struct exec_context_s *ctx;
-	struct intcode_cpu_s *cpu;
+	intcode_cpu_s *cpu;
 
 	ctx = context;
 	cpu = ctx->cpu;
@@ -83,7 +83,7 @@ void *start_routine_run_intcodes(void *context)
 int main(int argc, char **argv)
 {
 	const char *path;
-	struct intcode_cpu_s *orig;
+	intcode_cpu_s *orig;
 	int *amps_orig, *amps_temp;
 	size_t i, j, amps_len, combos, swap;
 	struct exec_context_s *exec_ctxs;

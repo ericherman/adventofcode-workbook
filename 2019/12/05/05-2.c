@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 {
 	const char *path;
 	int64_t input, output;
-	struct intcode_cpu_s *cpu;
+	intcode_cpu_s *cpu;
 
 	path = (argc > 1) ? argv[1] : "input";
 
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 
 	cpu->run(cpu, get_input, &input, put_output, &output);
 
-	printf("%lld\n", (long long)output);
+	printf("%" PRIi64 "\n", output);
 
 	cpu->free(&cpu);
 

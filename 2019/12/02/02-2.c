@@ -11,7 +11,7 @@
 int main(int argc, char **argv)
 {
 	const char *path;
-	struct intcode_cpu_s *orig, *cpu;
+	intcode_cpu_s *orig, *cpu;
 	int n, v;
 
 	path = (argc > 1) ? argv[1] : "input";
