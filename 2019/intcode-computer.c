@@ -7,7 +7,9 @@
 /* Memory 15-bit wordlength + 1-bit parity */
 /* 36K words ROM (core rope memory) */
 /*  2K words RAM (magnetic-core memory) */
+#ifndef Intcode_default_memlen
 #define Intcode_default_memlen ((36 * 1024) + (2 * 1024))
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,7 +55,6 @@ struct intcode_cpu {
 
 static void intcode_dump_code(intcode_cpu_s *cpu, FILE *log)
 {
-	size_t i;
 	if (!cpu) {
 		return;
 	}
@@ -64,7 +65,7 @@ static void intcode_dump_code(intcode_cpu_s *cpu, FILE *log)
 	fprintf(log, "\tpos = %zu\n", cpu->code_ptr_register);
 	fprintf(log, "\tbase = %zu\n", cpu->base_ptr_register);
 	fprintf(log, "\tcode:\n");
-	for (i = 0; i < cpu->code_size; ++i) {
+	for (size_t i = 0; i < cpu->code_size; ++i) {
 		fprintf(log, "%" PRIi64 ",", cpu->memory[i]);
 		if ((i + 1) % 16 == 0) {
 			fprintf(log, "\n");
@@ -99,16 +100,12 @@ static void intcode_dump_code(intcode_cpu_s *cpu, FILE *log)
 
 static size_t addr_for_param(intcode_cpu_s *cpu, int mode, unsigned argc)
 {
-	ssize_t dest, base_ptr_register;
-
 	if (mode < 0 || mode > 2) {
 		die1(cpu, "unsuppored mode: %d", mode);
 	}
 
-	dest = (cpu->code_ptr_register + argc);
-	if (dest < 0) {
-		die1(cpu, "negative dest %zd", dest);
-	} else if ((size_t)dest >= cpu->len) {
+	size_t dest = (cpu->code_ptr_register + argc);
+	if (dest >= cpu->len) {
 		die2(cpu, "%zd >= %zu", dest, cpu->len);
 	}
 
@@ -116,12 +113,14 @@ static size_t addr_for_param(intcode_cpu_s *cpu, int mode, unsigned argc)
 		return dest;
 	}
 
-	base_ptr_register = (mode == 2) ? cpu->base_ptr_register : 0;
-	dest = base_ptr_register + cpu->memory[dest];
-	if (dest < 0) {
-		die1(cpu, "negative dest %zd", dest);
-	} else if ((size_t)dest >= cpu->len) {
-		die2(cpu, "%zd >= %zu", dest, cpu->len);
+	ssize_t base_ptr_register = (mode == 2) ? cpu->base_ptr_register : 0;
+	ssize_t sdest = base_ptr_register + cpu->memory[dest];
+	if (sdest < 0) {
+		die1(cpu, "%zd < 0?", sdest);
+	}
+	dest = (size_t)sdest;
+	if (dest >= cpu->len) {
+		die2(cpu, "%zu >= %zu", dest, cpu->len);
 	}
 	return dest;
 }
@@ -138,22 +137,16 @@ static enum intcode_op intcode_op_for(int64_t i)
 }
 
 static void intcode_run(intcode_cpu_s *cpu,
-			int64_t (*get_input)(void *input_context),
+			intcode_get_input_func get_input,
 			void *input_context,
-			void (*put_output)(void *output_context, int64_t val),
+			intcode_put_output_func put_output,
 			void *output_context)
 {
 	int halt = 0;
-	int opnum, mode1, mode2, mode3, advance;
-	int64_t code, val;
-	size_t a, b, c;
-	enum intcode_op op;
-
-	if (cpu->len > SSIZE_MAX) {
-		die2(cpu, "len %zu > %zd", cpu->len, SSIZE_MAX);
-	}
-
 	while ((cpu->code_ptr_register < cpu->len) && !halt) {
+		unsigned advance = 0;
+
+		int64_t code, opnum, mode1, mode2, mode3;
 		code = cpu->memory[cpu->code_ptr_register];
 		opnum = code % 100;
 		code = code / 100;
@@ -163,7 +156,9 @@ static void intcode_run(intcode_cpu_s *cpu,
 		code = code / 10;
 		mode3 = code;
 
-		op = intcode_op_for(opnum);
+		size_t a, b, c;
+
+		enum intcode_op op = intcode_op_for(opnum);
 		switch (op) {
 		case intcode_op_halt:
 			halt = 1;
@@ -198,7 +193,7 @@ static void intcode_run(intcode_cpu_s *cpu,
 			b = addr_for_param(cpu, mode2, 2);
 			if (cpu->memory[a]) {
 				advance = 0;
-				val = cpu->memory[b];
+				int64_t val = cpu->memory[b];
 				if (val < 0) {
 					die1(cpu, "addr %" PRIi64 "?", val);
 				}
@@ -212,7 +207,7 @@ static void intcode_run(intcode_cpu_s *cpu,
 			b = addr_for_param(cpu, mode2, 2);
 			if (!(cpu->memory[a])) {
 				advance = 0;
-				val = cpu->memory[b];
+				int64_t val = cpu->memory[b];
 				if (val < 0) {
 					die1(cpu, "addr %" PRIi64 "?", val);
 				}
@@ -246,7 +241,7 @@ static void intcode_run(intcode_cpu_s *cpu,
 		case intcode_op_add_to_base:
 			advance = 2;
 			a = addr_for_param(cpu, mode1, 1);
-			val = cpu->base_ptr_register + cpu->memory[a];
+			int64_t val = cpu->base_ptr_register + cpu->memory[a];
 			if (val < 0) {
 				die1(cpu, "%" PRIi64 "?", val);
 			}
@@ -301,10 +296,8 @@ static void intcode_free(intcode_cpu_s **cpu_ref)
 
 static intcode_cpu_s *intcode_copy(intcode_cpu_s *cpu)
 {
-	size_t size;
-	intcode_cpu_s *copy;
-	size = sizeof(intcode_cpu_s);
-	copy = malloc(size);
+	size_t size = sizeof(intcode_cpu_s);
+	intcode_cpu_s *copy = malloc(size);
 	if (!copy) {
 		die1(cpu, "could not allocat %zu bytes?", size);
 	}
@@ -329,23 +322,13 @@ static intcode_cpu_s *intcode_copy(intcode_cpu_s *cpu)
 
 intcode_cpu_s *intcode_new_from_csv(const char *path)
 {
-	FILE *input;
-	char *line;
-	size_t line_len, size;
-	char *rest;
-	char *token;
-	ssize_t read;
-	int matched;
-	int64_t val;
-	intcode_cpu_s *cpu;
-
-	input = fopen(path, "r");
+	FILE *input = fopen(path, "r");
 	if (!input) {
 		die1(NULL, "could not open %s\n", path);
 	}
 
-	size = sizeof(intcode_cpu_s);
-	cpu = malloc(size);
+	size_t size = sizeof(intcode_cpu_s);
+	intcode_cpu_s *cpu = malloc(size);
 	if (!cpu) {
 		die1(cpu, "could not allocat %zu bytes?", size);
 	}
@@ -356,6 +339,9 @@ intcode_cpu_s *intcode_new_from_csv(const char *path)
 	}
 
 	cpu->len = Intcode_default_memlen;
+	if (cpu->len > SSIZE_MAX) {
+		die2(cpu, "len %zu > %zd", cpu->len, SSIZE_MAX);
+	}
 
 	cpu->base_ptr_register = 0;
 	cpu->code_ptr_register = 0;
@@ -373,12 +359,15 @@ intcode_cpu_s *intcode_new_from_csv(const char *path)
 		die1(cpu, "could not allocat %zu bytes?", size);
 	}
 
-	line = NULL;
-	line_len = 0;
+	char *line = NULL;
+	size_t line_len = 0;
+	ssize_t read;
 	while ((read = getline(&line, &line_len, input)) != -1) {
-		rest = line;
+		char *rest = line;
+		char *token;
 		while ((token = strtok_r(rest, ",", &rest))) {
-			matched = sscanf(token, "%" PRIi64, &val);
+			int64_t val;
+			int matched = sscanf(token, "%" PRIi64, &val);
 			if (matched) {
 				cpu->memory[cpu->code_size++] = val;
 				if (cpu->code_size == cpu->len) {
