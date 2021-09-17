@@ -65,7 +65,7 @@ struct name_list_s {
 	size_t size;
 };
 
-static int calc_happiness(struct name_list_s *seating, struct ehht_s *combos,
+static int calc_happiness(struct name_list_s *seating, struct ehht *combos,
 			  int verbose)
 {
 	size_t i, j, c[2], len;
@@ -100,7 +100,7 @@ static int calc_happiness(struct name_list_s *seating, struct ehht_s *combos,
 	return happiness;
 }
 
-static int add_name_copy(struct ehht_key_s key, void *each_val, void *context)
+static int add_name_copy(struct ehht_key key, void *each_val, void *context)
 {
 	struct name_list_s *name_list;
 	if (0) {
@@ -111,7 +111,7 @@ static int add_name_copy(struct ehht_key_s key, void *each_val, void *context)
 	return 0;
 }
 
-static struct name_list_s *to_name_list(struct ehht_s *names)
+static struct name_list_s *to_name_list(struct ehht *names)
 {
 	struct name_list_s *name_list;
 
@@ -147,8 +147,8 @@ int main(int argc, char **argv)
 	char buf[BUF_LEN], from[NBUF_LEN], sort[5], to[NBUF_LEN];
 	int happiness, best_happiness, worst_happiness;
 	int matched, include_you, verbose;
-	struct ehht_s *names;
-	struct ehht_s *combos;
+	struct ehht *names;
+	struct ehht *combos;
 	struct combo_s *combo;
 	struct name_list_s *tmp_list, *master_name_list;
 	size_t i, j, len, perms;

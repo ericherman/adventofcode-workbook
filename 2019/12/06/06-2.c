@@ -8,7 +8,7 @@
 
 #include "ehht.h"		/* github.com/ericherman/libehht */
 
-int direct_steps_apart(struct ehht_s *map, char *to, char *from)
+int direct_steps_apart(struct ehht *map, char *to, char *from)
 {
 	int direct_steps;
 
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 	int matched;
 	char l[4];
 	char r[4];
-	struct ehht_s *map;
+	struct ehht *map;
 	int found, deorbits, steps;
 	int err;
 

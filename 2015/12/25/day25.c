@@ -69,9 +69,10 @@ struct context_s {
 	int verbose;
 };
 
-static void init_context(struct context_s *ctx, ULONGEST inmul, ULONGEST inmod,
-			 int verbose)
+static int init_context(struct context_s *ctx, ULONGEST inmul, ULONGEST inmod,
+			int verbose)
 {
+	int err = 0;
 	ctx->inmul = inmul;
 	ctx->inmod = inmod;
 
@@ -96,14 +97,15 @@ static void init_context(struct context_s *ctx, ULONGEST inmul, ULONGEST inmod,
 	ctx->in.bytes_used = 0;
 	ctx->res.bytes_used = 0;
 
-	ehbi_set_l(&ctx->in, 0);
-	ehbi_set_l(&ctx->mul, ctx->inmul);
-	ehbi_set_l(&ctx->res, 0);
-	ehbi_set_l(&ctx->mod, ctx->inmod);
-	ehbi_set_l(&ctx->quot, 0);
-	ehbi_set_l(&ctx->rem, 0);
+	ehbi_set_l(&ctx->in, 0, &err);
+	ehbi_set_l(&ctx->mul, ctx->inmul, &err);
+	ehbi_set_l(&ctx->res, 0, &err);
+	ehbi_set_l(&ctx->mod, ctx->inmod, &err);
+	ehbi_set_l(&ctx->quot, 0, &err);
+	ehbi_set_l(&ctx->rem, 0, &err);
 
 	ctx->verbose = verbose;
+	return err;
 }
 
 static ULONGEST mul_mod(struct context_s *ctx, size_t i, ULONGEST x)
@@ -112,6 +114,7 @@ static ULONGEST mul_mod(struct context_s *ctx, size_t i, ULONGEST x)
 	int err, base;
 	char dec[80];
 	char *endptr;
+	struct ehbigint *bi;
 
 	result = x * ctx->inmul;
 	if ((x != 0) && ((result / x) == ctx->inmul)) {
@@ -126,20 +129,20 @@ static ULONGEST mul_mod(struct context_s *ctx, size_t i, ULONGEST x)
 			ctx->inmul, ctx->inmod);
 	}
 
-	err = ehbi_set_l(&ctx->in, x);
-	if (err) {
+	bi = ehbi_set_l(&ctx->in, x, &err);
+	if (!bi) {
 		DIE("ehbi_set_ul: %d\n", err);
 	}
 
 	if (ctx->verbose > 3) {
 		printf("mul start\n");
 	}
-	err = ehbi_mul(&ctx->res, &ctx->in, &ctx->mul);
+	bi = ehbi_mul(&ctx->res, &ctx->in, &ctx->mul, &err);
+	if (!bi) {
+		DIE("ehbi_mul: %d\n", err);
+	}
 	if (ctx->verbose > 3) {
 		printf("mul done\n");
-	}
-	if (err) {
-		DIE("ehbi_mul: %d\n", err);
 	}
 	if (ctx->verbose > 2) {
 		ehbi_to_decimal_string(&ctx->in, dec, 80, &err);
@@ -169,12 +172,12 @@ static ULONGEST mul_mod(struct context_s *ctx, size_t i, ULONGEST x)
 		printf("%s)\n", dec);
 	}
 
-	err = ehbi_div(&ctx->quot, &ctx->rem, &ctx->res, &ctx->mod);
+	bi = ehbi_div(&ctx->quot, &ctx->rem, &ctx->res, &ctx->mod, &err);
+	if (!bi) {
+		DIE("ehbi_div err: %d\n", err);
+	}
 	if (ctx->verbose > 3) {
 		printf("done\n");
-	}
-	if (err) {
-		DIE("ehbi_div: %d\n", err);
 	}
 	if ((ctx->rem.bytes_used > (1 + sizeof(unsigned long)))
 	    || ((ctx->rem.bytes_used == (1 + sizeof(unsigned long)))

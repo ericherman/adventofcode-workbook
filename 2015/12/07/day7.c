@@ -120,7 +120,7 @@ static int to_string_op_s(struct op_s *o, char *buf, size_t buf_len)
 			o->in2 ? o->in2 : "NULL");
 }
 
-static int to_string_each(struct ehht_key_s key, void *each_val, void *context)
+static int to_string_each(struct ehht_key key, void *each_val, void *context)
 {
 	char buf[100];
 	struct op_s *o;
@@ -204,7 +204,7 @@ token_parse_error:
 	return ops;
 }
 
-static unsigned token_to_result(struct ehht_s *wires, char *token, int *result)
+static unsigned token_to_result(struct ehht *wires, char *token, int *result)
 {
 	struct op_s *o;
 
@@ -225,15 +225,15 @@ static unsigned token_to_result(struct ehht_s *wires, char *token, int *result)
 	return 0;
 }
 
-static int satisfy_next(struct ehht_key_s key, void *each_val, void *context)
+static int satisfy_next(struct ehht_key key, void *each_val, void *context)
 {
-	struct ehht_s *wires;
+	struct ehht *wires;
 	struct op_s *a, *b;
 	int l, r;
 	char err_buf[80];
 
 	l = r = 0;
-	wires = (struct ehht_s *)context;
+	wires = (struct ehht *)context;
 	a = (struct op_s *)each_val;
 
 	if (a == NULL) {
@@ -337,10 +337,9 @@ static int satisfy_next(struct ehht_key_s key, void *each_val, void *context)
 	return 0;
 }
 
-static int set_null_and_free(struct ehht_key_s key, void *each_val,
-			     void *context)
+static int set_null_and_free(struct ehht_key key, void *each_val, void *context)
 {
-	struct ehht_s *wires;
+	struct ehht *wires;
 	int err;
 
 	wires = context;
@@ -358,7 +357,7 @@ int main(int argc, char **argv)
 {
 	const char *path;
 	FILE *input;
-	struct ehht_s *wires;
+	struct ehht *wires;
 	struct op_s *ops;
 	char buf[80];
 	struct op_s *a;

@@ -13,7 +13,7 @@ struct wires_s {
 	int red;
 };
 
-static int find_closest(struct ehht_key_s key, void *each_val, void *context)
+static int find_closest(struct ehht_key key, void *each_val, void *context)
 {
 	struct wires_s *closest = (struct wires_s *)context;
 	struct wires_s *val = (struct wires_s *)each_val;
@@ -26,9 +26,9 @@ static int find_closest(struct ehht_key_s key, void *each_val, void *context)
 	return 0;
 }
 
-static int null_and_free(struct ehht_key_s key, void *each_val, void *context)
+static int null_and_free(struct ehht_key key, void *each_val, void *context)
 {
-	struct ehht_s *grid = (struct ehht_s *)context;
+	struct ehht *grid = (struct ehht *)context;
 	int err = 0;
 	grid->put(grid, key.str, key.len, NULL, &err);
 	if (err) {
@@ -39,7 +39,7 @@ static int null_and_free(struct ehht_key_s key, void *each_val, void *context)
 	return 0;
 }
 
-static void add_wire(struct ehht_s *grid, int x, int y, int wire, int steps)
+static void add_wire(struct ehht *grid, int x, int y, int wire, int steps)
 {
 	char buf[80];
 	struct wires_s *xy;
@@ -79,7 +79,7 @@ static void add_wire(struct ehht_s *grid, int x, int y, int wire, int steps)
 	}
 }
 
-static void route_wire(struct ehht_s *grid, int *steps, int *x, int *y,
+static void route_wire(struct ehht *grid, int *steps, int *x, int *y,
 		       char dir, int dist, int wire)
 {
 	int i;
@@ -117,7 +117,7 @@ int main(int argc, char **argv)
 	size_t len;
 	ssize_t read;
 	char *token, *rest;
-	struct ehht_s *grid;
+	struct ehht *grid;
 	char direction;
 	int matched, wire, x, y, steps, distance;
 	struct wires_s closest_cross;

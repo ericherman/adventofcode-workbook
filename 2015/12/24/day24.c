@@ -265,11 +265,13 @@ static void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
 	unsigned char result_bytes[BIG_INT_LEN];
 	unsigned char weight_bytes[sizeof(unsigned long)];
 	char hex[BUF_LEN], pbuf[BUF_LEN], spbuf[BUF_LEN];
+	struct ehbigint *bi;
 
 	product.bytes = product_bytes;
 	product.bytes_len = BIG_INT_LEN;
-	err = ehbi_set_l(&product, 1);
-	if (err) {
+	err = 0;
+	bi = ehbi_set_l(&product, 1, &err);
+	if (!bi) {
 		DIE("ehbi_set_ul: %d\n", err);
 	}
 	result.bytes = result_bytes;
@@ -283,23 +285,20 @@ static void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
 	}
 
 	for (j = 0; j < set_size; ++j) {
-		err = ehbi_set_l(&weight, weights[idxs[j]]);
-		if (err) {
+		bi = ehbi_set_l(&weight, weights[idxs[j]], &err);
+		if (!bi) {
 			DIE("ehbi_set_ul: %d\n", err);
 		}
-		err = ehbi_mul(&result, &product, &weight);
-		if (err) {
+		bi = ehbi_mul(&result, &product, &weight, &err);
+		if (!bi) {
 			DIE("ehbi_inc: %d\n", err);
 		}
-		err = ehbi_set(&product, &result);
-		if (err) {
+		bi = ehbi_set(&product, &result, &err);
+		if (!bi) {
 			DIE("ehbi_set: %d\n", err);
 		}
 	}
-	if (ehbi_greater_than(&product, smallest_product, &err)) {
-		if (err) {
-			DIE("ehbi_greater_than error: %d\n", err);
-		}
+	if (ehbi_greater_than(&product, smallest_product)) {
 		if (verbose > 1) {
 			printf("\tsubtotal: %lu\n", target);
 			ehbi_to_hex_string(&product, hex, BUF_LEN, &err);
@@ -323,9 +322,12 @@ static void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
 	if (can_split_remainder
 	    (weights, idxs, wlen, set_size, target, groups, verbose)) {
 		if ((set_size <= *shortest)
-		    && !ehbi_greater_than(&product, smallest_product, &err)) {
+		    && !ehbi_greater_than(&product, smallest_product)) {
 			*shortest = set_size;
-			ehbi_set(smallest_product, &product);
+			bi = ehbi_set(smallest_product, &product, &err);
+			if (!bi) {
+				DIE("ehbi_set: %d\n", err);
+			}
 			if (verbose) {
 				printf("*shortest: %lu\n",
 				       (unsigned long)*shortest);
@@ -334,9 +336,6 @@ static void check_permutation(unsigned *weights, size_t *idxs, size_t set_size,
 				hex_to_decimal(hex, BUF_LEN, spbuf, BUF_LEN);
 				printf("*smallest_product: %s\n", spbuf);
 			}
-		}
-		if (err) {
-			DIE("ehbi_greater_than error: %d\n", err);
 		}
 	}
 }
@@ -410,7 +409,9 @@ int main(int argc, char **argv)
 	shortest = (wlen - 1);
 	smallest_product.bytes = smallest_product_bytes;
 	smallest_product.bytes_len = BIG_INT_LEN;
-	ehbi_set_hex_string(&smallest_product, MAXBIHEX, strlen(MAXBIHEX));
+	err = 0;
+	ehbi_set_hex_string(&smallest_product, MAXBIHEX, strlen(MAXBIHEX),
+			    &err);
 
 	from = target / weights[0];
 	for (i = from; i <= shortest; ++i) {
@@ -433,5 +434,5 @@ int main(int argc, char **argv)
 	free(idxs);
 	free(weights);
 
-	return 0;
+	return err ? 1 : 0;
 }

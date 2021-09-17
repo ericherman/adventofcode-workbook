@@ -14,7 +14,7 @@
 #include <string.h>
 #include <ehht.h>
 
-static int _walk(struct ehht_s *table, int *x, int *y, unsigned distance,
+static int _walk(struct ehht *table, int *x, int *y, unsigned distance,
 		 int facing)
 {
 	size_t i;
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 	FILE *input;
 	char c;
 	int found, x, y, distance, facing;
-	struct ehht_s *table;
+	struct ehht *table;
 	int err;
 
 	if (argc > 1) {

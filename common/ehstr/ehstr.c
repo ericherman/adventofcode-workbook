@@ -1,23 +1,24 @@
 /* SPDX-License-Identifier: LGPL-3.0-or-later */
 /* libecheck: a few handy stirng functions */
-/* Copyright (C) 2016, 2019 Eric Herman <eric@freesa.org> */
+/* Copyright (C) 2016, 2019, 2020 Eric Herman <eric@freesa.org> */
 
-#ifndef LONGBITS
-#include <values.h>		/* LONGBITS */
-#endif
+/* freestanding Headers C89 */
+#include <float.h>
+#include <limits.h>
+/* #include <iso646.h> */
+/* #include <stdarg.h> */
+#include <stddef.h>
 
-#include <ctype.h>		/* isspace */
+/* Freestanding headers added C99 */
+/* #include <stdbool.h> */
+/* #include <stdint.h> */
+
+/* Freestanding headers added C11 */
+/* #include <stdalign.h> */
+/* #include <stdnoreturn.h> */
 
 #include "ehstr.h"
-
-#ifndef Ehstr_memset
-#include <string.h>		/* memset */
-#define Ehstr_memset memset
-#endif
-
-#ifndef assert
-#include <assert.h>
-#endif
+#include "eembed.h"
 
 char *utob(char *buf, size_t buf_size, unsigned long val, size_t bits)
 {
@@ -27,8 +28,8 @@ char *utob(char *buf, size_t buf_size, unsigned long val, size_t bits)
 		return buf;
 	}
 
-	if (bits == 0 || bits > LONGBITS) {
-		bits = LONGBITS;
+	if (bits == 0 || bits > (sizeof(unsigned long) * CHAR_BIT)) {
+		bits = (sizeof(unsigned long) * CHAR_BIT);
 	}
 
 	str_pos = 0;
@@ -44,36 +45,38 @@ char *utob(char *buf, size_t buf_size, unsigned long val, size_t bits)
 	return buf;
 }
 
-size_t ehstrnlen(const char *str, size_t buf_size)
+int ehstr_ascii_isspace(int c)
 {
-	size_t i;
-
-	for (i = 0; i < buf_size; ++i) {
-		if (*(str + i) == '\0') {
-			return i;
-		}
+	switch (c) {
+	case ' ':
+	case '\f':
+	case '\n':
+	case '\r':
+	case '\t':
+	case '\v':
+		return 1;
+	default:
+		return 0;
 	}
-
-	return buf_size;
 }
 
 void trimstr(char *str, size_t buf_size)
 {
 	size_t i, j, offset, len, nonwhite;
 
-	len = (str && buf_size) ? strnlen(str, buf_size) : 0;
+	len = (str && buf_size) ? eembed_strnlen(str, buf_size) : 0;
 	if (len == 0) {
 		return;
 	}
 
 	nonwhite = 0;
-	for (i = 0; i < len && isspace(str[i]); ++i) ;
+	for (i = 0; i < len && ehstr_ascii_isspace(str[i]); ++i) ;
 	offset = i;
 
 	if (offset) {
 		for (i = 0, j = offset; j < len; ++i, ++j) {
 			str[i] = str[j];
-			if (isspace(str[i]) == 0) {
+			if (ehstr_ascii_isspace(str[i]) == 0) {
 				nonwhite = i;
 			}
 		}
@@ -85,7 +88,7 @@ void trimstr(char *str, size_t buf_size)
 
 	nonwhite = 0;
 	for (i = len; i > 0 && nonwhite == 0; --i) {
-		if (isspace(str[i - 1])) {
+		if (ehstr_ascii_isspace(str[i - 1])) {
 			str[i - 1] = '\0';
 		} else {
 			nonwhite = 1;
@@ -102,7 +105,7 @@ void revstr(char *str, size_t buf_size)
 		return;
 	}
 
-	len = strnlen(str, buf_size);
+	len = eembed_strnlen(str, buf_size);
 	for (i = 0, j = len - 1; i < j; ++i, --j) {
 		swap = str[i];
 		str[i] = str[j];
@@ -112,35 +115,30 @@ void revstr(char *str, size_t buf_size)
 
 static char nibble_to_hex(unsigned char nibble)
 {
-	assert(nibble < 16);
-
 	if (nibble < 10) {
 		return '0' + nibble;
-	} else if (nibble < 16) {
+	}
+	if (nibble < 16) {
 		return 'A' + nibble - 10;
 	}
 
-	/* crash */
-	((char *)NULL)[0] = nibble;
-	return '\0';
+	return '?';
 }
 
 static unsigned char hex_to_nibble(char hex)
 {
-	assert((hex >= '0' && hex <= '9') || (hex >= 'a' && hex <= 'f')
-	       || (hex >= 'A' && hex <= 'F'));
-
 	if (hex >= '0' && hex <= '9') {
 		return (unsigned char)hex - '0';
-	} else if (hex >= 'a' && hex <= 'f') {
+	}
+	if (hex >= 'a' && hex <= 'f') {
 		return (unsigned char)10 + hex - 'a';
-	} else if (hex >= 'A' && hex <= 'F') {
+	}
+
+	if (hex >= 'A' && hex <= 'F') {
 		return (unsigned char)10 + hex - 'A';
 	}
 
-	/* crash */
-	((char *)NULL)[0] = hex;
-	return (unsigned char)hex;
+	return 255;
 }
 
 char *decimal_to_hex(const char *dec_str, size_t dec_len, char *buf,
@@ -248,7 +246,7 @@ char *hex_to_decimal(const char *hex, size_t hex_len, char *buf, size_t buf_len)
 	dec_len = buf_len - 1;	/* leave room for the NULL terminator */
 
 	/* zero out the buffer */
-	Ehstr_memset(dec_buf, 0, dec_len);
+	eembed_memset(dec_buf, 0, dec_len);
 
 	for (i = 0; i < hex_len && hex[i] != 0; ++i) {
 		ascii_offset = 0;

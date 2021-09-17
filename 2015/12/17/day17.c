@@ -117,7 +117,7 @@ static unsigned short int bits_on(size_t n)
 
 static size_t find_combos(struct container_s **containers,
 			  size_t num_containers, unsigned target, int min_only,
-			  struct ehht_s *table, int verbose)
+			  struct ehht *table, int verbose)
 {
 	int len;
 	size_t i, max;
@@ -167,7 +167,7 @@ int main(int argc, char **argv)
 	char buf[BUF_LEN];
 	int matched, verbose, min_only;
 	unsigned capacity, target;
-	struct ehht_s *table;
+	struct ehht *table;
 	struct container_s *container, **containers;
 	size_t i, len, num_containers;
 	int err;

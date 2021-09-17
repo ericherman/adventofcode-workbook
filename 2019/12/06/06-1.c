@@ -14,11 +14,11 @@ struct mass_pair_s {
 	char *child;
 };
 
-int descend(int depth, char *key, struct ehht_s *map)
+int descend(int depth, char *key, struct ehht *map)
 {
 	struct mass_pair_s *pair;
 	int total = depth;
-	struct deque_s *pair_list;
+	struct deque *pair_list;
 	int err;
 
 	pair_list = map->get(map, key, strlen(key));
@@ -52,8 +52,8 @@ int main(int argc, char **argv)
 	int matched;
 	char l[4];
 	char r[4];
-	struct ehht_s *map;
-	struct deque_s *pair_list;
+	struct ehht *map;
+	struct deque *pair_list;
 	struct mass_pair_s *pair;
 	size_t depth;
 	int totals;

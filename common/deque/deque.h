@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-3.0-or-later */
 /* deque.h Double-Ended QUEue interface */
-/* Copyright (C) 2016, 2019 Eric Herman <eric@freesa.org> */
+/* Copyright (C) 2016, 2019, 2020 Eric Herman <eric@freesa.org> */
 
 #ifndef DEQUE_H
 #define DEQUE_H
@@ -20,49 +20,63 @@
 #define Deque_end_C_functions
 #endif
 
+Deque_begin_C_functions
+#undef Deque_begin_C_functions
+/*
+ * freesting headers are safe to include
+ */
 #include <stddef.h>		/* size_t */
+/* forward declaration of the deque type */
+    struct deque;
+typedef struct deque deque_s;
 
-struct deque_s {
+/* passed parameter functions */
+typedef int (*deque_iterator_func)(deque_s *d, void *each, void *context);
+
+struct deque {
 	void *opaque_data;
 
 	/* add items to the end of queue (or top of stack): */
-	struct deque_s *(*push) (struct deque_s *d, void *data);
+	deque_s *(*push)(deque_s *d, void *data);
 
 	/* remove items from end of queue (or top of stack): */
-	void *(*pop)(struct deque_s *d);
+	void *(*pop)(deque_s *d);
 
 	/* prepend items to queue (or bottom of stack): */
-	struct deque_s *(*unshift) (struct deque_s *d, void *data);
+	deque_s *(*unshift)(deque_s *d, void *data);
 
 	/* remove item from front of queue (or bottom of stack): */
-	void *(*shift)(struct deque_s *d);
+	void *(*shift)(deque_s *d);
 
-	/* pointer to data at the end of the queue, or top of the stack */
-	void *(*peek_top)(struct deque_s *d);
+	/* reset the deque to an empty state */
+	void (*clear)(deque_s *d);
 
-	/* pointer to  data at the front of the queue, or bottom of the stack */
-	void *(*peek_bottom)(struct deque_s *d);
+	/* pointer to data from the end of the queue, or top of the stack */
+	void *(*peek_top)(deque_s *d, size_t index);
+
+	/* pointer to data from the front of the queue, or bottom of the stack */
+	void *(*peek_bottom)(deque_s *d, size_t index);
 
 	/* return the number of items in the deque */
-	size_t (*size)(struct deque_s *d);
+	size_t (*size)(deque_s *d);
+
+	/* internal iterator */
+	int (*for_each)(deque_s *d, deque_iterator_func func, void *context);
 };
 
-Deque_begin_C_functions
-#undef Deque_begin_C_functions
-/* function pointer typedefs for ease of use in full constructor */
-typedef void *(*deque_malloc_func)(size_t size, void *context);
-typedef void (*deque_free_func)(void *ptr, void *context);
+struct eembed_allocator;	/* eembed.h */
 
 /* constructors */
-
 /* uses libc malloc and free */
-struct deque_s *deque_new();
+deque_s *deque_new(void);
 
-struct deque_s *deque_new_custom_allocator(deque_malloc_func mfunc,
-					   deque_free_func mfree,
-					   void *mcontext);
+deque_s *deque_new_custom_allocator(struct eembed_allocator *ea);
 
-void deque_free(struct deque_s *d);
+/* this is a size-bounded deque, it is recommended that at least 256 bytes
+ * extra is provided for the deque struct and opaque data */
+deque_s *deque_new_no_allocator(unsigned char *bytes, size_t bytes_len);
+
+void deque_free(deque_s *d);
 
 Deque_end_C_functions
 #undef Deque_end_C_functions

@@ -26,14 +26,14 @@ struct buf_pos_len_s {
 	size_t len;
 };
 
-static void construct_molecule(struct ehht_s *table, struct ehht_keys_s *tks,
+static void construct_molecule(struct ehht *table, struct ehht_keys *tks,
 			       const char *molecule, unsigned depth,
 			       unsigned *best_known, int *max_tries,
 			       int verbose);
 
-static int free_tables(struct ehht_key_s key, void *val, void *context)
+static int free_tables(struct ehht_key key, void *val, void *context)
 {
-	struct ehht_s *table, *subs;
+	struct ehht *table, *subs;
 	int err;
 
 	subs = val;
@@ -50,9 +50,9 @@ static int free_tables(struct ehht_key_s key, void *val, void *context)
 	return 0;
 }
 
-static int fill_buf(struct ehht_key_s key, void *val, void *context)
+static int fill_buf(struct ehht_key key, void *val, void *context)
 {
-	struct ehht_s *subs;
+	struct ehht *subs;
 	struct buf_pos_len_s *bpl;
 	int chars;
 
@@ -89,8 +89,8 @@ struct prefix_remainder_subs_s {
 	const char *molecule;
 	size_t prefix_to;
 	size_t postfix_from;
-	struct ehht_s *table;
-	struct ehht_s *perms;
+	struct ehht *table;
+	struct ehht *perms;
 	int verbose;
 };
 
@@ -143,7 +143,7 @@ static char *substitute(const char *orig, const char *subs, size_t prefix_to,
 	return perm;
 }
 
-int permute_subs(struct ehht_key_s key, void *val, void *context)
+int permute_subs(struct ehht_key key, void *val, void *context)
 {
 	struct prefix_remainder_subs_s *ctx;
 	char *perm;
@@ -174,12 +174,12 @@ int permute_subs(struct ehht_key_s key, void *val, void *context)
 	return 0;
 }
 
-static size_t permute(struct ehht_s *table, const char *molecule,
-		      struct ehht_s *perms, int verbose)
+static size_t permute(struct ehht *table, const char *molecule,
+		      struct ehht *perms, int verbose)
 {
 	char *buf;
-	struct ehht_s *subs;
-	struct ehht_keys_s *ks;
+	struct ehht *subs;
+	struct ehht_keys *ks;
 	const char *remainder;
 	struct prefix_remainder_subs_s ctx;
 	size_t i, pos, len;
@@ -221,7 +221,7 @@ static size_t permute(struct ehht_s *table, const char *molecule,
 
 static int cmp_key_len_asc(const void *a, const void *b)
 {
-	const struct ehht_key_s *l, *r;
+	const struct ehht_key *l, *r;
 	l = a;
 	r = b;
 
@@ -236,10 +236,10 @@ static int cmp_key_len_dsc(const void *a, const void *b)
 	return cmp_key_len_asc(b, a);
 }
 
-static struct ehht_s *reverse_table(struct ehht_s *table, int verbose)
+static struct ehht *reverse_table(struct ehht *table, int verbose)
 {
-	struct ehht_s *rev, *subs;
-	struct ehht_keys_s *ks, *subks;
+	struct ehht *rev, *subs;
+	struct ehht_keys *ks, *subks;
 	int copy_keys;
 	size_t i, j;
 	int err;
@@ -308,9 +308,9 @@ static struct ehht_s *reverse_table(struct ehht_s *table, int verbose)
 	return rev;
 }
 
-static int find_in_substitute(struct ehht_key_s key, size_t prefix_to,
-			      size_t postfix_from, struct ehht_s *table,
-			      struct ehht_keys_s *tks, const char *molecule,
+static int find_in_substitute(struct ehht_key key, size_t prefix_to,
+			      size_t postfix_from, struct ehht *table,
+			      struct ehht_keys *tks, const char *molecule,
 			      unsigned depth, unsigned *best_known,
 			      int *max_tries, int verbose)
 {
@@ -339,16 +339,16 @@ static int find_in_substitute(struct ehht_key_s key, size_t prefix_to,
 	return 0;
 }
 
-static void construct_molecule(struct ehht_s *table, struct ehht_keys_s *tks,
+static void construct_molecule(struct ehht *table, struct ehht_keys *tks,
 			       const char *molecule, unsigned depth,
 			       unsigned *best_known, int *max_tries,
 			       int verbose)
 {
-	struct ehht_s *subs;
-	struct ehht_keys_s *sks;
+	struct ehht *subs;
+	struct ehht_keys *sks;
 	const char *submol;
 	size_t i, j, k, prefix_to, postfix_from;
-	struct ehht_key_s key, skey;
+	struct ehht_key key, skey;
 
 	--(*max_tries);
 	++depth;
@@ -370,8 +370,7 @@ static void construct_molecule(struct ehht_s *table, struct ehht_keys_s *tks,
 				subs = table->get(table, key.str, key.len);
 				sks = subs->keys(subs, 0);
 				qsort(sks->keys, sks->len,
-				      sizeof(struct ehht_key_s),
-				      cmp_key_len_asc);
+				      sizeof(struct ehht_key), cmp_key_len_asc);
 				postfix_from = prefix_to + strlen(key.str);
 				for (k = 0; k < sks->len; ++k) {
 					skey = sks->keys[k];
@@ -395,11 +394,11 @@ int main(int argc, char **argv)
 	FILE *input;
 	char *buf, from[BUF_LEN], to[BUF_LEN];
 	int matched, verbose, construct;
-	struct ehht_s *table, *subs, *perms;
+	struct ehht *table, *subs, *perms;
 	size_t result, len;
 	char *molecule;
 	struct buf_pos_len_s bpl;
-	struct ehht_keys_s *tks;
+	struct ehht_keys *tks;
 	unsigned best;
 	int max_tries;
 	int err;
@@ -482,7 +481,7 @@ int main(int argc, char **argv)
 		subs->for_each(subs, free_tables, subs);
 		ehht_free(subs);
 		tks = table->keys(table, 0);
-		qsort(tks->keys, tks->len, sizeof(struct ehht_key_s),
+		qsort(tks->keys, tks->len, sizeof(struct ehht_key),
 		      cmp_key_len_dsc);
 		best = UINT_MAX;
 		construct_molecule(table, tks, molecule, 0, &best, &max_tries,

@@ -5,50 +5,6 @@
 #ifndef EBA_H
 #define EBA_H 1
 
-/* prior to including eba.h, you may wish to #define some things */
-
-/**********************************************************************/
-/* Avoid using the standard C library? */
-/**********************************************************************/
-/*
- * When compiling to embedded environments, __STDC_HOSTED__ can be
- * defined to be 1, however due to the increased size of the firmware
- * it may be desirable to _not_ use anything from the libc.
- *
- * If EBA_SKIP_LIBC is defined, then hopefully using EBA
- * will not result in pulling in a bunch of bloat from libc.
- */
-
-/**********************************************************************/
-/* memset */
-/**********************************************************************/
-/* if you wish, you can define your own memset:
- *	#define memset(target, val, len) custom_memset(target, val, len)
- *
- * alternatively you may define EBA_DIY_MEMSET to avoid standard C lib
- * the default is to simply use memset from the standard C lib */
-
-/**********************************************************************/
-/* memcpy */
-/**********************************************************************/
-/* if you wish, you can define your own memcpy:
- *	#define memcpy(dest, src, len) custom_memcpy(dest, src, len)
- *
- * alternatively you may define EBA_DIY_MEMCPY to avoid standard C lib
- * the default is to simply use memcpy from the standard C lib */
-
-/**********************************************************************/
-/* allocation functions */
-/**********************************************************************/
-/* #define Eba_alloc(size) and Eba_free(ptr) */
-
-/**********************************************************************/
-/* internal stack allocation functions */
-/**********************************************************************/
-/* if you wish to avoid stack allocation, define EBA_NO_ALLOCA */
-
-/**********************************************************************/
-
 #ifdef __cplusplus
 #define Eba_begin_C_functions extern "C" {
 #define Eba_end_C_functions }
@@ -62,14 +18,18 @@ Eba_begin_C_functions
 #undef Eba_begin_C_functions
 /**********************************************************************/
 #include <stddef.h>		/* size_t */
+/**********************************************************************/
+/* forward declaration of main eba struct */
+    struct eba;
+
 /* byte order */
-    enum eba_endian {
+enum eba_endian {
 	eba_endian_little = 0,
 	eba_big_endian
 };
 
 /* embedable bit vector */
-struct eba_s {
+struct eba {
 	unsigned char *bits;
 	size_t size_bytes;
 	enum eba_endian endian;
@@ -79,60 +39,46 @@ struct eba_s {
 /* essential */
 /**********************************************************************/
 
-void eba_set(struct eba_s *eba, unsigned long index, unsigned char val);
+void eba_set(struct eba *eba, unsigned long index, unsigned char val);
 
-unsigned char eba_get(struct eba_s *eba, unsigned long index);
+unsigned char eba_get(struct eba *eba, unsigned long index);
 
 /**********************************************************************/
 /* constructors */
 /**********************************************************************/
-#ifndef EBA_SKIP_NEW
-struct eba_s *eba_new(unsigned long num_bits);
+struct eba *eba_from_bytes(unsigned char *bytes, size_t len,
+			   enum eba_endian endian);
 
-struct eba_s *eba_new_endian(unsigned long num_bits, enum eba_endian endian);
+struct eba *eba_new(unsigned long num_bits);
 
-void eba_free(struct eba_s *eba);
-#endif /* EBA_SKIP_NEW */
+struct eba *eba_new_endian(unsigned long num_bits, enum eba_endian endian);
 
-#ifndef EBA_SKIP_TO_STRING
-char *eba_to_string(struct eba_s *eba, char *buf, size_t len);
-#endif
+void eba_free(struct eba *eba);
 
-#ifndef EBA_SKIP_SET_ALL
-void eba_set_all(struct eba_s *eba, unsigned char val);
-#endif
+/**********************************************************************/
+/* helper functions */
+/**********************************************************************/
+char *eba_to_string(struct eba *eba, char *buf, size_t len);
 
-#ifndef EBA_SKIP_TOGGLE
-void eba_toggle(struct eba_s *eba, unsigned long index);
-#endif
+void eba_set_all(struct eba *eba, unsigned char val);
 
-#ifndef EBA_SKIP_SWAP
-void eba_swap(struct eba_s *eba, unsigned long index1, unsigned long index2);
-#endif
+void eba_toggle(struct eba *eba, unsigned long index);
 
-#ifndef EBA_SKIP_SHIFTS
-void eba_ring_shift_left(struct eba_s *eba, unsigned long positions);
+void eba_swap(struct eba *eba, unsigned long index1, unsigned long index2);
 
-void eba_ring_shift_right(struct eba_s *eba, unsigned long positions);
+void eba_rotate_left(struct eba *eba, unsigned long positions);
 
-void eba_shift_left(struct eba_s *eba, unsigned long positions);
+void eba_rotate_right(struct eba *eba, unsigned long positions);
 
-void eba_shift_right(struct eba_s *eba, unsigned long positions);
+void eba_shift_left(struct eba *eba, unsigned long positions);
 
-void eba_shift_left_fill(struct eba_s *eba, unsigned long positions,
+void eba_shift_right(struct eba *eba, unsigned long positions);
+
+void eba_shift_left_fill(struct eba *eba, unsigned long positions,
 			 unsigned char fillval);
 
-void eba_shift_right_fill(struct eba_s *eba, unsigned long positions,
+void eba_shift_right_fill(struct eba *eba, unsigned long positions,
 			  unsigned char fillval);
-#endif /* EBA_SKIP_SHIFTS */
-
-#ifdef EBA_DIY_MEMSET
-void *eba_diy_memset(void *dest, int val, size_t n);
-#endif
-
-#ifdef EBA_DIY_MEMCPY
-void *eba_diy_memcpy(void *dest, const void *src, size_t n);
-#endif
 
 /**********************************************************************/
 Eba_end_C_functions

@@ -64,7 +64,7 @@ struct name_list_s {
 	size_t size;
 };
 
-static unsigned distance(struct name_list_s *route, struct ehht_s *legs)
+static unsigned distance(struct name_list_s *route, struct ehht *legs)
 {
 	size_t i, len;
 	unsigned distance;
@@ -86,7 +86,7 @@ static unsigned distance(struct name_list_s *route, struct ehht_s *legs)
 	return distance;
 }
 
-static int add_name_copy(struct ehht_key_s key, void *each_val, void *context)
+static int add_name_copy(struct ehht_key key, void *each_val, void *context)
 {
 	struct name_list_s *name_list;
 	if (0) {
@@ -97,7 +97,7 @@ static int add_name_copy(struct ehht_key_s key, void *each_val, void *context)
 	return 0;
 }
 
-static struct name_list_s *to_name_list(struct ehht_s *names)
+static struct name_list_s *to_name_list(struct ehht *names)
 {
 	struct name_list_s *name_list;
 
@@ -115,8 +115,8 @@ int main(int argc, char **argv)
 	char buf[BUF_LEN], from[NAME_MAX], to[NAME_MAX];
 	unsigned dist, best_dist, worst_dist;
 	int matched, print_worst;
-	struct ehht_s *names;
-	struct ehht_s *legs;
+	struct ehht *names;
+	struct ehht *legs;
 	struct leg_s *leg;
 	struct name_list_s *tmp_list, *master_name_list;
 	size_t i, j, len, combos;

@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 {
 	const char *input_file_name;
 	FILE *input;
-	struct deque_s *stack;
+	struct deque *stack;
 	struct depth_counter_s *cnt, *free_me;
 	char buf[STR_MAX + 1];
 	size_t str_idx;
@@ -99,7 +99,7 @@ int main(int argc, char **argv)
 		} else if ((c == '}' || c == ']') && str_idx == 0) {
 			free_me = cnt;
 			stack->pop(stack);
-			cnt = stack->peek_top(stack);
+			cnt = stack->peek_top(stack, 0);
 			if (free_me->has_red == 0) {
 				cnt->total += (free_me->val + free_me->total);
 			}
@@ -130,7 +130,7 @@ int main(int argc, char **argv)
 
 	while (stack->size(stack) > 1) {
 		free_me = stack->pop(stack);
-		cnt = stack->peek_top(stack);
+		cnt = stack->peek_top(stack, 0);
 		if (free_me->has_red == 0) {
 			cnt->total += (free_me->val + free_me->total);
 		}

@@ -47,9 +47,9 @@ static unsigned int make_key(char *key, int x, int y)
 	return (unsigned int)rv;
 }
 
-static int null_and_free(struct ehht_key_s key, void *each_val, void *context)
+static int null_and_free(struct ehht_key key, void *each_val, void *context)
 {
-	struct ehht_s *houses = (struct ehht_s *)context;
+	struct ehht *houses = (struct ehht *)context;
 	int err = 0;
 	houses->put(houses, key.str, key.len, NULL, &err);
 	if (err) {
@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 	FILE *input;
 	int c, x, y, ignore;
 	struct house_s *house;
-	struct ehht_s *houses;
+	struct ehht *houses;
 	char key[EKH_HOUSE_KEY_BUF_LEN];
 	unsigned total_presents, max_presents;
 	size_t key_len;
