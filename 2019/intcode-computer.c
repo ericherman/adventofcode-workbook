@@ -31,6 +31,18 @@ enum intcode_op {
 	intcode_op_halt = 99,
 	intcode_op_error = -1
 };
+static const enum intcode_op intcode_op_valid_min = intcode_op_add;
+static const enum intcode_op intcode_op_valid_max = intcode_op_add_to_base;
+static enum intcode_op intcode_op_for(int64_t i)
+{
+	if (i >= intcode_op_valid_min && i <= intcode_op_valid_max) {
+		return (enum intcode_op)i;
+	}
+	if (i == (int64_t)intcode_op_halt) {
+		return intcode_op_halt;
+	}
+	return intcode_op_error;
+}
 
 struct intcode_cpu;
 typedef struct intcode_cpu intcode_cpu_s;
@@ -123,17 +135,6 @@ static size_t addr_for_param(intcode_cpu_s *cpu, int mode, unsigned argc)
 		die2(cpu, "%zu >= %zu", dest, cpu->len);
 	}
 	return dest;
-}
-
-static enum intcode_op intcode_op_for(int64_t i)
-{
-	if (i >= 1 && i <= 9) {
-		return (enum intcode_op)i;
-	}
-	if (i == 99) {
-		return intcode_op_halt;
-	}
-	return intcode_op_error;
 }
 
 static void intcode_run(intcode_cpu_s *cpu,
