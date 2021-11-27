@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 	}
 
 	max_out = 0;
-	combos = factorial(amps_len);
+	combos = zfactorial(amps_len);
 	for (i = 0; i < combos; ++i) {
 		permute(i, amps_orig, amps_temp, amps_len, &swap, sizeof(int));
 

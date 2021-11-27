@@ -34,8 +34,8 @@ static struct leg_s *new_leg(char *from, char *to, unsigned dist)
 		fprintf(stderr, "failed to alloc leg_s (%s -> %s)", from, to);
 		exit(EXIT_FAILURE);
 	}
-	p->from = strndup(from, NAME_MAX + 1);
-	p->to = strndup(to, NAME_MAX + 1);
+	p->from = strndup(from, NAME_MAX);
+	p->to = strndup(to, NAME_MAX);
 	p->dist = dist;
 
 	return p;
@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 	master_name_list = to_name_list(names);
 	ehht_free(names);
 
-	combos = factorial(master_name_list->size);
+	combos = zfactorial(master_name_list->size);
 	combos = combos - (combos / 2);	/* the rest are mirror routes */
 	printf("%lu unique names, %lu permutations\n",
 	       (unsigned long)master_name_list->size, (unsigned long)combos);

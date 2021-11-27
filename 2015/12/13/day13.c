@@ -244,7 +244,7 @@ int main(int argc, char **argv)
 	master_name_list = to_name_list(names);
 	ehht_free(names);
 
-	perms = factorial(master_name_list->size);
+	perms = zfactorial(master_name_list->size);
 	perms = perms - (perms / 2);	/* the rest are mirror seatings */
 	printf("%lu unique names, %lu permutations\n",
 	       (unsigned long)master_name_list->size, (unsigned long)perms);

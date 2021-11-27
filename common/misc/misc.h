@@ -13,7 +13,7 @@ extern "C" {
 
 void swap(void *a, void *b, void *buf, size_t element_size);
 
-size_t factorial(size_t n);
+size_t zfactorial(size_t n);
 
 /* allows caller to fetch a specifically indexed permutation */
 void permute(size_t permutation, const void *src, void *dest, size_t len,

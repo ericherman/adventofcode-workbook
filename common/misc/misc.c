@@ -10,7 +10,6 @@
 
 void swap(void *a, void *b, void *buf, size_t element_size)
 {
-
 	memcpy(buf, b, element_size);	/* save b */
 	memcpy(b, a, element_size);	/* a -> b */
 	memcpy(a, buf, element_size);	/* saved b -> a */
@@ -25,7 +24,7 @@ void swap(void *a, void *b, void *buf, size_t element_size)
 #define Factorial_cache_max 8
 #endif
 #endif
-static const size_t factorial_cache[] = {
+static const size_t zfactorial_cache[] = {
 	/*  0: */ 1UL,
 	/*  1: */ 1UL,
 	/*  2: */ 2UL,
@@ -53,20 +52,29 @@ static const size_t factorial_cache[] = {
 	#endif
 	/* NUL */ 0 /* value would exceed ULONG_MAX or SIZE_MAX */
 };
-size_t factorial(size_t n)
+size_t zfactorial(size_t n)
 {
 	uint64_t i, result;
 
 	if (n <= Factorial_cache_max) {
-		return factorial_cache[n];
+		return zfactorial_cache[n];
 	}
 
 	/* result would exceed UINT64_MAX */
 	if (n > 20) {
 		return 0;
 	}
-
-	result = factorial_cache[Factorial_cache_max];
+	/* e.g.: AVR */
+	if ((SIZE_MAX <= UINT16_MAX) && (n > 8)) {
+		return 0;
+	}
+	/* e.g.: x86 */
+	if ((SIZE_MAX <= UINT32_MAX) && (n > 12)) {
+		return 0;
+	}
+	/* for case where SIZE_MAX > ULONG_MAX, ULONG_MAX < SIZE_MAX */
+	/* e.g.: AMD64, 32bit ULONG, 64bit ULL */
+	result = zfactorial_cache[Factorial_cache_max];
 	for (i = Factorial_cache_max + 1; i <= n; ++i) {
 		result *= i;
 	}
@@ -87,7 +95,7 @@ void permute(size_t permutation, const void *src, void *dest, size_t len,
 	d = (unsigned char *)dest;	/* allow ptr math */
 
 	for (i = 0; i < len - 1; ++i) {
-		n_sub_perms = factorial(len - 1 - i);
+		n_sub_perms = zfactorial(len - 1 - i);
 		next_swap = sub_perm / n_sub_perms;
 		sub_perm = sub_perm % n_sub_perms;
 		if (next_swap != 0) {
