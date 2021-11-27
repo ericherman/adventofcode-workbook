@@ -192,8 +192,8 @@ int main(int argc, char **argv)
 	best_dist = (unsigned)-1;	/* max_distance */
 	worst_dist = 0;
 	for (i = 0; i < combos; ++i) {
-		permute(i, master_name_list->names, tmp_list->names,
-			master_name_list->size, buf, sizeof(char *));
+		permute(i, tmp_list->names, master_name_list->names,
+			master_name_list->size, sizeof(char *), buf);
 		dist = distance(tmp_list, legs);
 		if (dist > worst_dist || dist < best_dist) {
 			printf("%u: ", dist);

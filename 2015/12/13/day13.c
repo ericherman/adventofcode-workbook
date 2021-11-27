@@ -260,8 +260,8 @@ int main(int argc, char **argv)
 	best_happiness = INT_MIN;
 	worst_happiness = INT_MAX;
 	for (i = 0; i < perms; ++i) {
-		permute(i, master_name_list->names, tmp_list->names,
-			master_name_list->size, buf, sizeof(char *));
+		permute(i, tmp_list->names, master_name_list->names,
+			master_name_list->size, sizeof(char *), buf);
 		happiness = calc_happiness(tmp_list, combos, verbose);
 		if (happiness > best_happiness || happiness < worst_happiness) {
 			if (verbose) {

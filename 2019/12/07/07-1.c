@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 	max_out = 0;
 	combos = zfactorial(amps_len);
 	for (i = 0; i < combos; ++i) {
-		permute(i, amps_orig, amps_temp, amps_len, &swap, sizeof(int));
+		permute(i, amps_temp, amps_orig, amps_len, sizeof(int), &swap);
 
 		output = 0;
 		for (j = 0; j < amps_len; ++j) {

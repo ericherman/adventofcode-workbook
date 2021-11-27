@@ -8,11 +8,11 @@
 #include <limits.h>		/* ULONG_MAX */
 #include <string.h>		/* memcpy */
 
-void swap(void *a, void *b, void *buf, size_t element_size)
+void memswap(void *a, void *b, void *tmp, size_t size)
 {
-	memcpy(buf, b, element_size);	/* save b */
-	memcpy(b, a, element_size);	/* a -> b */
-	memcpy(a, buf, element_size);	/* saved b -> a */
+	memcpy(tmp, b, size);	/* save b */
+	memcpy(b, a, size);	/* a -> b */
+	memcpy(a, tmp, size);	/* saved b -> a */
 }
 
 #if ((SIZE_MAX >= UINT64_MAX) && (ULONG_MAX >= UINT64_MAX))
@@ -89,25 +89,25 @@ size_t zfactorial(size_t n)
 #undef Zfactorial_cache_max
 
 /* allows caller to fetch a specifically indexed permutation */
-void permute(size_t permutation, const void *src, void *dest, size_t len,
-	     void *buf, size_t elem_size)
+void permute(size_t permutation_index, void *dest, const void *src,
+	     size_t num_elems, size_t elem_size, void *element_buffer)
 {
 	size_t i, sub_perm, n_sub_perms, next_swap;
 	unsigned char *d;
 	void *a, *b;
 
-	memcpy(dest, src, len * elem_size);
-	sub_perm = permutation;
+	memcpy(dest, src, num_elems * elem_size);
+	sub_perm = permutation_index;
 	d = (unsigned char *)dest;	/* allow ptr math */
 
-	for (i = 0; i < len - 1; ++i) {
-		n_sub_perms = zfactorial(len - 1 - i);
+	for (i = 0; i < num_elems - 1; ++i) {
+		n_sub_perms = zfactorial(num_elems - 1 - i);
 		next_swap = sub_perm / n_sub_perms;
 		sub_perm = sub_perm % n_sub_perms;
 		if (next_swap != 0) {
 			a = d + i * elem_size;
 			b = d + (i + next_swap) * elem_size;
-			swap(a, b, buf, elem_size);
+			memswap(a, b, element_buffer, elem_size);
 		}
 	}
 }
