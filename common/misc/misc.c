@@ -73,12 +73,16 @@ size_t zfactorial(size_t n)
 		return 0;
 	}
 	/* for case where SIZE_MAX > ULONG_MAX, ULONG_MAX < SIZE_MAX */
-	/* e.g.: AMD64, 32bit ULONG, 64bit ULL */
+	/* e.g.: x64 msvc v19.10 (WINE) (AMD64, 32bit ULONG, 64bit ULL) */
 	result = zfactorial_cache[Factorial_cache_max];
 	for (i = Factorial_cache_max + 1; i <= n; ++i) {
 		result *= i;
 	}
-	return (result <= SIZE_MAX) ? result : 0;
+	/* Are there any platforms for which this could be true? */
+	if ((SIZE_MAX < UINT64_MAX) && (result > SIZE_MAX)) {
+		return 0;
+	}
+	return result;
 }
 #undef Factorial_cache_max
 
