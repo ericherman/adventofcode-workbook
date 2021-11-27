@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: LGPL-3.0-or-later */
-/* misc.c: a few handy functions */
-/* Copyright (C) 2018, 2019 Eric Herman <eric@freesa.org> */
+/* permute: functions related to creating permutations of arrays */
+/* Copyright (C) 2015-2021 Eric Herman <eric@freesa.org> */
 
-#include "misc.h"
+#include "permute.h"
 #include <stdint.h>		/* uint64_t */
 #include <stddef.h>		/* size_t */
 #include <limits.h>		/* ULONG_MAX */
@@ -16,12 +16,12 @@ void swap(void *a, void *b, void *buf, size_t element_size)
 }
 
 #if ((SIZE_MAX >= UINT64_MAX) && (ULONG_MAX >= UINT64_MAX))
-#define Factorial_cache_max 20
+#define Zfactorial_cache_max 20
 #else
 #if ((SIZE_MAX >= UINT32_MAX) && (ULONG_MAX >= UINT32_MAX))
-#define Factorial_cache_max 12
+#define Zfactorial_cache_max 12
 #else
-#define Factorial_cache_max 8
+#define Zfactorial_cache_max 8
 #endif
 #endif
 static const size_t zfactorial_cache[] = {
@@ -34,13 +34,13 @@ static const size_t zfactorial_cache[] = {
 	/*  6: */ 720UL,
 	/*  7: */ 5040UL,
 	/*  8: */ 40320UL,
-	#if (Factorial_cache_max > 8)
+#if (Zfactorial_cache_max > 8)
 	/*  9: */ 362880UL,
 	/* 10: */ 3628800UL,
 	/* 11: */ 39916800UL,
 	/* 12: */ 479001600UL,
-	#endif
-	#if (Factorial_cache_max > 12)
+#endif
+#if (Zfactorial_cache_max > 12)
 	/* 13: */ 6227020800UL,
 	/* 14: */ 87178291200UL,
 	/* 15: */ 1307674368000UL,
@@ -49,14 +49,15 @@ static const size_t zfactorial_cache[] = {
 	/* 18: */ 6402373705728000UL,
 	/* 19: */ 121645100408832000UL,
 	/* 20: */ 2432902008176640000UL,
-	#endif
+#endif
 	/* NUL */ 0 /* value would exceed ULONG_MAX or SIZE_MAX */
 };
+
 size_t zfactorial(size_t n)
 {
 	uint64_t i, result;
 
-	if (n <= Factorial_cache_max) {
+	if (n <= Zfactorial_cache_max) {
 		return zfactorial_cache[n];
 	}
 
@@ -74,8 +75,8 @@ size_t zfactorial(size_t n)
 	}
 	/* for case where SIZE_MAX > ULONG_MAX, ULONG_MAX < SIZE_MAX */
 	/* e.g.: x64 msvc v19.10 (WINE) (AMD64, 32bit ULONG, 64bit ULL) */
-	result = zfactorial_cache[Factorial_cache_max];
-	for (i = Factorial_cache_max + 1; i <= n; ++i) {
+	result = zfactorial_cache[Zfactorial_cache_max];
+	for (i = Zfactorial_cache_max + 1; i <= n; ++i) {
 		result *= i;
 	}
 	/* Are there any platforms for which this could be true? */
@@ -84,7 +85,8 @@ size_t zfactorial(size_t n)
 	}
 	return result;
 }
-#undef Factorial_cache_max
+
+#undef Zfactorial_cache_max
 
 /* allows caller to fetch a specifically indexed permutation */
 void permute(size_t permutation, const void *src, void *dest, size_t len,
@@ -109,4 +111,3 @@ void permute(size_t permutation, const void *src, void *dest, size_t len,
 		}
 	}
 }
-

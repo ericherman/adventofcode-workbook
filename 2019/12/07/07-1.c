@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* 07-1.c 2019 AdventOfCode solution */
-/* Copyright (C) 2019 Eric Herman <eric@freesa.org> */
+/* Copyright (C) 2019-2021 Eric Herman <eric@freesa.org> */
 
-#include <misc.h>
+#include <permute.h>
 
 #include "intcode-computer.c"
 

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (C) 2018, 2019 Eric Herman <eric@freesa.org>
+# Copyright (C) 2015-2021 Eric Herman <eric@freesa.org>
 
 # $@ : target label
 # $< : the first prerequisite after the colon
@@ -189,7 +189,7 @@ check-2015-12-08-2: bindir 2015-12-08
 		-Icommon/echeck common/echeck/eembed.c \
 		-Icommon/ehht common/ehht/*.c \
 		-Icommon/ehstr common/ehstr/*.c \
-		-Icommon/misc common/misc/*.c \
+		-Icommon/permute common/permute/*.c \
 		2015/12/09/day9.c
 
 check-2015-12-09-1: bindir 2015-12-09
@@ -252,7 +252,7 @@ check-2015-12-12-2: bindir 2015-12-12-2
 		-Icommon/echeck common/echeck/eembed.c \
 		-Icommon/ehht common/ehht/*.c \
 		-Icommon/ehstr common/ehstr/*.c \
-		-Icommon/misc common/misc/*.c \
+		-Icommon/permute common/permute/*.c \
 		2015/12/13/day13.c
 
 check-2015-12-13-1: bindir 2015-12-13
@@ -542,7 +542,7 @@ check-2019-12-06-2: bindir 2019-12-06-2
 # 2019-12-07
 2019-12-07-1: bindir 2019/12/07/07-1.c $(INTCODE_2019_SRC)
 	gcc $(GNU11) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
-		-Icommon/misc common/misc/*.c \
+		-Icommon/permute common/permute/*.c \
 		-o bin/2019-12-07-1 2019/12/07/07-1.c
 
 check-2019-12-07-1: bindir 2019-12-07-1
@@ -550,7 +550,7 @@ check-2019-12-07-1: bindir 2019-12-07-1
 
 2019-12-07-2: bindir 2019/12/07/07-2.c $(INTCODE_2019_SRC)
 	gcc $(GNU11) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
-		-Icommon/misc common/misc/*.c \
+		-Icommon/permute common/permute/*.c \
 		-o bin/2019-12-07-2 2019/12/07/07-2.c \
 		-pthread
 

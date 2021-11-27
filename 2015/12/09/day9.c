@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* day9.c 2015 AdventOfCode solution
-   Copyright (C) 2015, 2016, 2019 Eric Herman <eric@freesa.org>
+   Copyright (C) 2015-2021 Eric Herman <eric@freesa.org>
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 #include <string.h>		/* strndup */
 #include <assert.h>
 #include <ehht.h>		/* github.com/ericherman/libehht */
-#include <misc.h>
+#include <permute.h>
 
 struct leg_s {
 	char *from;
