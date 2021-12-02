@@ -589,6 +589,19 @@ check-2019-12-09-2: bindir 2019-12-09-2
 	./check-answer.sh '34738' bin/2019-12-09-2 2019/12/09/input
 
 
+# 2021-12-01
+2021-12-01-1: bindir 2021/12/01/01-1.c
+	gcc $(C89) $(CFLAGS) -o bin/2021-12-01-1 2021/12/01/01-1.c
+
+2021-12-01-2: bindir 2021/12/01/01-2.c
+	gcc $(C89) $(CFLAGS) -o bin/2021-12-01-2 2021/12/01/01-2.c
+
+check-2021-12-01-1: bindir 2021-12-01-1
+	./check-answer.sh 1616 bin/2021-12-01-1 2021/12/01/input
+
+check-2021-12-01-2: bindir 2021-12-01-2
+	./check-answer.sh 1645 bin/2021-12-01-2 2021/12/01/input
+
 
 check-2015: \
 	check-2015-12-01-1 check-2015-12-01-2 \
@@ -617,9 +630,13 @@ check-2015: \
 	check-2015-12-24-1 check-2015-12-24-2 \
 	check-2015-12-25 \
 
+	@echo SUCCESS $@
+
 
 check-2016: \
 	check-2016-12-01-1 check-2016-12-01-2 \
+
+	@echo SUCCESS $@
 
 
 check-2019: \
@@ -633,8 +650,20 @@ check-2019: \
 	check-2019-12-08-1 check-2019-12-08-2 \
 	check-2019-12-09-1 check-2019-12-09-2 \
 
+	@echo SUCCESS $@
 
-check: check-2015 check-2016 check-2019
+check-2021: \
+	check-2021-12-01-1 check-2021-12-01-2 \
+
+	@echo SUCCESS $@
+
+
+check:  check-2015 \
+	check-2016 \
+	check-2019 \
+	check-2021 \
+
+	@echo SUCCESS $@
 
 tidy:
 	$(LINDENT) \
