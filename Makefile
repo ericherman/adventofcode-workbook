@@ -9,6 +9,7 @@
 C89=-std=c89 -Wpedantic
 GNU89=-std=gnu89 -Wpedantic
 GNU11=-std=gnu11 -Wpedantic
+C11=-std=c11 -Wpedantic
 #CFLAGS=-ggdb -O0 -Wall -Wextra -Werror -Wno-unused-parameter
 #CFLAGS=-ggdb -pg -O2 -Wall -Wextra -Werror -DNDEBUG -Wno-unused-parameter
 CFLAGS=-ggdb -O2 -Wall -Wextra -Werror -DNDEBUG -Wno-unused-parameter
@@ -592,10 +593,10 @@ check-2019-12-09-2: bindir 2019-12-09-2
 
 # 2021-12-01
 2021-12-01-1: bindir 2021/12/01/01-1.c
-	gcc $(C89) $(CFLAGS) -o bin/2021-12-01-1 2021/12/01/01-1.c
+	gcc $(C11) $(CFLAGS) -o bin/2021-12-01-1 2021/12/01/01-1.c
 
 2021-12-01-2: bindir 2021/12/01/01-2.c
-	gcc $(C89) $(CFLAGS) -o bin/2021-12-01-2 2021/12/01/01-2.c
+	gcc $(C11) $(CFLAGS) -o bin/2021-12-01-2 2021/12/01/01-2.c
 
 check-2021-12-01-1: bindir 2021-12-01-1
 	./check-answer.sh 1616 bin/2021-12-01-1 2021/12/01/input
@@ -606,10 +607,10 @@ check-2021-12-01-2: bindir 2021-12-01-2
 
 # 2021-12-02
 2021-12-02-1: bindir 2021/12/02/02-1.c
-	gcc $(C89) $(CFLAGS) -o bin/2021-12-02-1 2021/12/02/02-1.c
+	gcc $(C11) $(CFLAGS) -o bin/2021-12-02-1 2021/12/02/02-1.c
 
 2021-12-02-2: bindir 2021/12/02/02-2.c
-	gcc $(C89) $(CFLAGS) -o bin/2021-12-02-2 2021/12/02/02-2.c
+	gcc $(C11) $(CFLAGS) -o bin/2021-12-02-2 2021/12/02/02-2.c
 
 check-2021-12-02-1: bindir 2021-12-02-1
 	./check-answer.sh 1648020 bin/2021-12-02-1 2021/12/02/input
@@ -620,13 +621,13 @@ check-2021-12-02-2: bindir 2021-12-02-2
 
 # 2021-12-03
 2021-12-03-1: bindir 2021/12/03/03-1.c
-	gcc $(C89) $(CFLAGS) \
+	gcc $(C11) $(CFLAGS) \
 		-Icommon/echeck common/echeck/eembed.c \
 		-Icommon/deque common/deque/*.c \
 		-o bin/2021-12-03-1 2021/12/03/03-1.c
 
 2021-12-03-2: bindir 2021/12/03/03-2.c
-	gcc $(C89) $(CFLAGS) \
+	gcc $(C11) $(CFLAGS) \
 		-Icommon/echeck common/echeck/eembed.c \
 		-Icommon/deque common/deque/*.c \
 		-o bin/2021-12-03-2 2021/12/03/03-2.c
@@ -694,11 +695,11 @@ check-2021: \
 	@echo SUCCESS $@
 
 
-check:  check-2015 \
-	check-2016 \
-	check-2019 \
+check:  \
 	check-2021 \
-
+	check-2019 \
+	check-2016 \
+	check-2015
 	@echo SUCCESS $@
 
 tidy:
@@ -707,11 +708,12 @@ tidy:
 		-T size_t -T ssize_t \
 		-T int8_t -T int16_t -T int32_t -T int64_t \
 		-T uint8_t -T uint16_t -T uint32_t -T uint64_t \
-		-T eba_s \
-		-T ehht_s -T ehht_key_s -T ehht_keys_s \
+		-T deque -T deque_s \
+		-T eba \
+		-T ehht -T ehht_key -T ehht_keys \
 		-T ehbigint \
 		-T intcode_cpu_s -T intcode_op \
-                `find 2015 2016 2019 -name '*.c'`
+                `find 2015 2016 2019 2021 -name '*.c'`
 
 
 clean:

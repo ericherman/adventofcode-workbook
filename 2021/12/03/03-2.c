@@ -25,7 +25,7 @@ static unsigned bstr_to_unsigned(const char *str)
 	return u;
 }
 
-static unsigned reduce(deque_s * all, int keep_larger)
+static unsigned reduce(deque_s *all, int keep_larger)
 {
 	deque_s *keep, *next;
 	int ones, zeros;
