@@ -59,6 +59,7 @@ check-md5: \
  check-md5-a-z \
  check-md5-A-Za-0-9 \
  check-md5-80-digits
+	echo "SUCCESS $@"
 
 # 2015-12-01
 2015-12-01-1: bindir 2015/12/01/day1part1.c
@@ -662,8 +663,7 @@ check-2015: \
 	check-2015-12-22-1 check-2015-12-22-2 \
 	check-2015-12-23-1 check-2015-12-23-2 \
 	check-2015-12-24-1 check-2015-12-24-2 \
-	check-2015-12-25 \
-
+	check-2015-12-25
 	@echo SUCCESS $@
 
 
