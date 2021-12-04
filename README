@@ -18,6 +18,9 @@ hack on a big integer library[7] since the exercises for days 24 and 25
 would otherwise need "long long" integers on my platform. A notable
 exception to C89 is the occasional use of gnu89's safer "snprintf"
 (rather than C89's "sprintf"), for some of my debugging output.
+For 2021, I elected to go with C11, as even Microsoft is starting to
+get with the program, and all POSIX systems have two good choices for
+C11 support (gcc and clang).
 
 I have found it interesting to look at some solutions that others have
 posted. Often this showed me how inelegant my solutions are, and in a
