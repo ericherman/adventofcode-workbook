@@ -663,6 +663,19 @@ check-2021-12-04-2: bindir 2021-12-04-2
 	./check-answer.sh 31892 bin/2021-12-04-2 2021/12/04/input
 
 
+# 2021-12-05
+2021-12-05: bindir 2021/12/05/05.c
+	gcc $(GNU11) $(CFLAGS) \
+		-Icommon/eherr common/eherr/eherr.c \
+		-o bin/2021-12-05 2021/12/05/05.c
+
+check-2021-12-05-1: bindir 2021-12-05
+	./check-answer.sh 4421 bin/2021-12-05 2021/12/05/input
+
+check-2021-12-05-2: bindir 2021-12-05
+	./check-answer.sh 18674 bin/2021-12-05 2021/12/05/input 1
+
+
 check-2015: \
 	check-2015-12-01-1 check-2015-12-01-2 \
 	check-2015-12-02-1 check-2015-12-02-2 \
@@ -716,6 +729,7 @@ check-2021: \
 	check-2021-12-02-1 check-2021-12-02-2 \
 	check-2021-12-03-1 check-2021-12-03-2 \
 	check-2021-12-04-1 check-2021-12-04-2 \
+	check-2021-12-05-1 check-2021-12-05-2 \
 
 	@echo SUCCESS $@
 
