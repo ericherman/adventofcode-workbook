@@ -17,6 +17,7 @@ static int find_closest(struct ehht_key key, void *each_val, void *context)
 {
 	struct wires_s *closest = (struct wires_s *)context;
 	struct wires_s *val = (struct wires_s *)each_val;
+	(void)key;
 	if (val->black && val->red) {
 		if ((val->black + val->red) < (closest->black + closest->red)) {
 			closest->black = val->black;

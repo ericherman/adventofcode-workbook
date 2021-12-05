@@ -24,6 +24,8 @@ struct bingo_card {
 
 char *bingo_card_to_string(struct bingo_card *card, char *buf, size_t buf_size)
 {
+	(void)buf_size;
+
 	buf[0] = '\0';
 	for (size_t y = 0; y < 5; ++y) {
 		for (size_t x = 0; x < 5; ++x) {
@@ -137,6 +139,8 @@ int card_iterator_func(deque_s *d, void *each, void *context)
 {
 	struct bingo_card *card = each;
 	struct card_iterator_context *ctx = context;
+
+	(void)d;
 
 	if (bingo_card_mark(card, ctx->val)) {
 		ctx->winner = card;

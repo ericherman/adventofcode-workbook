@@ -10,9 +10,9 @@ C89=-std=c89 -Wpedantic
 GNU89=-std=gnu89 -Wpedantic
 GNU11=-std=gnu11 -Wpedantic
 C11=-std=c11 -Wpedantic
-#CFLAGS=-ggdb -O0 -Wall -Wextra -Werror -Wno-unused-parameter
-#CFLAGS=-ggdb -pg -O2 -Wall -Wextra -Werror -DNDEBUG -Wno-unused-parameter
-CFLAGS=-ggdb -O2 -Wall -Wextra -Werror -DNDEBUG -Wno-unused-parameter
+#CFLAGS=-ggdb -O0 -Wall -Wextra -Werror
+#CFLAGS=-ggdb -pg -O2 -Wall -Wextra -Werror -DNDEBUG
+CFLAGS=-ggdb -O2 -Wall -Wextra -Werror -DNDEBUG
 
 # extracted from https://github.com/torvalds/linux/blob/master/scripts/Lindent
 LINDENT=indent -npro -kr -i8 -ts8 -sob -l80 -ss -ncs -cp1 -il0
