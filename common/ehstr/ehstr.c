@@ -96,6 +96,21 @@ void trimstr(char *str, size_t buf_size)
 	}
 }
 
+char *chomp_crlf(char *str, size_t size)
+{
+	size_t i;
+	if (!str) {
+		return NULL;
+	}
+	for (i = 0; i < size && str[i] != '\0'; ++i) {
+		if (str[i] == '\n' || str[i] == '\r') {
+			str[i] = '\0';
+			return str;
+		}
+	}
+	return str;
+}
+
 void revstr(char *str, size_t buf_size)
 {
 	size_t i, j, len;

@@ -32,6 +32,9 @@ void revstr(char *str, size_t buf_size);
 /* trim leading and trailing whitespace from a string in place */
 void trimstr(char *str, size_t len);
 
+/* terminate the string at the first newline */
+char *chomp_crlf(char *str, size_t size);
+
 /* converts an arbitrarily long string of unsigned decimal digits into hex */
 char *decimal_to_hex(const char *dec_str, size_t dec_len, char *buf,
 		     size_t buf_len);
