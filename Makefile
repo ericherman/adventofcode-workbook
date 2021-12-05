@@ -639,6 +639,30 @@ check-2021-12-03-2: bindir 2021-12-03-2
 	./check-answer.sh 7041258 bin/2021-12-03-2 2021/12/03/input
 
 
+# 2021-12-04
+2021-12-04-1: bindir 2021/12/04/04-1.c
+	gcc $(GNU11) $(CFLAGS) \
+		-Icommon/echeck common/echeck/eembed.c \
+		-Icommon/deque common/deque/*.c \
+		-Icommon/eherr common/eherr/eherr.c \
+		-Icommon/ehstr common/ehstr/ehstr.c \
+		-o bin/2021-12-04-1 2021/12/04/04-1.c
+
+2021-12-04-2: bindir 2021/12/04/04-2.c
+	gcc $(GNU11) $(CFLAGS) \
+		-Icommon/echeck common/echeck/eembed.c \
+		-Icommon/deque common/deque/*.c \
+		-Icommon/eherr common/eherr/eherr.c \
+		-Icommon/ehstr common/ehstr/ehstr.c \
+		-o bin/2021-12-04-2 2021/12/04/04-2.c
+
+check-2021-12-04-1: bindir 2021-12-04-1
+	./check-answer.sh 10680 bin/2021-12-04-1 2021/12/04/input
+
+check-2021-12-04-2: bindir 2021-12-04-2
+	./check-answer.sh 31892 bin/2021-12-04-2 2021/12/04/input
+
+
 check-2015: \
 	check-2015-12-01-1 check-2015-12-01-2 \
 	check-2015-12-02-1 check-2015-12-02-2 \
@@ -691,6 +715,7 @@ check-2021: \
 	check-2021-12-01-1 check-2021-12-01-2 \
 	check-2021-12-02-1 check-2021-12-02-2 \
 	check-2021-12-03-1 check-2021-12-03-2 \
+	check-2021-12-04-1 check-2021-12-04-2 \
 
 	@echo SUCCESS $@
 
