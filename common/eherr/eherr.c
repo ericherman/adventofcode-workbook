@@ -49,3 +49,14 @@ void *calloc_or_die(FILE *log, const char *file, int line, const char *func,
 	}
 	return p;
 }
+
+FILE *fopen_or_die(FILE *log, const char *file, int line, const char *func,
+		const char *pathname, const char *mode)
+{
+	FILE *f = fopen(pathname, mode);
+	if (!f) {
+		die(log, file, line, func, "fopen(%s, %s) returned NULL",
+		    pathname, mode);
+	}
+	return f;
+}

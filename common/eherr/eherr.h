@@ -30,4 +30,10 @@ void *calloc_or_die(FILE *log, const char *file, int line, const char *func,
 #define Calloc_or_die(nmemb, size) \
 	calloc_or_die(stderr, __FILE__, __LINE__, __func__, nmemb, size)
 
+FILE *fopen_or_die(FILE *log, const char *file, int line, const char *func,
+		const char *pathname, const char *mode);
+#define Fopen_or_die(pathname, mode) \
+	fopen_or_die(stderr, __FILE__, __LINE__, __func__, pathname, mode)
+
+
 #endif /* EHERR_H */
