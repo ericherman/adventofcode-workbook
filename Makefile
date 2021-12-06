@@ -10,9 +10,9 @@ C89=-std=c89 -Wpedantic
 GNU89=-std=gnu89 -Wpedantic
 GNU11=-std=gnu11 -Wpedantic
 C11=-std=c11 -Wpedantic
-#CFLAGS=-ggdb -O0 -Wall -Wextra -Werror
-#CFLAGS=-ggdb -pg -O2 -Wall -Wextra -Werror -DNDEBUG
-CFLAGS=-ggdb -O2 -Wall -Wextra -Werror -DNDEBUG
+#CFLAGS=-ggdb -O0 -Wall -Wextra -Werror -Icommon
+#CFLAGS=-ggdb -pg -O2 -Wall -Wextra -Werror -DNDEBUG -Icommon
+CFLAGS=-ggdb -O2 -Wall -Wextra -Werror -DNDEBUG -Icommon
 
 # extracted from https://github.com/torvalds/linux/blob/master/scripts/Lindent
 LINDENT=indent -npro -kr -i8 -ts8 -sob -l80 -ss -ncs -cp1 -il0
@@ -675,6 +675,18 @@ check-2021-12-05-1: bindir 2021-12-05
 check-2021-12-05-2: bindir 2021-12-05
 	./check-answer.sh 18674 bin/2021-12-05 2021/12/05/input 1
 
+# 2021-12-06
+2021-12-06: bindir 2021/12/06/06.c
+	gcc $(GNU11) $(CFLAGS) \
+		-Icommon/eherr common/eherr/eherr.c \
+		-o bin/2021-12-06 2021/12/06/06.c
+
+check-2021-12-06-1: bindir 2021-12-06
+	./check-answer.sh 349549 bin/2021-12-06 2021/12/06/input
+
+check-2021-12-06-2: bindir 2021-12-06
+	./check-answer.sh 1589590444365 bin/2021-12-06 2021/12/06/input 256
+
 
 check-2015: \
 	check-2015-12-01-1 check-2015-12-01-2 \
@@ -730,6 +742,7 @@ check-2021: \
 	check-2021-12-03-1 check-2021-12-03-2 \
 	check-2021-12-04-1 check-2021-12-04-2 \
 	check-2021-12-05-1 check-2021-12-05-2 \
+	check-2021-12-06-1 check-2021-12-06-2 \
 
 	@echo SUCCESS $@
 
