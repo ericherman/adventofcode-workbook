@@ -10,9 +10,21 @@ C89=-std=c89 -Wpedantic
 GNU89=-std=gnu89 -Wpedantic
 GNU11=-std=gnu11 -Wpedantic
 C11=-std=c11 -Wpedantic
-#CFLAGS=-ggdb -O0 -Wall -Wextra -Werror -Icommon
-#CFLAGS=-ggdb -pg -O2 -Wall -Wextra -Werror -DNDEBUG -Icommon
-CFLAGS=-ggdb -O2 -Wall -Wextra -Werror -DNDEBUG -Icommon
+
+CFLAGS_I_HEADER_DIRS=-Icommon \
+ -Icommon/deque \
+ -Icommon/eba \
+ -Icommon/echeck \
+ -Icommon/ehbigint \
+ -Icommon/eherr \
+ -Icommon/ehht \
+ -Icommon/ehstr \
+ -Icommon/md5 \
+ -Icommon/permute
+
+#CFLAGS=-ggdb -O0 -Wall -Wextra -Werror $(CFLAGS_I_HEADER_DIRS)
+#CFLAGS=-ggdb -pg -O2 -Wall -Wextra -Werror -DNDEBUG $(CFLAGS_I_HEADER_DIRS)
+CFLAGS=-ggdb -O2 -Wall -Wextra -Werror -DNDEBUG $(CFLAGS_I_HEADER_DIRS)
 
 # extracted from https://github.com/torvalds/linux/blob/master/scripts/Lindent
 LINDENT=indent -npro -kr -i8 -ts8 -sob -l80 -ss -ncs -cp1 -il0
@@ -27,7 +39,6 @@ MD5: bindir common/md5/global.h common/md5/md5.h \
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/MD5 \
 		-DMD=5 \
-		-Icommon/md5 \
 		common/md5/md5.c common/md5/mddriver.c
 
 check-md5-empty: MD5
@@ -94,15 +105,15 @@ check-2015-12-02-2: bindir 2015-12-02-2
 2015-12-03-1: bindir 2015/12/03/day3part1.c
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2015-12-03-1 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/ehht common/ehht/*.c \
+		common/echeck/eembed.c \
+		common/ehht/*.c \
 		2015/12/03/day3part1.c
 
 2015-12-03-2: bindir 2015/12/03/day3part2.c
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2015-12-03-2 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/ehht common/ehht/*.c \
+		common/echeck/eembed.c \
+		common/ehht/*.c \
 		2015/12/03/day3part2.c
 
 check-2015-12-03-1: bindir 2015-12-03-1
@@ -118,8 +129,8 @@ check-2015-12-03-2: bindir 2015-12-03-2
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2015-12-04 \
 		-Icommon/md5 common/md5/md5.c \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/ehstr common/ehstr/ehstr.c \
+		common/echeck/eembed.c \
+		common/ehstr/ehstr.c \
 		2015/12/04/day4.c
 
 check-2015-12-04-1: bindir 2015-12-04 check-md5
@@ -161,9 +172,9 @@ check-2015-12-06-2: bindir 2015-12-06-2
 2015-12-07: bindir 2015/12/07/day7.c
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2015-12-07 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/ehht common/ehht/*.c \
-		-Icommon/ehstr common/ehstr/*.c \
+		common/echeck/eembed.c \
+		common/ehht/*.c \
+		common/ehstr/*.c \
 		2015/12/07/day7.c
 
 check-2015-12-07-1: bindir 2015-12-07
@@ -188,10 +199,10 @@ check-2015-12-08-2: bindir 2015-12-08
 2015-12-09: bindir 2015/12/09/day9.c
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2015-12-09 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/ehht common/ehht/*.c \
-		-Icommon/ehstr common/ehstr/*.c \
-		-Icommon/permute common/permute/*.c \
+		common/echeck/eembed.c \
+		common/ehht/*.c \
+		common/ehstr/*.c \
+		common/permute/*.c \
 		2015/12/09/day9.c
 
 check-2015-12-09-1: bindir 2015-12-09
@@ -229,15 +240,15 @@ check-2015-12-11-2: bindir 2015-12-11
 2015-12-12-1: bindir 2015/12/12/day12part1.c
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2015-12-12-1 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/deque common/deque/*.c \
+		common/echeck/eembed.c \
+		common/deque/*.c \
 		2015/12/12/day12part1.c
 
 2015-12-12-2: bindir 2015/12/12/day12part2.c
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2015-12-12-2 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/deque common/deque/*.c \
+		common/echeck/eembed.c \
+		common/deque/*.c \
 		2015/12/12/day12part2.c
 
 check-2015-12-12-1: bindir 2015-12-12-1
@@ -251,10 +262,10 @@ check-2015-12-12-2: bindir 2015-12-12-2
 2015-12-13: bindir 2015/12/13/day13.c
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2015-12-13 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/ehht common/ehht/*.c \
-		-Icommon/ehstr common/ehstr/*.c \
-		-Icommon/permute common/permute/*.c \
+		common/echeck/eembed.c \
+		common/ehht/*.c \
+		common/ehstr/*.c \
+		common/permute/*.c \
 		2015/12/13/day13.c
 
 check-2015-12-13-1: bindir 2015-12-13
@@ -301,9 +312,9 @@ check-2015-12-16-2: bindir 2015-12-16
 2015-12-17: bindir 2015/12/17/day17.c
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2015-12-17 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/ehht common/ehht/*.c \
-		-Icommon/ehstr common/ehstr/*.c \
+		common/echeck/eembed.c \
+		common/ehht/*.c \
+		common/ehstr/*.c \
 		2015/12/17/day17.c
 
 check-2015-12-17-1: bindir 2015-12-17
@@ -328,9 +339,9 @@ check-2015-12-18-2: bindir 2015-12-18
 2015-12-19: bindir 2015/12/19/day19.c
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2015-12-19 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/ehht common/ehht/*.c \
-		-Icommon/ehstr common/ehstr/*.c \
+		common/echeck/eembed.c \
+		common/ehht/*.c \
+		common/ehstr/*.c \
 		2015/12/19/day19.c
 
 check-2015-12-19-1: bindir 2015-12-19
@@ -388,10 +399,10 @@ check-2015-12-23-2: bindir 2015-12-23
 2015-12-24: bindir 2015/12/24/day24.c
 	gcc $(C89) $(CFLAGS) \
 		-o bin/2015-12-24 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/eba common/eba/*.c \
-		-Icommon/ehbigint common/ehbigint/*.c \
-		-Icommon/ehstr common/ehstr/*.c \
+		common/echeck/eembed.c \
+		common/eba/*.c \
+		common/ehbigint/*.c \
+		common/ehstr/*.c \
 		2015/12/24/day24.c
 
 check-2015-12-24-1: bindir 2015-12-24
@@ -405,10 +416,10 @@ check-2015-12-24-2: bindir 2015-12-24
 2015-12-25: bindir 2015/12/25/day25.c
 	gcc $(C89) $(CFLAGS) \
 		-o bin/2015-12-25 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/eba common/eba/*.c \
-		-Icommon/ehbigint common/ehbigint/*.c \
-		-Icommon/ehstr common/ehstr/*.c \
+		common/echeck/eembed.c \
+		common/eba/*.c \
+		common/ehbigint/*.c \
+		common/ehstr/*.c \
 		2015/12/25/day25.c
 
 check-2015-12-25: bindir 2015-12-25
@@ -420,15 +431,15 @@ check-2015-12-25: bindir 2015-12-25
 2016-12-01-1: bindir 2016/12/01/day1part1.c
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2016-12-01-1 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/ehht common/ehht/*.c \
+		common/echeck/eembed.c \
+		common/ehht/*.c \
 		2016/12/01/day1part1.c
 
 2016-12-01-2: bindir 2016/12/01/day1part2.c
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2016-12-01-2 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/ehht common/ehht/*.c \
+		common/echeck/eembed.c \
+		common/ehht/*.c \
 		2016/12/01/day1part2.c
 
 check-2016-12-01-1: bindir 2016-12-01-1
@@ -474,8 +485,8 @@ check-2019-12-02-2: bindir 2019-12-02-2
 2019-12-03-1: bindir 2019/12/03/03-1.c
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2019-12-03-1 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/ehht common/ehht/*.c \
+		common/echeck/eembed.c \
+		common/ehht/*.c \
 		2019/12/03/03-1.c
 
 check-2019-12-03-1: bindir 2019-12-03-1
@@ -484,8 +495,8 @@ check-2019-12-03-1: bindir 2019-12-03-1
 2019-12-03-2: bindir 2019/12/03/03-2.c
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2019-12-03-2 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/ehht common/ehht/*.c \
+		common/echeck/eembed.c \
+		common/ehht/*.c \
 		2019/12/03/03-2.c
 
 check-2019-12-03-2: bindir 2019-12-03-2
@@ -523,9 +534,9 @@ check-2019-12-05-2: bindir 2019-12-05-2
 2019-12-06-1: bindir 2019/12/06/06-1.c
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2019-12-06-1 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/ehht common/ehht/*.c \
-                -Icommon/deque common/deque/*.c \
+		common/echeck/eembed.c \
+		common/ehht/*.c \
+                common/deque/*.c \
 		2019/12/06/06-1.c
 
 check-2019-12-06-1: bindir 2019-12-06-1
@@ -534,8 +545,8 @@ check-2019-12-06-1: bindir 2019-12-06-1
 2019-12-06-2: bindir 2019/12/06/06-2.c
 	gcc $(GNU89) $(CFLAGS) \
 		-o bin/2019-12-06-2 \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/ehht common/ehht/*.c \
+		common/echeck/eembed.c \
+		common/ehht/*.c \
 		2019/12/06/06-2.c
 
 check-2019-12-06-2: bindir 2019-12-06-2
@@ -544,7 +555,7 @@ check-2019-12-06-2: bindir 2019-12-06-2
 # 2019-12-07
 2019-12-07-1: bindir 2019/12/07/07-1.c $(INTCODE_2019_SRC)
 	gcc $(GNU11) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
-		-Icommon/permute common/permute/*.c \
+		common/permute/*.c \
 		-o bin/2019-12-07-1 2019/12/07/07-1.c
 
 check-2019-12-07-1: bindir 2019-12-07-1
@@ -552,7 +563,7 @@ check-2019-12-07-1: bindir 2019-12-07-1
 
 2019-12-07-2: bindir 2019/12/07/07-2.c $(INTCODE_2019_SRC)
 	gcc $(GNU11) $(CFLAGS) $(CFLAGS_INTCODE_2019) \
-		-Icommon/permute common/permute/*.c \
+		common/permute/*.c \
 		-o bin/2019-12-07-2 2019/12/07/07-2.c \
 		-pthread
 
@@ -593,10 +604,12 @@ check-2019-12-09-2: bindir 2019-12-09-2
 
 # 2021-12-01
 2021-12-01-1: bindir 2021/12/01/01-1.c
-	gcc $(C11) $(CFLAGS) -o bin/2021-12-01-1 2021/12/01/01-1.c
+	gcc $(GNU11) $(CFLAGS) \
+		common/eherr/eherr.c \
+		-o bin/2021-12-01-1 2021/12/01/01-1.c
 
 2021-12-01-2: bindir 2021/12/01/01-2.c
-	gcc $(C11) $(CFLAGS) -o bin/2021-12-01-2 2021/12/01/01-2.c
+	gcc $(GNU11) $(CFLAGS) -o bin/2021-12-01-2 2021/12/01/01-2.c
 
 check-2021-12-01-1: bindir 2021-12-01-1
 	./check-answer.sh 1616 bin/2021-12-01-1 2021/12/01/input
@@ -607,10 +620,10 @@ check-2021-12-01-2: bindir 2021-12-01-2
 
 # 2021-12-02
 2021-12-02-1: bindir 2021/12/02/02-1.c
-	gcc $(C11) $(CFLAGS) -o bin/2021-12-02-1 2021/12/02/02-1.c
+	gcc $(GNU11) $(CFLAGS) -o bin/2021-12-02-1 2021/12/02/02-1.c
 
 2021-12-02-2: bindir 2021/12/02/02-2.c
-	gcc $(C11) $(CFLAGS) -o bin/2021-12-02-2 2021/12/02/02-2.c
+	gcc $(GNU11) $(CFLAGS) -o bin/2021-12-02-2 2021/12/02/02-2.c
 
 check-2021-12-02-1: bindir 2021-12-02-1
 	./check-answer.sh 1648020 bin/2021-12-02-1 2021/12/02/input
@@ -621,15 +634,15 @@ check-2021-12-02-2: bindir 2021-12-02-2
 
 # 2021-12-03
 2021-12-03-1: bindir 2021/12/03/03-1.c
-	gcc $(C11) $(CFLAGS) \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/deque common/deque/*.c \
+	gcc $(GNU11) $(CFLAGS) \
+		common/echeck/eembed.c \
+		common/deque/*.c \
 		-o bin/2021-12-03-1 2021/12/03/03-1.c
 
 2021-12-03-2: bindir 2021/12/03/03-2.c
-	gcc $(C11) $(CFLAGS) \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/deque common/deque/*.c \
+	gcc $(GNU11) $(CFLAGS) \
+		common/echeck/eembed.c \
+		common/deque/*.c \
 		-o bin/2021-12-03-2 2021/12/03/03-2.c
 
 check-2021-12-03-1: bindir 2021-12-03-1
@@ -642,18 +655,18 @@ check-2021-12-03-2: bindir 2021-12-03-2
 # 2021-12-04
 2021-12-04-1: bindir 2021/12/04/04-1.c
 	gcc $(GNU11) $(CFLAGS) \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/deque common/deque/*.c \
-		-Icommon/eherr common/eherr/eherr.c \
-		-Icommon/ehstr common/ehstr/ehstr.c \
+		common/echeck/eembed.c \
+		common/deque/*.c \
+		common/eherr/eherr.c \
+		common/ehstr/ehstr.c \
 		-o bin/2021-12-04-1 2021/12/04/04-1.c
 
 2021-12-04-2: bindir 2021/12/04/04-2.c
 	gcc $(GNU11) $(CFLAGS) \
-		-Icommon/echeck common/echeck/eembed.c \
-		-Icommon/deque common/deque/*.c \
-		-Icommon/eherr common/eherr/eherr.c \
-		-Icommon/ehstr common/ehstr/ehstr.c \
+		common/echeck/eembed.c \
+		common/deque/*.c \
+		common/eherr/eherr.c \
+		common/ehstr/ehstr.c \
 		-o bin/2021-12-04-2 2021/12/04/04-2.c
 
 check-2021-12-04-1: bindir 2021-12-04-1
@@ -666,7 +679,7 @@ check-2021-12-04-2: bindir 2021-12-04-2
 # 2021-12-05
 2021-12-05: bindir 2021/12/05/05.c
 	gcc $(GNU11) $(CFLAGS) \
-		-Icommon/eherr common/eherr/eherr.c \
+		common/eherr/eherr.c \
 		-o bin/2021-12-05 2021/12/05/05.c
 
 check-2021-12-05-1: bindir 2021-12-05
@@ -678,7 +691,7 @@ check-2021-12-05-2: bindir 2021-12-05
 # 2021-12-06
 2021-12-06: bindir 2021/12/06/06.c
 	gcc $(GNU11) $(CFLAGS) \
-		-Icommon/eherr common/eherr/eherr.c \
+		common/eherr/eherr.c \
 		-o bin/2021-12-06 2021/12/06/06.c
 
 check-2021-12-06-1: bindir 2021-12-06

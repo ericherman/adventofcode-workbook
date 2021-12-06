@@ -2,26 +2,18 @@
 /* 01-1.c 2019 AdventOfCode solution
    Copyright (C) 2015, 2016, 2019 Eric Herman <eric@freesa.org>
 */
-#include <stdio.h>
-#include <string.h>		/* strlen */
-#include <limits.h>		/* INT_MAX */
+#include <libc-headers.h>
+#include <eherr.h>
 
 int main(int argc, char **argv)
 {
-	const char *path = "input";
-	FILE *input;
-	int matched, depth, increased, previous;
+	const char *path = (argc > 1) ? argv[1] : "input";
+	FILE *input = Fopen_or_die(path, "r");
 
-	path = (argc > 1) ? argv[1] : "input";
-	input = fopen(path, "r");
-	if (!input) {
-		fprintf(stderr, "could not open %s\n", path);
-		return 1;
-	}
-
-	previous = INT_MAX;
-	depth = 0;
-	increased = 0;
+	int previous = INT_MAX;
+	int depth = 0;
+	int increased = 0;
+	int matched = EOF;
 	while ((matched = fscanf(input, "%d", &depth)) != EOF) {
 		if (matched) {
 			if (previous < depth) {
