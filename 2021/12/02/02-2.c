@@ -1,28 +1,26 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
-/* 02-2.c 2019 AdventOfCode solution
-   Copyright (C) 2015, 2016, 2019, 2021 Eric Herman <eric@freesa.org>
-*/
-#include <stdio.h>
-#include <string.h>
+/* 02-2.c 2021 AdventOfCode solution */
+/* Copyright (C) 2021 Eric Herman <eric@freesa.org> */
+
+#include <libc-headers.h>
+
+#include <eherr.h>
 
 int main(int argc, char **argv)
 {
-	const char *path = "input";
-	FILE *input;
+
+	const char *path = (argc > 1) ? argv[1] : "input";
+
 	char direction[40];
-	int matched, dist, aim, x, z;
-
-	path = (argc > 1) ? argv[1] : "input";
-	input = fopen(path, "r");
-	if (!input) {
-		fprintf(stderr, "could not open %s\n", path);
-		return 1;
-	}
-
 	memset(direction, 0x00, 40);
-	aim = 0;
-	x = 0;
-	z = 0;
+
+	int aim = 0;
+	int x = 0;
+	int z = 0;
+	int matched = 0;
+	int dist = 0;
+
+	FILE *input = Fopen_or_die(path, "r");
 	while ((matched = fscanf(input, "%s %d", direction, &dist)) != EOF) {
 		if (matched == 2) {
 			if (strcmp("forward", direction) == 0) {
@@ -37,7 +35,6 @@ int main(int argc, char **argv)
 			}
 		}
 	}
-
 	fclose(input);
 
 	printf("%d\n", x * z);

@@ -1,12 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
-/* 04-1.c 2021 AdventOfCode solution
-   Copyright (C) 2021 Eric Herman <eric@freesa.org>
-*/
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdint.h>
+/* 04-1.c 2021 AdventOfCode solution */
+/* Copyright (C) 2021 Eric Herman <eric@freesa.org> */
+
+#include <libc-headers.h>
 
 #include <eherr.h>
 #include <ehstr.h>

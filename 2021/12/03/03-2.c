@@ -1,13 +1,11 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
-/* 03-2.c 2021 AdventOfCode solution
-   Copyright (C) 2021 Eric Herman <eric@freesa.org>
-*/
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+/* 03-2.c 2021 AdventOfCode solution */
+/* Copyright (C) 2021 Eric Herman <eric@freesa.org> */
+
+#include <libc-headers.h>
 
 #include <deque.h>
+#include <eherr.h>
 
 static unsigned bstr_to_unsigned(const char *str)
 {
@@ -27,30 +25,24 @@ static unsigned bstr_to_unsigned(const char *str)
 
 static unsigned reduce(deque_s *all, int keep_larger)
 {
-	deque_s *keep, *next;
-	int ones, zeros;
-	size_t i, pos;
-	char *s;
-	unsigned u;
-
-	keep = deque_new();
-	next = deque_new();
+	deque_s *keep = deque_new();
+	deque_s *next = deque_new();
 	if (!keep || !next) {
 		exit(EXIT_FAILURE);
 	}
-	for (i = 0; i < all->size(all); ++i) {
-		s = all->peek_bottom(all, i);
+	for (size_t i = 0; i < all->size(all); ++i) {
+		char *s = all->peek_bottom(all, i);
 		if (s) {
 			keep->push(keep, s);
 		} else {
 			exit(EXIT_FAILURE);
 		}
 	}
-	for (pos = 0; keep->size(keep) > 1; ++pos) {
-		ones = 0;
-		zeros = 0;
-		for (i = 0; i < keep->size(keep); ++i) {
-			s = keep->peek_bottom(keep, i);
+	for (size_t pos = 0; keep->size(keep) > 1; ++pos) {
+		int ones = 0;
+		int zeros = 0;
+		for (size_t i = 0; i < keep->size(keep); ++i) {
+			char *s = keep->peek_bottom(keep, i);
 			if (!s) {
 				s = keep->peek_bottom(keep, i);
 			}
@@ -65,7 +57,7 @@ static unsigned reduce(deque_s *all, int keep_larger)
 			}
 		}
 		while (keep->size(keep)) {
-			s = keep->shift(keep);
+			char *s = keep->shift(keep);
 			if (keep_larger) {
 				if (zeros > ones) {
 					if (s[pos] == '0') {
@@ -94,7 +86,7 @@ static unsigned reduce(deque_s *all, int keep_larger)
 		}
 	}
 	assert(keep->size(keep) == 1);
-	u = bstr_to_unsigned(keep->shift(keep));
+	unsigned u = bstr_to_unsigned(keep->shift(keep));
 	deque_free(keep);
 	deque_free(next);
 	return u;
@@ -102,32 +94,21 @@ static unsigned reduce(deque_s *all, int keep_larger)
 
 int main(int argc, char **argv)
 {
-	const char *path = "input";
-	FILE *input;
+
 	char str[80];
-	char *s;
-	deque_s *all;
-	int matched;
-	unsigned o2, co2;
-
 	memset(str, 0x00, 80);
-	o2 = 0;
-	co2 = 0;
 
-	all = deque_new();
+	deque_s *all = deque_new();
 	if (!all) {
 		exit(EXIT_FAILURE);
 	}
 
-	path = (argc > 1) ? argv[1] : "input";
-	input = fopen(path, "r");
-	if (!input) {
-		fprintf(stderr, "could not open %s\n", path);
-		return 1;
-	}
+	int matched = EOF;
+	const char *path = (argc > 1) ? argv[1] : "input";
+	FILE *input = Fopen_or_die(path, "r");
 	while ((matched = fscanf(input, "%s", str)) != EOF) {
 		if (matched) {
-			s = malloc(strlen(str) + 1);
+			char *s = malloc(strlen(str) + 1);
 			strcpy(s, str);
 			if (!s) {
 				exit(EXIT_FAILURE);
@@ -137,8 +118,8 @@ int main(int argc, char **argv)
 	}
 	fclose(input);
 
-	o2 = reduce(all, 1);
-	co2 = reduce(all, 0);
+	unsigned o2 = reduce(all, 1);
+	unsigned co2 = reduce(all, 0);
 
 	printf("%d\n", o2 * co2);
 

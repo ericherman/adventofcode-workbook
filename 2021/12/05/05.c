@@ -1,11 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
-/* 04-1.c 2021 AdventOfCode solution */
+/* 05.c 2021 AdventOfCode solution */
 /* Copyright (C) 2021 Eric Herman <eric@freesa.org> */
 
-#include <stdint.h>
-
-#include <stdio.h>
-#include <stdlib.h>
+#include <libc-headers.h>
 
 #include <eherr.h>		/* Calloc_or_die */
 

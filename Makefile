@@ -648,7 +648,8 @@ bin/2021-12-01-1: common/eherr/eherr.c \
 	mkdir -pv bin
 	gcc $(GNU11) $(CFLAGS) -o $@ $^
 
-bin/2021-12-01-2: 2021/12/01/01-2.c
+bin/2021-12-01-2: common/eherr/eherr.c \
+		2021/12/01/01-2.c
 	mkdir -pv bin
 	gcc $(GNU11) $(CFLAGS) -o $@ $^
 
@@ -660,11 +661,13 @@ check-2021-12-01-2: bin/2021-12-01-2
 
 
 # 2021-12-02
-bin/2021-12-02-1: 2021/12/02/02-1.c
+bin/2021-12-02-1: common/eherr/eherr.c \
+		2021/12/02/02-1.c
 	mkdir -pv bin
 	gcc $(GNU11) $(CFLAGS) -o $@ $^
 
-bin/2021-12-02-2: 2021/12/02/02-2.c
+bin/2021-12-02-2: common/eherr/eherr.c \
+		2021/12/02/02-2.c
 	mkdir -pv bin
 	gcc $(GNU11) $(CFLAGS) -o $@ $^
 
@@ -676,13 +679,15 @@ check-2021-12-02-2: bin/2021-12-02-2
 
 
 # 2021-12-03
-bin/2021-12-03-1: common/echeck/eembed.c \
+bin/2021-12-03-1: common/eherr/eherr.c \
+		common/echeck/eembed.c \
 		common/deque/deque.c \
 		2021/12/03/03-1.c
 	mkdir -pv bin
 	gcc $(GNU11) $(CFLAGS) -o $@ $^
 
-bin/2021-12-03-2: common/echeck/eembed.c \
+bin/2021-12-03-2: common/eherr/eherr.c \
+		common/echeck/eembed.c \
 		common/deque/deque.c \
 		2021/12/03/03-2.c
 	mkdir -pv bin
