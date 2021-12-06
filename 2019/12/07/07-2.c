@@ -5,9 +5,11 @@
 #include <permute.h>
 #include <pthread.h>
 #include <sched.h>		/* sched_yield */
+#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>		/* sleep */
 
-#include "intcode-computer.c"
+#include <intcode-computer.h>
 
 struct exec_context_s {
 	char id;

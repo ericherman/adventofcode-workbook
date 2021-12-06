@@ -162,8 +162,8 @@ int main(int argc, char **argv)
 	const size_t buf_size = 500;
 	char *buf = Calloc_or_die(buf_size, 1);
 
-	fgets(buf, buf_size, input);
-	chomp_crlf(buf, buf_size);
+	char *s = fgets(buf, buf_size, input);
+	chomp_crlf(s, buf_size);
 
 	size_t numbers_size = 2 + strnlen(buf, buf_size) / 2;
 	uint8_t *numbers = Calloc_or_die(numbers_size, 1);

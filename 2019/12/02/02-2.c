@@ -6,7 +6,7 @@
 #include <stdlib.h>		/* malloc */
 #include <string.h>		/* memcpy */
 
-#include "intcode-computer.c"
+#include <intcode-computer.h>
 
 int main(int argc, char **argv)
 {

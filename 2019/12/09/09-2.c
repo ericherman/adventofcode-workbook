@@ -2,11 +2,12 @@
 /* 09-2.c 2019 AdventOfCode solution */
 /* Copyright (C) 2019 Eric Herman <eric@freesa.org> */
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>		/* malloc */
 #include <string.h>		/* memcpy */
 
-#include "intcode-computer.c"
+#include <intcode-computer.h>
 
 static int64_t get_input(void *input_context)
 {

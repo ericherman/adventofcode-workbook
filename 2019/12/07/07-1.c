@@ -2,9 +2,10 @@
 /* 07-1.c 2019 AdventOfCode solution */
 /* Copyright (C) 2019-2021 Eric Herman <eric@freesa.org> */
 
+#include <libc-headers.h>
 #include <permute.h>
 
-#include "intcode-computer.c"
+#include <intcode-computer.h>
 
 struct two_inputs_context_s {
 	size_t cnt;

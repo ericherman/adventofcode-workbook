@@ -6,7 +6,7 @@
 #include <stdlib.h>		/* malloc */
 #include <string.h>		/* memcpy */
 
-#include "intcode-computer.c"
+#include <intcode-computer.h>
 
 static int64_t get_input(void *input_context)
 {
