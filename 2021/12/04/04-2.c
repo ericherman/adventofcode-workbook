@@ -155,7 +155,7 @@ int main(int argc, char **argv)
 
 	deque_s *cards = deque_new();
 	if (!cards) {
-		Die("deque_new() returned NULL");
+		Die0("deque_new() returned NULL");
 	}
 
 	size_t row = 0;
@@ -190,12 +190,12 @@ int main(int argc, char **argv)
 
 	deque_s *winners = deque_new();
 	if (!winners) {
-		Die("deque_new() returned NULL");
+		Die0("deque_new() returned NULL");
 	}
 
 	deque_s *loosers = deque_new();
 	if (!winners) {
-		Die("deque_new() returned NULL");
+		Die0("deque_new() returned NULL");
 	}
 
 	uint8_t val = UINT8_MAX;

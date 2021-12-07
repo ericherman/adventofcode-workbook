@@ -178,7 +178,7 @@ int main(int argc, char **argv)
 
 	deque_s *cards = deque_new();
 	if (!cards) {
-		Die("deque_new() returned NULL");
+		Die0("deque_new() returned NULL");
 	}
 
 	size_t row = 0;

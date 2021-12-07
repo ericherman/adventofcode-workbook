@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void vlogerror(FILE *log, const char *file, int line, const char *func,
 	       const char *format, va_list ap)
@@ -46,6 +47,22 @@ void *calloc_or_die(FILE *log, const char *file, int line, const char *func,
 	if (!p) {
 		die(log, file, line, func, "calloc(%zu, %zu) returned NULL",
 		    nmemb, size);
+	}
+	return p;
+}
+
+void *recalloc_or_die(FILE *log, const char *file, int line, const char *func,
+		void *orig, size_t orig_nmemb, size_t next_nmemb, size_t size)
+{
+	size_t old_size = (orig_nmemb * size);
+	size_t new_size = (next_nmemb * size);
+	char *p = realloc(orig, new_size);
+	if (!p) {
+		die(log, file, line, func, "realloc(ptr, %zu) returned NULL",
+		    new_size);
+	}
+	if (new_size > old_size) {
+		memset(p + old_size, 0x00, (new_size - old_size));
 	}
 	return p;
 }

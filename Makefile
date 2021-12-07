@@ -646,12 +646,12 @@ check-2019-12-09-2: bin/2019-12-09-2
 bin/2021-12-01-1: common/eherr/eherr.c \
 		2021/12/01/01-1.c
 	mkdir -pv bin
-	gcc $(GNU11) $(CFLAGS) -o $@ $^
+	gcc $(C11) $(CFLAGS) -o $@ $^
 
 bin/2021-12-01-2: common/eherr/eherr.c \
 		2021/12/01/01-2.c
 	mkdir -pv bin
-	gcc $(GNU11) $(CFLAGS) -o $@ $^
+	gcc $(C11) $(CFLAGS) -o $@ $^
 
 check-2021-12-01-1: bin/2021-12-01-1
 	./check-answer.sh 1616 $< 2021/12/01/input
@@ -664,12 +664,12 @@ check-2021-12-01-2: bin/2021-12-01-2
 bin/2021-12-02-1: common/eherr/eherr.c \
 		2021/12/02/02-1.c
 	mkdir -pv bin
-	gcc $(GNU11) $(CFLAGS) -o $@ $^
+	gcc $(C11) $(CFLAGS) -o $@ $^
 
 bin/2021-12-02-2: common/eherr/eherr.c \
 		2021/12/02/02-2.c
 	mkdir -pv bin
-	gcc $(GNU11) $(CFLAGS) -o $@ $^
+	gcc $(C11) $(CFLAGS) -o $@ $^
 
 check-2021-12-02-1: bin/2021-12-02-1
 	./check-answer.sh 1648020 $< 2021/12/02/input
@@ -684,14 +684,14 @@ bin/2021-12-03-1: common/eherr/eherr.c \
 		common/deque/deque.c \
 		2021/12/03/03-1.c
 	mkdir -pv bin
-	gcc $(GNU11) $(CFLAGS) -o $@ $^
+	gcc $(C11) $(CFLAGS) -o $@ $^
 
 bin/2021-12-03-2: common/eherr/eherr.c \
 		common/echeck/eembed.c \
 		common/deque/deque.c \
 		2021/12/03/03-2.c
 	mkdir -pv bin
-	gcc $(GNU11) $(CFLAGS) -o $@ $^
+	gcc $(C11) $(CFLAGS) -o $@ $^
 
 check-2021-12-03-1: bin/2021-12-03-1
 	./check-answer.sh 2967914 $< 2021/12/03/input
@@ -707,6 +707,7 @@ bin/2021-12-04-1: common/echeck/eembed.c \
 		common/ehstr/ehstr.c \
 		2021/12/04/04-1.c
 	mkdir -pv bin
+	# GNU11 strnlen is POSIX, not C11
 	gcc $(GNU11) $(CFLAGS) -o $@ $^
 
 bin/2021-12-04-2: common/echeck/eembed.c \
@@ -728,7 +729,7 @@ check-2021-12-04-2: bin/2021-12-04-2
 bin/2021-12-05: common/eherr/eherr.c \
 		2021/12/05/05.c
 	mkdir -pv bin
-	gcc $(GNU11) $(CFLAGS) -o $@ $^
+	gcc $(C11) $(CFLAGS) -o $@ $^
 
 check-2021-12-05-1: bin/2021-12-05
 	./check-answer.sh 4421 $< 2021/12/05/input
@@ -740,7 +741,7 @@ check-2021-12-05-2: bin/2021-12-05
 bin/2021-12-06: common/eherr/eherr.c \
 		2021/12/06/06.c
 	mkdir -pv bin
-	gcc $(GNU11) $(CFLAGS) -o $@ $^
+	gcc $(C11) $(CFLAGS) -o $@ $^
 
 check-2021-12-06-1: bin/2021-12-06
 	./check-answer.sh 349549  $< 2021/12/06/input
@@ -748,6 +749,17 @@ check-2021-12-06-1: bin/2021-12-06
 check-2021-12-06-2: bin/2021-12-06
 	./check-answer.sh 1589590444365 $< 2021/12/06/input 256
 
+# 2021-12-07
+bin/2021-12-07: common/eherr/eherr.c \
+		2021/12/07/07.c
+	mkdir -pv bin
+	gcc $(C11) $(CFLAGS) -o $@ $^
+
+check-2021-12-07-1: bin/2021-12-07
+	./check-answer.sh 347449 $< 2021/12/07/input
+
+check-2021-12-07-2: bin/2021-12-07
+	./check-answer.sh -1 $< 2021/12/07/input 1
 
 check-2015: \
 	check-2015-12-01-1 check-2015-12-01-2 \
@@ -804,6 +816,7 @@ check-2021: \
 	check-2021-12-04-1 check-2021-12-04-2 \
 	check-2021-12-05-1 check-2021-12-05-2 \
 	check-2021-12-06-1 check-2021-12-06-2 \
+	check-2021-12-07-1 check-2021-12-07-2 \
 
 	@echo SUCCESS $@
 
