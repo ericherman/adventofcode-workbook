@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (C) 2015-2021 Eric Herman <eric@freesa.org>
+# Copyright (C) 2015-2022 Eric Herman <eric@freesa.org>
 
 # $@ : target label
 # $< : the first prerequisite after the colon
@@ -761,6 +761,29 @@ check-2021-12-07-1: bin/2021-12-07
 check-2021-12-07-2: bin/2021-12-07
 	./check-answer.sh -1 $< 2021/12/07/input 1
 
+
+# 2022-12-01
+bin/2022-12-01-1: common/eherr/eherr.c \
+		common/echeck/eembed.c \
+		common/ehstr/ehstr.c \
+		2022/12/01/01-1.c
+	mkdir -pv bin
+	gcc $(C11) $(CFLAGS) -o $@ $^
+
+bin/2022-12-01-2: common/eherr/eherr.c \
+		common/echeck/eembed.c \
+		common/ehstr/ehstr.c \
+		2022/12/01/01-2.c
+	mkdir -pv bin
+	gcc $(C11) $(CFLAGS) -o $@ $^
+
+check-2022-12-01-1: bin/2022-12-01-1
+	./check-answer.sh 69501 $< 2022/12/01/input
+
+check-2022-12-01-2: bin/2022-12-01-2
+	./check-answer.sh 202346 $< 2022/12/01/input
+
+
 check-2015: \
 	check-2015-12-01-1 check-2015-12-01-2 \
 	check-2015-12-02-1 check-2015-12-02-2 \
@@ -816,12 +839,17 @@ check-2021: \
 	check-2021-12-04-1 check-2021-12-04-2 \
 	check-2021-12-05-1 check-2021-12-05-2 \
 	check-2021-12-06-1 check-2021-12-06-2 \
-	check-2021-12-07-1 check-2021-12-07-2 \
+	check-2021-12-07-1 \
 
 	@echo SUCCESS $@
 
+check-2022: \
+	check-2022-12-01-1 check-2022-12-01-2 \
+
+	@echo SUCCESS $@
 
 check:  \
+	check-2022 \
 	check-2021 \
 	check-2019 \
 	check-2016 \
